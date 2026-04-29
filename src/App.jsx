@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Upload, ChevronLeft, ChevronDown, X, Edit3, Trash2, Loader2, Briefcase, Plane, MapPin, BarChart3, Globe, ExternalLink, RotateCw } from 'lucide-react';
+import { Plus, Upload, ChevronLeft, ChevronDown, X, Edit3, Trash2, Loader2, Briefcase, Plane, MapPin, BarChart3, Globe, ExternalLink, RotateCw, Utensils, ShoppingBag, Sparkles, BedDouble } from 'lucide-react';
 
 /* ============================================================
    storage shim — 把 Claude artifact 的 window.storage 改用 localStorage
@@ -64,6 +64,15 @@ const PURPOSE_PRESETS = {
   domesticLeisure: { label: '國內旅遊', sublabel: 'Domestic Leisure',   color: '#6B7A3F', icon: MapPin },
   overseasLeisure: { label: '海外旅遊', sublabel: 'Overseas Leisure',   color: '#C44536', icon: Plane },
 };
+
+const PLACE_TYPES = {
+  sight:    { label: '景點', icon: MapPin,      color: '#5A7FB0' },
+  food:     { label: '餐廳', icon: Utensils,    color: '#C44536' },
+  shopping: { label: '購物', icon: ShoppingBag, color: '#B89243' },
+  other:    { label: '其他', icon: Sparkles,    color: '#6B5B7A' },
+  stay:     { label: '住宿', icon: BedDouble,   color: '#4F6E5B' },
+};
+const PLACE_TYPE_ORDER = ['sight', 'food', 'shopping', 'other', 'stay'];
 
 const TRIP_PALETTE = [
   { name: '朱砂', value: '#C44536' },
@@ -1090,15 +1099,15 @@ export default function App() {
     const id = newId();
     const baseTrip = {
       id,
-      location: data.location, country: '',
+      location: data.location, country: data.country || '',
       startDate: quickAddRange.start, endDate: quickAddRange.end,
       color: data.color, purpose: data.purpose,
       mood: null, summary: '',
       dailyNotes: {},   // legacy 保留
-      dailyPlaces: {},  // 新欄位：每天的地點 chip 清單
+      dailyPlaces: {},  // 每天的地點 chip 清單
       lat: null, lng: null,
     };
-    const coords = await geocodeLocation(data.location, '');
+    const coords = await geocodeLocation(data.location, data.country || '');
     const newTrip = coords ? { ...baseTrip, lat: coords.lat, lng: coords.lng } : baseTrip;
     upsertTrip(newTrip);
     setShowQuickAdd(false);
@@ -1602,19 +1611,26 @@ function TripLegend({ trips, onOpenDetail, onOpenRecap }) {
    ============================================================ */
 
 function QuickAddModal({ range, onClose, onSave, onRangeChange }) {
-  const [location, setLocation] = useState('');
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
   const [purpose, setPurpose] = useState('overseasLeisure');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const countryRef = useRef(null);
 
   const days = daysBetween(range.start, range.end).length;
   const preset = PURPOSE_PRESETS[purpose];
 
   const submit = async (openDetail = false) => {
-    if (!location.trim()) { setError('請輸入地點'); return; }
+    if (!city.trim()) { setError('請輸入城市'); return; }
     if (range.start > range.end) { setError('日期錯誤'); return; }
     setSaving(true);
-    await onSave({ location: location.trim(), purpose, color: preset.color }, openDetail);
+    await onSave({
+      location: city.trim(),
+      country: country.trim(),
+      purpose,
+      color: preset.color,
+    }, openDetail);
     setSaving(false);
   };
 
@@ -1660,9 +1676,9 @@ function QuickAddModal({ range, onClose, onSave, onRangeChange }) {
             color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 11,
             fontWeight: 500, letterSpacing: '0.2em',
           }}>
-            地點 · WHERE
+            城市 · CITY
           </div>
-          <input value={location} onChange={(e) => setLocation(e.target.value)}
+          <input value={city} onChange={(e) => setCity(e.target.value)}
             placeholder="例：東京、首爾、台北"
             autoFocus
             className="w-full bg-transparent outline-none py-1.5"
@@ -1670,9 +1686,31 @@ function QuickAddModal({ range, onClose, onSave, onRangeChange }) {
               fontFamily: SANS_TC, fontSize: 18, fontWeight: 500,
               color: INK, borderBottom: `1.5px solid ${INK_DASH}`,
             }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !saving) {
+                e.preventDefault();
+                countryRef.current?.focus();
+              }
+            }} />
+        </div>
+
+        <div className="px-6 pt-4">
+          <div className="mb-1" style={{
+            color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 11,
+            fontWeight: 500, letterSpacing: '0.2em',
+          }}>
+            國家／區域 · COUNTRY <span style={{ opacity: 0.6 }}>(選填)</span>
+          </div>
+          <input ref={countryRef} value={country} onChange={(e) => setCountry(e.target.value)}
+            placeholder="例：日本、Japan、台灣"
+            className="w-full bg-transparent outline-none py-1.5"
+            style={{
+              fontFamily: SANS_TC, fontSize: 16, fontWeight: 400,
+              color: INK, borderBottom: `1.5px solid ${INK_DASH}`,
+            }}
             onKeyDown={(e) => { if (e.key === 'Enter' && !saving) submit(false); }} />
           <div className="mt-1.5 text-xs" style={{ color: INK_LIGHT, fontFamily: SANS_TC, fontStyle: 'italic' }}>
-            儲存時會自動定位到地圖上
+            儲存時會根據城市 + 國家自動定位到地圖上
           </div>
         </div>
 
@@ -2010,7 +2048,7 @@ function DetailView({ trip, onBack, onEdit, onDelete, onUpdate }) {
           </span>
         </div>
         <div className="mb-5" style={{ fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT, fontStyle: 'italic' }}>
-          每天可加入多個地點。直接輸入地點名稱，或貼上 Google Maps 網址自動匯入。
+          每天可加入景點、餐廳、購物、其他、住宿。直接輸入名稱，或貼上 Google Maps 網址自動匯入。
         </div>
         <div className="space-y-1">
           {days.map((d, i) => (
@@ -2034,6 +2072,7 @@ function DetailView({ trip, onBack, onEdit, onDelete, onUpdate }) {
 
 function DayEntry({ date, dayIndex, totalDays, places, color, location, country, onChange }) {
   const [inputValue, setInputValue] = useState('');
+  const [selectedType, setSelectedType] = useState('sight');
   const wd = ['日', '一', '二', '三', '四', '五', '六'][parseDate(date).getDay()];
 
   const addPlace = () => {
@@ -2047,6 +2086,7 @@ function DayEntry({ date, dayIndex, totalDays, places, color, location, country,
         name: parsedName || '從 Google Maps 匯入',
         url: trimmed,
         source: 'gmaps',
+        type: selectedType,
       };
     } else {
       newPlace = {
@@ -2054,6 +2094,7 @@ function DayEntry({ date, dayIndex, totalDays, places, color, location, country,
         name: trimmed,
         url: mapsUrl(trimmed, country),
         source: 'manual',
+        type: selectedType,
       };
     }
     onChange([...places, newPlace]);
@@ -2063,6 +2104,14 @@ function DayEntry({ date, dayIndex, totalDays, places, color, location, country,
   const removePlace = (id) => {
     onChange(places.filter(p => p.id !== id));
   };
+
+  // 按 type 排序，同 type 保留輸入順序
+  const placesByType = {};
+  PLACE_TYPE_ORDER.forEach(t => { placesByType[t] = []; });
+  places.forEach(p => {
+    const t = p.type && PLACE_TYPES[p.type] ? p.type : 'sight';
+    placesByType[t].push(p);
+  });
 
   return (
     <div className="grid grid-cols-12 gap-4 py-4" style={{ borderBottom: `1px dashed ${INK_DASH}` }}>
@@ -2086,24 +2135,36 @@ function DayEntry({ date, dayIndex, totalDays, places, color, location, country,
       <div className="col-span-12 md:col-span-9 flex gap-3">
         <span className="w-1 rounded-full flex-shrink-0 mt-2" style={{ background: color, opacity: 0.5 }} />
         <div className="flex-1 min-w-0">
-          {/* 地點 chip 列表 */}
-          {places.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {places.map(p => (
-                <PlaceChip key={p.id} place={p} color={color}
-                  onRemove={() => removePlace(p.id)} />
-              ))}
-            </div>
-          )}
+          {/* 類別選擇 */}
+          <div className="flex flex-wrap gap-1 mb-2">
+            {PLACE_TYPE_ORDER.map(typeKey => {
+              const t = PLACE_TYPES[typeKey];
+              const Icon = t.icon;
+              const active = selectedType === typeKey;
+              return (
+                <button key={typeKey}
+                  onClick={() => setSelectedType(typeKey)}
+                  className="flex items-center gap-1 px-2 py-1 rounded-full transition"
+                  style={{
+                    background: active ? t.color : 'transparent',
+                    color: active ? '#FFFFFF' : t.color,
+                    border: `1px solid ${active ? t.color : t.color + '50'}`,
+                    fontFamily: SANS_TC, fontSize: 11, fontWeight: 500,
+                  }}>
+                  <Icon className="w-3 h-3" />
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+
           {/* 輸入框 */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mb-3">
             <input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addPlace(); } }}
-              placeholder={places.length === 0
-                ? '輸入地點，或貼上 Google Maps 網址'
-                : '+ 新增地點 / 貼網址'}
+              placeholder={`輸入${PLACE_TYPES[selectedType].label}名稱，或貼上 Google Maps 網址`}
               className="flex-1 min-w-0 bg-transparent outline-none py-1.5 px-1 border-b"
               style={{
                 borderColor: INK_DASH,
@@ -2114,33 +2175,59 @@ function DayEntry({ date, dayIndex, totalDays, places, color, location, country,
                 onClick={addPlace}
                 className="flex-shrink-0 px-3 py-1.5 rounded-full hover:opacity-85"
                 style={{
-                  background: color, color: '#FFFFFF',
+                  background: PLACE_TYPES[selectedType].color, color: '#FFFFFF',
                   fontFamily: SANS_TC, fontSize: 12, fontWeight: 500,
                 }}>
                 {isGmapsUrl(inputValue.trim()) ? '匯入' : '加入'}
               </button>
             )}
           </div>
+
+          {/* 已加入的地點，按類別分組 */}
+          {PLACE_TYPE_ORDER.map(typeKey => {
+            const list = placesByType[typeKey];
+            if (list.length === 0) return null;
+            const t = PLACE_TYPES[typeKey];
+            const Icon = t.icon;
+            return (
+              <div key={typeKey} className="mb-2">
+                <div className="flex items-center gap-1.5 mb-1"
+                  style={{ color: t.color, fontFamily: SANS_TC, fontSize: 11, fontWeight: 600, letterSpacing: '0.05em' }}>
+                  <Icon className="w-3 h-3" />
+                  {t.label}
+                  <span style={{ opacity: 0.55, fontFamily: NUMERIC, fontWeight: 500 }}>· {list.length}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {list.map(p => (
+                    <PlaceChip key={p.id} place={p} typeKey={typeKey}
+                      onRemove={() => removePlace(p.id)} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
 
-function PlaceChip({ place, color, onRemove }) {
+function PlaceChip({ place, typeKey, onRemove }) {
   const isGmaps = place.source === 'gmaps';
+  const tk = typeKey || place.type || 'sight';
+  const typeInfo = PLACE_TYPES[tk] || PLACE_TYPES.sight;
+  const tint = typeInfo.color;
   return (
     <span className="inline-flex items-center rounded-full overflow-hidden"
-      style={{ background: color + '12', border: `1px solid ${color}30` }}>
+      style={{ background: tint + '12', border: `1px solid ${tint}30` }}>
       <a
         href={place.url}
         target="_blank" rel="noopener noreferrer"
         className="flex items-center gap-1 px-2.5 py-1 hover:opacity-70"
         style={{
-          fontFamily: SANS_TC, fontSize: 13, color: color, fontWeight: 500,
+          fontFamily: SANS_TC, fontSize: 13, color: tint, fontWeight: 500,
           maxWidth: 280,
         }}>
-        <MapPin className="w-3 h-3 flex-shrink-0" />
         <span className="truncate" title={place.name}>
           {place.name}
         </span>
@@ -2151,7 +2238,7 @@ function PlaceChip({ place, color, onRemove }) {
       <button
         onClick={onRemove}
         className="px-1.5 py-1 hover:bg-black/5 transition-colors"
-        style={{ color: color, opacity: 0.7, borderLeft: `1px solid ${color}30` }}
+        style={{ color: tint, opacity: 0.7, borderLeft: `1px solid ${tint}30` }}
         title="移除">
         <X className="w-3 h-3" />
       </button>
