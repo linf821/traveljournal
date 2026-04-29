@@ -45,7 +45,18 @@ if (typeof window !== 'undefined' && !window.storage) {
    常數
    ============================================================ */
 
-const YEAR = 2026;
+const DEFAULT_YEAR = 2026;
+const SUPPORTED_YEARS = [2025, 2026];
+const ZODIAC = { 2025: 'snake', 2026: 'horse' };
+const ZODIAC_TC = { 2025: '蛇', 2026: '馬' };
+
+// 台灣中心點（軌跡動畫起點）
+const TAIWAN_BASE = { lat: 23.7, lng: 121.0 };
+const isDomesticTrip = (trip) => {
+  if (!trip || typeof trip.lat !== 'number') return false;
+  return Math.abs(trip.lat - TAIWAN_BASE.lat) < 2.5
+    && Math.abs(trip.lng - TAIWAN_BASE.lng) < 2.5;
+};
 
 const BG = '#FFFFFF';
 const INK = '#1F1A14';
@@ -594,25 +605,28 @@ function TrailMap({ trips, sortedTrips, trailMode, trailIndex, onOpenDetail }) {
     }
   }
 
-  // 軌跡連線：從 sortedTrips[0] 到 sortedTrips[trailIndex]，跳過相同位置
+  // 軌跡：每段都從台灣出發飛到目的地
+  const taiwanProj = project(TAIWAN_BASE.lat, TAIWAN_BASE.lng);
+  const buildArc = (p1, p2) => {
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const offset = Math.min(dist * 0.18, 60);
+    const midX = (p1.x + p2.x) / 2;
+    const midY = (p1.y + p2.y) / 2 - offset;
+    return `M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`;
+  };
+
   const trailPaths = [];
   if (trailMode !== 'idle' && trailIndex >= 0) {
-    for (let i = 1; i <= trailIndex && i < sortedTrips.length; i++) {
-      const prev = sortedTrips[i - 1];
+    for (let i = 0; i <= trailIndex && i < sortedTrips.length; i++) {
       const cur = sortedTrips[i];
-      if (!prev || !cur) continue;
-      if (Math.abs(prev.lat - cur.lat) < 0.05 && Math.abs(prev.lng - cur.lng) < 0.05) continue;
-      const p1 = project(prev.lat, prev.lng);
+      if (!cur || isDomesticTrip(cur)) continue;
       const p2 = project(cur.lat, cur.lng);
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const offset = Math.min(dist * 0.18, 60);
-      const midX = (p1.x + p2.x) / 2;
-      const midY = (p1.y + p2.y) / 2 - offset;
       trailPaths.push({
         index: i,
-        d: `M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`,
+        color: cur.color,
+        d: buildArc(taiwanProj, p2),
       });
     }
   }
@@ -623,12 +637,22 @@ function TrailMap({ trips, sortedTrips, trailMode, trailIndex, onOpenDetail }) {
   const currentTrip = (trailMode !== 'idle' && trailIndex >= 0 && trailIndex < sortedTrips.length)
     ? sortedTrips[trailIndex] : null;
 
+  // 飛機路徑（只在 playing 中、且非國內旅程時顯示）
+  const flyingPath = (trailMode === 'playing' && currentTrip && !isDomesticTrip(currentTrip))
+    ? buildArc(taiwanProj, project(currentTrip.lat, currentTrip.lng))
+    : null;
+
+  // 飛機動畫秒數，跟 step interval 約略匹配
+  const planeDur = sortedTrips.length <= 5 ? '0.75s'
+    : sortedTrips.length <= 10 ? '0.55s'
+    : '0.4s';
+
   return (
     <div className="relative w-full">
       <svg viewBox="0 0 1000 500" className="w-full" style={{ height: 'auto', maxHeight: 480 }}>
         <ContinentsLayer />
 
-        {/* 軌跡連線（在點之下）*/}
+        {/* 軌跡連線（從台灣出發的弧線）*/}
         {trailPaths.map(tp => (
           <path
             key={`trail-${tp.index}`}
@@ -642,6 +666,20 @@ function TrailMap({ trips, sortedTrips, trailMode, trailIndex, onOpenDetail }) {
             style={{ animation: 'fadeInTrail 0.45s ease-out forwards' }}
           />
         ))}
+
+        {/* 台灣 home base 標記（軌跡播放/完成時顯示）*/}
+        {trailMode !== 'idle' && (
+          <g pointerEvents="none">
+            <circle cx={taiwanProj.x} cy={taiwanProj.y} r="4"
+              fill="#FFFFFF" stroke={INK} strokeWidth="1.5" />
+            <circle cx={taiwanProj.x} cy={taiwanProj.y} r="1.5" fill={INK} />
+            <text x={taiwanProj.x} y={taiwanProj.y - 9}
+              textAnchor="middle" fill={INK}
+              style={{ fontFamily: SANS_TC, fontSize: 10, fontWeight: 700 }}>
+              台灣
+            </text>
+          </g>
+        )}
 
         {/* 點 */}
         {points.map((p, i) => {
@@ -686,6 +724,23 @@ function TrailMap({ trips, sortedTrips, trailMode, trailIndex, onOpenDetail }) {
           );
         })}
 
+        {/* 飛機（從台灣飛到當前目的地）*/}
+        {flyingPath && (
+          <g key={`plane-${trailIndex}`} pointerEvents="none">
+            <g>
+              {/* 紙飛機形狀，朝右 */}
+              <polygon points="11,0 -5,-7 -1,0 -5,7"
+                fill={INK} stroke="#FFFFFF" strokeWidth="0.8" strokeLinejoin="round" />
+              <animateMotion
+                path={flyingPath}
+                dur={planeDur}
+                rotate="auto"
+                fill="freeze"
+              />
+            </g>
+          </g>
+        )}
+
         {/* Hover 標籤 */}
         {hovered !== null && points[hovered] && (() => {
           const p = points[hovered];
@@ -710,7 +765,10 @@ function TrailMap({ trips, sortedTrips, trailMode, trailIndex, onOpenDetail }) {
         {/* 播放中字幕（顯示當前 trip）*/}
         {currentTrip && (() => {
           const { x, y } = project(currentTrip.lat, currentTrip.lng);
-          const labelText = `${currentTrip.location} · ${formatDateLabel(currentTrip.startDate)}`;
+          const domestic = isDomesticTrip(currentTrip);
+          const labelText = domestic
+            ? `${currentTrip.location} · ${formatDateLabel(currentTrip.startDate)}`
+            : `✈ ${currentTrip.location} · ${formatDateLabel(currentTrip.startDate)}`;
           const labelW = Math.max(150, labelText.length * 11);
           const labelX = Math.min(Math.max(x - labelW / 2, 10), 1000 - labelW - 10);
           const labelY = Math.max(y - 38, 8);
@@ -930,6 +988,7 @@ export default function App() {
   const [hoverTrips, setHoverTrips] = useState(null);
   const [hoverPos, setHoverPos] = useState({ x: 0, y: 0 });
   const [mapExpanded, setMapExpanded] = useState(true);
+  const [currentYear, setCurrentYear] = useState(DEFAULT_YEAR);
 
   const dragRef = useRef({ active: false, start: null, end: null, hadTrip: false, tripId: null });
   const [dragVisual, setDragVisual] = useState({ start: null, end: null, active: false });
@@ -1118,7 +1177,7 @@ export default function App() {
   };
 
   const handleNewTripBtn = () => {
-    setQuickAddRange({ start: `${YEAR}-01-01`, end: `${YEAR}-01-01` });
+    setQuickAddRange({ start: `${currentYear}-01-01`, end: `${currentYear}-01-01` });
     setShowQuickAdd(true);
   };
 
@@ -1183,6 +1242,8 @@ export default function App() {
           onUpdateTrip={upsertTrip}
           mapExpanded={mapExpanded}
           setMapExpanded={setMapExpanded}
+          currentYear={currentYear}
+          onYearChange={setCurrentYear}
         />
       )}
 
@@ -1199,6 +1260,7 @@ export default function App() {
       {view === 'recap' && (
         <RecapView
           trips={trips}
+          year={currentYear}
           onBack={() => setView('home')}
           onOpenDetail={(id) => { setSelectedTripId(id); setView('detail'); }}
         />
@@ -1206,6 +1268,7 @@ export default function App() {
 
       {showQuickAdd && (
         <QuickAddModal
+          year={currentYear}
           range={quickAddRange}
           onClose={() => setShowQuickAdd(false)}
           onSave={handleQuickSave}
@@ -1215,6 +1278,7 @@ export default function App() {
 
       {showFullEdit && editingTrip && (
         <FullEditModal
+          year={currentYear}
           trip={editingTrip}
           onClose={() => setShowFullEdit(false)}
           onSave={handleEditSave}
@@ -1250,9 +1314,17 @@ function HomeView({
   hoverTrips, setHoverTrips, hoverPos, setHoverPos,
   cancelHide, scheduleHide,
   mapExpanded, setMapExpanded, onUpdateTrip,
+  currentYear, onYearChange,
 }) {
   const fileInputRef = useRef(null);
   const [hoverIllu, setHoverIllu] = useState(false);
+
+  // 只計入當前年度的旅程到 footer/legend/map 統計
+  const yearStartStr = `${currentYear}-01-01`;
+  const yearEndStr = `${currentYear}-12-31`;
+  const yearTrips = trips.filter(t =>
+    !(t.endDate < yearStartStr || t.startDate > yearEndStr)
+  );
 
   return (
     <div className="relative max-w-5xl mx-auto px-6 md:px-10 pt-10 pb-16">
@@ -1322,7 +1394,7 @@ function HomeView({
           fontFamily: HANDWRITE_EN, fontSize: 'clamp(18px, 2.2vw, 22px)',
           color: INK, letterSpacing: '0.06em', fontStyle: 'italic', fontWeight: 500,
         }}>
-          year of the horse · 2026
+          year of the {ZODIAC[currentYear]} · {currentYear}
         </div>
         <div style={{
           fontFamily: HANDWRITE_EN, fontSize: 'clamp(15px, 1.8vw, 18px)',
@@ -1331,7 +1403,27 @@ function HomeView({
           every decision you're making is right.
         </div>
 
-        <div className="mt-3 flex items-center justify-center gap-2 opacity-65">
+        {/* 年度切換 */}
+        <div className="mt-3 flex items-center justify-center gap-1">
+          {SUPPORTED_YEARS.map(y => {
+            const active = y === currentYear;
+            return (
+              <button key={y} onClick={() => onYearChange(y)}
+                className="px-3.5 py-1 rounded-full transition-all"
+                style={{
+                  background: active ? INK : 'transparent',
+                  color: active ? BG : INK,
+                  border: `1.5px solid ${INK}`,
+                  fontFamily: NUMERIC, fontSize: 13, fontWeight: 600,
+                  letterSpacing: '0.05em',
+                }}>
+                {y} <span style={{ opacity: 0.7, marginLeft: 2 }}>· {ZODIAC_TC[y]}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-2 flex items-center justify-center gap-2 opacity-65">
           <svg width="36" height="10" viewBox="0 0 60 10">
             <path d="M 2 5 Q 12 1 22 5 Q 32 9 42 5 Q 52 1 58 5" fill="none" stroke={INK} strokeWidth="1.5" strokeLinecap="round" />
           </svg>
@@ -1345,7 +1437,7 @@ function HomeView({
       </header>
 
       <WorldMapSection
-        trips={trips}
+        trips={yearTrips}
         expanded={mapExpanded}
         onToggle={() => setMapExpanded(v => !v)}
         onOpenDetail={onOpenDetail}
@@ -1358,7 +1450,7 @@ function HomeView({
             {Array.from({ length: 12 }, (_, m) => (
               <MonthCard
                 key={m}
-                year={YEAR} month={m} trips={trips}
+                year={currentYear} month={m} trips={yearTrips}
                 dragVisual={dragVisual}
                 handleDayMouseDown={handleDayMouseDown}
                 handleDayMouseEnter={handleDayMouseEnter}
@@ -1373,8 +1465,8 @@ function HomeView({
         </div>
       </main>
 
-      {trips.length > 0 && (
-        <TripLegend trips={trips} onOpenDetail={onOpenDetail} onOpenRecap={onOpenRecap} />
+      {yearTrips.length > 0 && (
+        <TripLegend trips={yearTrips} onOpenDetail={onOpenDetail} onOpenRecap={onOpenRecap} />
       )}
 
       <footer className="mt-14 pt-6 text-center" style={{ borderTop: `1px dashed ${INK_DASH}` }}>
@@ -1385,7 +1477,7 @@ function HomeView({
             <path d="M 24 13 L 25 9 L 27 12" stroke={INK} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
           </svg>
           <div style={{ fontFamily: SANS_TC, fontSize: 13, color: INK_LIGHT }}>
-            calendar · {YEAR} · 共 {trips.length} 段旅程，{trips.reduce((s, t) => s + tripLength(t), 0)} 天
+            calendar · {currentYear} · 共 {yearTrips.length} 段旅程，{yearTrips.reduce((s, t) => s + tripLength(t), 0)} 天
           </div>
         </div>
       </footer>
@@ -1610,7 +1702,7 @@ function TripLegend({ trips, onOpenDetail, onOpenRecap }) {
    QuickAdd
    ============================================================ */
 
-function QuickAddModal({ range, onClose, onSave, onRangeChange }) {
+function QuickAddModal({ year, range, onClose, onSave, onRangeChange }) {
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
   const [purpose, setPurpose] = useState('overseasLeisure');
@@ -1656,13 +1748,13 @@ function QuickAddModal({ range, onClose, onSave, onRangeChange }) {
           </div>
           <div className="mt-2 flex items-center gap-2 text-xs" style={{ color: INK_LIGHT }}>
             <input type="date" value={range.start}
-              min={`${YEAR}-01-01`} max={`${YEAR}-12-31`}
+              min={`${year}-01-01`} max={`${year}-12-31`}
               onChange={(e) => onRangeChange({ ...range, start: e.target.value })}
               className="bg-transparent outline-none border-b py-0.5"
               style={{ borderColor: INK_DASH, fontFamily: NUMERIC }} />
             <span>至</span>
             <input type="date" value={range.end}
-              min={`${YEAR}-01-01`} max={`${YEAR}-12-31`}
+              min={`${year}-01-01`} max={`${year}-12-31`}
               onChange={(e) => onRangeChange({ ...range, end: e.target.value })}
               className="bg-transparent outline-none border-b py-0.5"
               style={{ borderColor: INK_DASH, fontFamily: NUMERIC }} />
@@ -1772,7 +1864,7 @@ function QuickAddModal({ range, onClose, onSave, onRangeChange }) {
    FullEdit
    ============================================================ */
 
-function FullEditModal({ trip, onClose, onSave, onDelete }) {
+function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
   const [location, setLocation] = useState(trip.location);
   const [country, setCountry] = useState(trip.country || '');
   const [startDate, setStartDate] = useState(trip.startDate);
@@ -1829,14 +1921,14 @@ function FullEditModal({ trip, onClose, onSave, onDelete }) {
           <div className="grid grid-cols-2 gap-4">
             <Field label="開始日">
               <input type="date" value={startDate}
-                min={`${YEAR}-01-01`} max={`${YEAR}-12-31`}
+                min={`${year}-01-01`} max={`${year}-12-31`}
                 onChange={(e) => setStartDate(e.target.value)}
                 className="w-full bg-transparent outline-none border-b py-1.5"
                 style={{ borderColor: INK_DASH, fontFamily: NUMERIC, fontSize: 13 }} />
             </Field>
             <Field label="結束日">
               <input type="date" value={endDate}
-                min={`${YEAR}-01-01`} max={`${YEAR}-12-31`}
+                min={`${year}-01-01`} max={`${year}-12-31`}
                 onChange={(e) => setEndDate(e.target.value)}
                 className="w-full bg-transparent outline-none border-b py-1.5"
                 style={{ borderColor: INK_DASH, fontFamily: NUMERIC, fontSize: 13 }} />
@@ -2250,27 +2342,28 @@ function PlaceChip({ place, typeKey, onRemove }) {
    Recap
    ============================================================ */
 
-const RECAP_PRESETS = [
-  { id: 'year', label: '全年',     start: `${YEAR}-01-01`, end: `${YEAR}-12-31` },
-  { id: 'h1',   label: '上半年',   start: `${YEAR}-01-01`, end: `${YEAR}-06-30` },
-  { id: 'h2',   label: '下半年',   start: `${YEAR}-07-01`, end: `${YEAR}-12-31` },
-  { id: 'q1',   label: 'Q1',      start: `${YEAR}-01-01`, end: `${YEAR}-03-31` },
-  { id: 'q2',   label: 'Q2',      start: `${YEAR}-04-01`, end: `${YEAR}-06-30` },
-  { id: 'q3',   label: 'Q3',      start: `${YEAR}-07-01`, end: `${YEAR}-09-30` },
-  { id: 'q4',   label: 'Q4',      start: `${YEAR}-10-01`, end: `${YEAR}-12-31` },
+const getRecapPresets = (year) => [
+  { id: 'year', label: '全年',     start: `${year}-01-01`, end: `${year}-12-31` },
+  { id: 'h1',   label: '上半年',   start: `${year}-01-01`, end: `${year}-06-30` },
+  { id: 'h2',   label: '下半年',   start: `${year}-07-01`, end: `${year}-12-31` },
+  { id: 'q1',   label: 'Q1',      start: `${year}-01-01`, end: `${year}-03-31` },
+  { id: 'q2',   label: 'Q2',      start: `${year}-04-01`, end: `${year}-06-30` },
+  { id: 'q3',   label: 'Q3',      start: `${year}-07-01`, end: `${year}-09-30` },
+  { id: 'q4',   label: 'Q4',      start: `${year}-10-01`, end: `${year}-12-31` },
 ];
 
-function RecapView({ trips, onBack, onOpenDetail }) {
+function RecapView({ trips, year, onBack, onOpenDetail }) {
   const [presetId, setPresetId] = useState('year');
-  const [customStart, setCustomStart] = useState(`${YEAR}-01-01`);
-  const [customEnd, setCustomEnd] = useState(`${YEAR}-12-31`);
+  const [customStart, setCustomStart] = useState(`${year}-01-01`);
+  const [customEnd, setCustomEnd] = useState(`${year}-12-31`);
 
   // 軌跡動畫 state
   const [trailMode, setTrailMode] = useState('idle'); // 'idle' | 'playing' | 'done'
   const [trailIndex, setTrailIndex] = useState(-1);
 
+  const presets = getRecapPresets(year);
   const isCustom = presetId === 'custom';
-  const preset = RECAP_PRESETS.find(p => p.id === presetId);
+  const preset = presets.find(p => p.id === presetId);
   const range = isCustom
     ? { start: customStart, end: customEnd }
     : { start: preset.start, end: preset.end };
@@ -2295,9 +2388,9 @@ function RecapView({ trips, onBack, onOpenDetail }) {
       setTrailMode('done');
       return;
     }
-    const interval = sortedTrailTrips.length <= 5 ? 950
-      : sortedTrailTrips.length <= 10 ? 700
-      : 500;
+    const interval = sortedTrailTrips.length <= 5 ? 1100
+      : sortedTrailTrips.length <= 10 ? 850
+      : 650;
     const t = setTimeout(() => setTrailIndex(i => i + 1), interval);
     return () => clearTimeout(t);
   }, [trailMode, trailIndex, sortedTrailTrips.length]);
@@ -2373,7 +2466,7 @@ function RecapView({ trips, onBack, onOpenDetail }) {
           fontFamily: SANS_TC, fontSize: 'clamp(16px, 2vw, 20px)',
           color: INK, letterSpacing: '0.1em', marginTop: 2, fontWeight: 700,
         }}>
-          年度回顧 · {YEAR}
+          年度回顧 · {year}
         </div>
       </header>
 
@@ -2384,7 +2477,7 @@ function RecapView({ trips, onBack, onOpenDetail }) {
           時間範圍 · DATE RANGE
         </div>
         <div className="flex flex-wrap justify-center gap-2 mb-3">
-          {RECAP_PRESETS.map(p => (
+          {presets.map(p => (
             <button key={p.id} onClick={() => setPresetId(p.id)}
               className="px-4 py-1.5 rounded-full transition-all"
               style={{
@@ -2410,13 +2503,13 @@ function RecapView({ trips, onBack, onOpenDetail }) {
         {isCustom ? (
           <div className="flex items-center justify-center gap-2 text-sm" style={{ color: INK_LIGHT }}>
             <input type="date" value={customStart}
-              min={`${YEAR}-01-01`} max={`${YEAR}-12-31`}
+              min={`${year}-01-01`} max={`${year}-12-31`}
               onChange={(e) => setCustomStart(e.target.value)}
               className="bg-transparent outline-none border-b py-0.5 px-1"
               style={{ borderColor: INK_DASH, fontFamily: NUMERIC, color: INK }} />
             <span>—</span>
             <input type="date" value={customEnd}
-              min={`${YEAR}-01-01`} max={`${YEAR}-12-31`}
+              min={`${year}-01-01`} max={`${year}-12-31`}
               onChange={(e) => setCustomEnd(e.target.value)}
               className="bg-transparent outline-none border-b py-0.5 px-1"
               style={{ borderColor: INK_DASH, fontFamily: NUMERIC, color: INK }} />
