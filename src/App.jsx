@@ -2,41 +2,47 @@ import { useState, useEffect, useRef } from 'react';
 import { Plus, Upload, ChevronLeft, ChevronDown, X, Edit3, Trash2, Loader2, Briefcase, Plane, MapPin, BarChart3, Globe, ExternalLink, RotateCw, Utensils, ShoppingBag, Sparkles, BedDouble } from 'lucide-react';
 
 /* ============================================================
-   storage shim — 把 Claude artifact 的 window.storage 改用 localStorage
+   storage shim — Supabase 雲端儲存
    ============================================================ */
 if (typeof window !== 'undefined' && !window.storage) {
+  const SUPABASE_URL = 'https://jknnwvqphvrvyiudzwkf.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imprbm53dnFwaHZydnlpdWR6d2tmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDM0NDUsImV4cCI6MjA5NjgxOTQ0NX0.870HbTuQHXdKMo6euSGWfghXq1CSSIByn1Sv19dqB68';
+  const BASE = `${SUPABASE_URL}/rest/v1/trips`;
   const STORAGE_PREFIX = 'tj2026:';
+  const H = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+  };
+
   window.storage = {
-    get: (key) => {
-      try {
-        const value = localStorage.getItem(STORAGE_PREFIX + key);
-        return Promise.resolve(value === null ? null : { value });
-      } catch (e) { return Promise.reject(e); }
+    get: async (key) => {
+      const id = STORAGE_PREFIX + key;
+      const res = await fetch(`${BASE}?id=eq.${encodeURIComponent(id)}&select=data`, { headers: H });
+      const rows = await res.json();
+      if (!rows.length) return null;
+      return rows[0].data;
     },
-    set: (key, value) => {
-      try {
-        localStorage.setItem(STORAGE_PREFIX + key, value);
-        return Promise.resolve({ value });
-      } catch (e) { return Promise.reject(e); }
+    set: async (key, value) => {
+      const id = STORAGE_PREFIX + key;
+      await fetch(BASE, {
+        method: 'POST',
+        headers: { ...H, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({ id, data: { value } }),
+      });
+      return { value };
     },
-    delete: (key) => {
-      try {
-        localStorage.removeItem(STORAGE_PREFIX + key);
-        return Promise.resolve({ key, deleted: true });
-      } catch (e) { return Promise.reject(e); }
+    delete: async (key) => {
+      const id = STORAGE_PREFIX + key;
+      await fetch(`${BASE}?id=eq.${encodeURIComponent(id)}`, { method: 'DELETE', headers: H });
+      return { key, deleted: true };
     },
-    list: (prefix) => {
-      try {
-        const keys = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          if (k && k.startsWith(STORAGE_PREFIX)) {
-            const realKey = k.slice(STORAGE_PREFIX.length);
-            if (!prefix || realKey.startsWith(prefix)) keys.push(realKey);
-          }
-        }
-        return Promise.resolve({ keys, prefix });
-      } catch (e) { return Promise.reject(e); }
+    list: async (prefix) => {
+      const fullPrefix = STORAGE_PREFIX + (prefix || '');
+      const res = await fetch(`${BASE}?id=like.${encodeURIComponent(fullPrefix + '*')}&select=id`, { headers: H });
+      const rows = await res.json();
+      const keys = rows.map(r => r.id.slice(STORAGE_PREFIX.length));
+      return { keys, prefix };
     },
   };
 }
