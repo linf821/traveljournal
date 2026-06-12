@@ -533,10 +533,19 @@ function WorldMap({ trips, onOpenDetail }) {
     return { ...p, color: sorted[0].color, size: Math.min(8, 4 + Math.floor(p.trips.length * 0.8)) };
   });
   const [hovered, setHovered] = useState(null);
+  const [worldView, setWorldView] = useState(false);
+  const viewBox = worldView ? '0 0 1000 500' : '620 85 360 245';
 
   return (
     <div className="relative w-full">
-      <svg viewBox="0 0 1000 500" className="w-full" style={{ height: 'auto', maxHeight: 480 }}>
+      <div className="flex justify-end mb-1">
+        <button onClick={() => setWorldView(v => !v)}
+          className="px-2.5 py-1 rounded-full transition-all hover:opacity-70"
+          style={{ border: `1px solid ${INK_DASH}`, fontFamily: SANS_TC, color: INK_LIGHT, fontSize: 11 }}>
+          {worldView ? '🗾 聚焦台灣' : '🌍 全球視野'}
+        </button>
+      </div>
+      <svg viewBox={viewBox} className="w-full" style={{ height: 'auto', maxHeight: 480 }}>
         <ContinentsLayer />
         {points.map((p, i) => {
           const { x, y } = project(p.lat, p.lng);
@@ -1314,7 +1323,6 @@ export default function App() {
    ============================================================ */
 
 function HomeView({
-  coverImage, imageUploading, onCoverChange, onClearCover,
   trips, onNewTripBtn, onOpenRecap, onOpenDetail,
   handleDayMouseDown, handleDayMouseEnter, dragVisual,
   hoverTrips, setHoverTrips, hoverPos, setHoverPos,
@@ -1322,8 +1330,6 @@ function HomeView({
   mapExpanded, setMapExpanded, onUpdateTrip,
   currentYear, onYearChange,
 }) {
-  const fileInputRef = useRef(null);
-  const [hoverIllu, setHoverIllu] = useState(false);
 
   // 只計入當前年度的旅程到 footer/legend/map 統計
   const yearStartStr = `${currentYear}-01-01`;
@@ -1355,62 +1361,25 @@ function HomeView({
 
       <header className="relative text-center pt-2 pb-2">
         <div className="flex justify-center mt-2 mb-3 relative" style={{ zIndex: 1 }}>
-          <div
-            onMouseEnter={() => setHoverIllu(true)}
-            onMouseLeave={() => setHoverIllu(false)}
-            className="relative cursor-pointer"
-            style={{ width: 'min(420px, 75vw)', height: 'min(240px, 45vw)' }}
-            onClick={() => fileInputRef.current?.click()}>
-            {coverImage ? (
-              <img src={coverImage} alt="封面插圖"
-                className="w-full h-full object-contain"
-                style={{ filter: hoverIllu ? 'brightness(0.93)' : 'none', transition: 'filter 0.2s' }} />
-            ) : (
-              <HorseIllustration />
-            )}
-            {hoverIllu && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="px-3.5 py-1.5 rounded-full backdrop-blur-sm flex items-center gap-1.5"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.92)',
-                    border: `1.5px solid ${INK}`,
-                    fontFamily: SANS_TC, fontSize: 14, color: INK, fontWeight: 500,
-                  }}>
-                  {imageUploading
-                    ? <><Loader2 className="w-4 h-4 animate-spin" /> 處理中…</>
-                    : <><Upload className="w-4 h-4" /> {coverImage ? '更換插圖' : '替換成自己的插圖'}</>}
-                </div>
-              </div>
-            )}
+          <div style={{ width: 'min(260px, 50vw)', height: 'min(148px, 28vw)' }}>
+            <HorseIllustration />
           </div>
-          <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
-            onChange={(e) => onCoverChange(e.target.files[0])} />
         </div>
 
-        {coverImage && (
-          <div className="text-center" style={{ marginTop: -2, marginBottom: 4 }}>
-            <button onClick={onClearCover} className="text-xs hover:underline"
-              style={{ color: INK_LIGHT, fontFamily: SANS_TC }}>
-              移除插圖，回到預設
-            </button>
-          </div>
-        )}
-
         <div style={{
-          fontFamily: HANDWRITE_EN, fontSize: 'clamp(18px, 2.2vw, 22px)',
+          fontFamily: HANDWRITE_EN, fontSize: 'clamp(15px, 1.8vw, 18px)',
           color: INK, letterSpacing: '0.06em', fontStyle: 'italic', fontWeight: 500,
         }}>
           year of the {ZODIAC[currentYear]} · {currentYear}
         </div>
         <div style={{
-          fontFamily: HANDWRITE_EN, fontSize: 'clamp(15px, 1.8vw, 18px)',
+          fontFamily: HANDWRITE_EN, fontSize: 'clamp(12px, 1.4vw, 14px)',
           color: INK_LIGHT, fontStyle: 'italic', marginTop: 2,
         }}>
           every decision you're making is right.
         </div>
 
-        {/* 年度切換 */}
-        <div className="mt-3 flex items-center justify-center gap-1">
+        <div className="flex items-center justify-center gap-1 mt-2 mb-1">
           {SUPPORTED_YEARS.map(y => {
             const active = y === currentYear;
             return (
@@ -1877,6 +1846,7 @@ function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
   const [endDate, setEndDate] = useState(trip.endDate);
   const [color, setColor] = useState(trip.color);
   const [purpose, setPurpose] = useState(trip.purpose || 'overseasLeisure');
+  const [companion, setCompanion] = useState(trip.companion || 'solo');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -1887,7 +1857,7 @@ function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
     await onSave({
       ...trip,
       location: location.trim(), country: country.trim(),
-      startDate, endDate, color, purpose,
+      startDate, endDate, color, purpose, companion,
     });
     setSaving(false);
   };
@@ -1953,6 +1923,28 @@ function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
                     fontFamily: SANS_TC, fontSize: 13, fontWeight: 500,
                   }}>
                   {p.label}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          <Field label="同行者">
+            <div className="flex gap-2">
+              {[
+                { key: 'solo', label: '獨旅', emoji: '🎒' },
+                { key: 'friends', label: '朋友', emoji: '👫' },
+                { key: 'family', label: '家人', emoji: '👨‍👩‍👧' },
+              ].map(opt => (
+                <button key={opt.key} onClick={() => setCompanion(opt.key)}
+                  className="flex-1 py-2 rounded transition-all flex flex-col items-center gap-0.5"
+                  style={{
+                    background: companion === opt.key ? INK : 'transparent',
+                    color: companion === opt.key ? BG : INK,
+                    border: companion === opt.key ? `1.5px solid ${INK}` : `1.5px solid ${INK_DASH}`,
+                    fontFamily: SANS_TC, fontSize: 13, fontWeight: 500,
+                  }}>
+                  <span>{opt.emoji}</span>
+                  <span>{opt.label}</span>
                 </button>
               ))}
             </div>
@@ -2059,7 +2051,7 @@ function DetailView({ trip, onBack, onEdit, onDelete, onUpdate }) {
         </div>
       </div>
 
-      <header className="max-w-4xl mx-auto px-6 md:px-10 pt-8 pb-8 text-center">
+      <header className="max-w-4xl mx-auto px-6 md:px-10 pt-3 pb-3 text-center">
         {purposeInfo && (
           <div className="inline-block mb-3 px-3 py-0.5 rounded-full"
             style={{
@@ -2074,7 +2066,7 @@ function DetailView({ trip, onBack, onEdit, onDelete, onUpdate }) {
         </div>
         <h1 style={{
           fontFamily: SANS_TC,
-          fontSize: 'clamp(40px, 6.5vw, 64px)',
+          fontSize: 'clamp(22px, 3.5vw, 36px)',
           color: INK, letterSpacing: '0.06em', lineHeight: 1.1, fontWeight: 900,
         }}>
           {trip.location}
@@ -2098,6 +2090,16 @@ function DetailView({ trip, onBack, onEdit, onDelete, onUpdate }) {
             <ExternalLink className="w-3 h-3" style={{ opacity: 0.6 }} />
           </a>
         </div>
+
+        {trip.companion && (
+          <div className="mt-3 flex justify-center">
+            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full"
+              style={{ border: `1px solid ${INK_DASH}`, fontFamily: SANS_TC, fontSize: 13, color: INK }}>
+              <span>{trip.companion === 'solo' ? '🎒' : trip.companion === 'friends' ? '👫' : '👨‍👩‍👧'}</span>
+              <span>{trip.companion === 'solo' ? '獨旅' : trip.companion === 'friends' ? '與朋友' : '與家人'}</span>
+            </div>
+          </div>
+        )}
 
         <div className="mt-7">
           <div style={{
@@ -2171,6 +2173,7 @@ function DetailView({ trip, onBack, onEdit, onDelete, onUpdate }) {
 function DayEntry({ date, dayIndex, totalDays, places, color, location, country, onChange }) {
   const [inputValue, setInputValue] = useState('');
   const [selectedType, setSelectedType] = useState('sight');
+  const [collapsed, setCollapsed] = useState(true);
   const wd = ['日', '一', '二', '三', '四', '五', '六'][parseDate(date).getDay()];
 
   const addPlace = () => {
@@ -2212,7 +2215,28 @@ function DayEntry({ date, dayIndex, totalDays, places, color, location, country,
   });
 
   return (
-    <div className="grid grid-cols-12 gap-4 py-4" style={{ borderBottom: `1px dashed ${INK_DASH}` }}>
+    <div style={{ borderBottom: `1px dashed ${INK_DASH}` }}>
+      <div className="flex items-center justify-between py-3 cursor-pointer hover:opacity-70 transition-opacity"
+        onClick={() => setCollapsed(c => !c)}>
+        <div className="flex items-center gap-3">
+          <ChevronDown className="w-4 h-4 flex-shrink-0 transition-transform"
+            style={{ color: INK_LIGHT, transform: collapsed ? 'rotate(-90deg)' : 'none' }} />
+          <div>
+            <span style={{ fontFamily: HANDWRITE_EN, fontSize: 13, color: INK_LIGHT }}>Day {dayIndex}</span>
+            <span style={{ fontFamily: SANS_TC, fontSize: 15, fontWeight: 700, color: INK, marginLeft: 8 }}>
+              {formatDateLabel(date)}
+            </span>
+            <span style={{ fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT, marginLeft: 6 }}>週{wd}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {places.length > 0 && (
+            <span style={{ fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT }}>{places.length} 個地點</span>
+          )}
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'inline-block', opacity: 0.7 }} />
+        </div>
+      </div>
+      {!collapsed && <div className="grid grid-cols-12 gap-4 pb-4">
       <div className="col-span-12 md:col-span-3">
         <div style={{ fontFamily: HANDWRITE_EN, fontSize: 14, color: INK_LIGHT, fontWeight: 500 }}>
           Day {dayIndex} / {totalDays}
@@ -2306,6 +2330,7 @@ function DayEntry({ date, dayIndex, totalDays, places, color, location, country,
           })}
         </div>
       </div>
+    </div>}
     </div>
   );
 }
