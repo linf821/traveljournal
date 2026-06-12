@@ -2048,6 +2048,17 @@ function DetailView({ trip, onBack, onEdit, onDelete, onUpdate }) {
   const days = daysBetween(trip.startDate, trip.endDate);
   const dailyPlaces = trip.dailyPlaces || {};
   const purposeInfo = trip.purpose ? PURPOSE_PRESETS[trip.purpose] : null;
+  const COMPANION_MAP = {
+    solo: { emoji: '🎒', label: '獨旅' },
+    couple: { emoji: '💑', label: '情侶' },
+    friends: { emoji: '👫', label: '與朋友' },
+    family: { emoji: '👨‍👩‍👧', label: '與家人' },
+  };
+  const companionInfo = trip.companion
+    ? (trip.companion.startsWith('other:')
+        ? { emoji: '✏️', label: trip.companion.slice(6) || '其他' }
+        : COMPANION_MAP[trip.companion] || null)
+    : null;
   const currentMood = trip.mood || null;
 
   const setMood = (emoji) => {
