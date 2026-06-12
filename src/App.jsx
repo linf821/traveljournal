@@ -2167,7 +2167,6 @@ function DetailView({ trip, onBack, onEdit, onDelete, onUpdate }) {
           </div>
         </div>
       </div>
-      </div>
 
       <section className="max-w-4xl mx-auto px-6 md:px-10 pb-24">
         <div className="mb-2 flex items-baseline gap-2">
