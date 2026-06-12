@@ -991,6 +991,7 @@ function WorldMapSection({ trips, expanded, onToggle, onOpenDetail, onUpdateTrip
 
 export default function App() {
   const [view, setView] = useState('home');
+  const [prevView, setPrevView] = useState('home');
   const [selectedTripId, setSelectedTripId] = useState(null);
   const [coverImage, setCoverImage] = useState('');
   const [trips, setTrips] = useState([]);
@@ -1253,7 +1254,7 @@ export default function App() {
           setHoverPos={setHoverPos}
           cancelHide={cancelHide}
           scheduleHide={scheduleHide}
-          onOpenDetail={(id) => { setSelectedTripId(id); setView('detail'); }}
+          onOpenDetail={(id) => { setPrevView(view); setSelectedTripId(id); setView('detail'); }}
           onUpdateTrip={upsertTrip}
           mapExpanded={mapExpanded}
           setMapExpanded={setMapExpanded}
@@ -1265,7 +1266,7 @@ export default function App() {
       {view === 'detail' && selectedTrip && (
         <DetailView
           trip={selectedTrip}
-          onBack={() => { setView('home'); setSelectedTripId(null); }}
+          onBack={() => { setView(prevView || 'home'); if ((prevView || 'home') !== 'detail') setSelectedTripId(null); }}
           onEdit={() => handleEditFull(selectedTrip)}
           onDelete={() => { if (confirm('確定要刪除這段旅程嗎？')) deleteTrip(selectedTrip.id); }}
           onUpdate={upsertTrip}
@@ -1277,7 +1278,7 @@ export default function App() {
           trips={trips}
           year={currentYear}
           onBack={() => setView('home')}
-          onOpenDetail={(id) => { setSelectedTripId(id); setView('detail'); }}
+          onOpenDetail={(id) => { setPrevView(view); setSelectedTripId(id); setView('detail'); }}
         />
       )}
 
@@ -1359,65 +1360,80 @@ function HomeView({
         </button>
       )}
 
-      <header className="relative text-center pt-2 pb-2">
-        <div className="flex justify-center mt-2 mb-3 relative" style={{ zIndex: 1 }}>
-          <div style={{ width: 'min(260px, 50vw)', height: 'min(148px, 28vw)' }}>
+      <header className="flex items-center justify-between py-3 mb-1">
+        <div className="flex items-center gap-3">
+          <div style={{ width: 40, height: 40, flexShrink: 0 }}>
             <HorseIllustration />
           </div>
+          <div>
+            <div style={{
+              fontFamily: HANDWRITE_EN, fontSize: 'clamp(13px, 1.4vw, 15px)',
+              color: INK, letterSpacing: '0.05em', fontStyle: 'italic', fontWeight: 500, lineHeight: 1.3,
+            }}>
+              year of the {ZODIAC[currentYear]} · {currentYear}
+            </div>
+            <div style={{
+              fontFamily: HANDWRITE_EN, fontSize: 'clamp(10px, 1.1vw, 12px)',
+              color: INK_LIGHT, fontStyle: 'italic',
+            }}>
+              every decision you're making is right.
+            </div>
+          </div>
         </div>
-
-        <div style={{
-          fontFamily: HANDWRITE_EN, fontSize: 'clamp(15px, 1.8vw, 18px)',
-          color: INK, letterSpacing: '0.06em', fontStyle: 'italic', fontWeight: 500,
-        }}>
-          year of the {ZODIAC[currentYear]} · {currentYear}
-        </div>
-        <div style={{
-          fontFamily: HANDWRITE_EN, fontSize: 'clamp(12px, 1.4vw, 14px)',
-          color: INK_LIGHT, fontStyle: 'italic', marginTop: 2,
-        }}>
-          every decision you're making is right.
-        </div>
-
-        <div className="flex items-center justify-center gap-1 mt-2 mb-1">
+        <div className="flex items-center gap-1.5">
           {SUPPORTED_YEARS.map(y => {
             const active = y === currentYear;
             return (
               <button key={y} onClick={() => onYearChange(y)}
-                className="px-3.5 py-1 rounded-full transition-all"
+                className="px-3 py-1 rounded-full transition-all"
                 style={{
                   background: active ? INK : 'transparent',
                   color: active ? BG : INK,
                   border: `1.5px solid ${INK}`,
-                  fontFamily: NUMERIC, fontSize: 13, fontWeight: 600,
-                  letterSpacing: '0.05em',
+                  fontFamily: NUMERIC, fontSize: 12, fontWeight: 600,
                 }}>
-                {y} <span style={{ opacity: 0.7, marginLeft: 2 }}>· {ZODIAC_TC[y]}</span>
+                {y}
               </button>
             );
           })}
-        </div>
-
-        <div className="mt-2 flex items-center justify-center gap-2 opacity-65">
-          <svg width="36" height="10" viewBox="0 0 60 10">
-            <path d="M 2 5 Q 12 1 22 5 Q 32 9 42 5 Q 52 1 58 5" fill="none" stroke={INK} strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          <span style={{ fontFamily: SANS_TC, fontSize: 12, color: INK }}>
-            點擊或拖曳日期建立旅程
-          </span>
-          <svg width="36" height="10" viewBox="0 0 60 10">
-            <path d="M 2 5 Q 12 9 22 5 Q 32 1 42 5 Q 52 9 58 5" fill="none" stroke={INK} strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
+          <button
+            onClick={() => setMapExpanded(v => !v)}
+            className="px-3 py-1 rounded-full transition-all"
+            title={mapExpanded ? '收起地圖' : '展開地圖'}
+            style={{
+              background: mapExpanded ? INK : 'transparent',
+              color: mapExpanded ? BG : INK_LIGHT,
+              border: `1.5px solid ${mapExpanded ? INK : INK_DASH}`,
+              fontSize: 14,
+            }}>
+            🌍
+          </button>
         </div>
       </header>
 
-      <WorldMapSection
-        trips={yearTrips}
-        expanded={mapExpanded}
-        onToggle={() => setMapExpanded(v => !v)}
-        onOpenDetail={onOpenDetail}
-        onUpdateTrip={onUpdateTrip}
-      />
+      {mapExpanded && (
+        <div className="mb-3 rounded-xl overflow-hidden" style={{ border: `1.5px solid ${INK_DASH}` }}>
+          {yearTrips.length === 0 ? (
+            <div className="p-6 text-center" style={{ fontFamily: SANS_TC, fontSize: 14, color: INK_LIGHT }}>
+              還沒有旅程記錄
+            </div>
+          ) : (
+            <WorldMap trips={yearTrips} onOpenDetail={onOpenDetail} />
+          )}
+        </div>
+      )}
+
+      <div className="flex items-center justify-center gap-2 mb-3 opacity-65">
+        <svg width="36" height="10" viewBox="0 0 60 10">
+          <path d="M 2 5 Q 12 1 22 5 Q 32 9 42 5 Q 52 1 58 5" fill="none" stroke={INK} strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+        <span style={{ fontFamily: SANS_TC, fontSize: 12, color: INK }}>
+          點擊或拖曳日期建立旅程
+        </span>
+        <svg width="36" height="10" viewBox="0 0 60 10">
+          <path d="M 2 5 Q 12 9 22 5 Q 32 1 42 5 Q 52 9 58 5" fill="none" stroke={INK} strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </div>
 
       <main className="mt-4 relative" style={{ zIndex: 2 }}>
         <div className="overflow-x-auto -mx-2 px-2 pb-2" style={{ scrollbarWidth: 'thin' }}>
@@ -1846,7 +1862,12 @@ function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
   const [endDate, setEndDate] = useState(trip.endDate);
   const [color, setColor] = useState(trip.color);
   const [purpose, setPurpose] = useState(trip.purpose || 'overseasLeisure');
-  const [companion, setCompanion] = useState(trip.companion || 'solo');
+  const [companion, setCompanion] = useState(
+    trip.companion?.startsWith('other:') ? 'other' : (trip.companion || 'solo')
+  );
+  const [companionOther, setCompanionOther] = useState(
+    trip.companion?.startsWith('other:') ? trip.companion.slice(6) : ''
+  );
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -1857,7 +1878,8 @@ function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
     await onSave({
       ...trip,
       location: location.trim(), country: country.trim(),
-      startDate, endDate, color, purpose, companion,
+      startDate, endDate, color, purpose,
+      companion: companion === 'other' ? `other:\${companionOther.trim() || '其他'}` : companion,
     });
     setSaving(false);
   };
@@ -1932,8 +1954,10 @@ function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
             <div className="flex gap-2">
               {[
                 { key: 'solo', label: '獨旅', emoji: '🎒' },
+                { key: 'couple', label: '情侶', emoji: '💑' },
                 { key: 'friends', label: '朋友', emoji: '👫' },
                 { key: 'family', label: '家人', emoji: '👨‍👩‍👧' },
+                { key: 'other', label: '其他', emoji: '✏️' },
               ].map(opt => (
                 <button key={opt.key} onClick={() => setCompanion(opt.key)}
                   className="flex-1 py-2 rounded transition-all flex flex-col items-center gap-0.5"
@@ -1948,6 +1972,15 @@ function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
                 </button>
               ))}
             </div>
+            {companion === 'other' && (
+              <input
+                value={companionOther}
+                onChange={e => setCompanionOther(e.target.value)}
+                placeholder="請輸入同行者名稱"
+                className="mt-2 w-full bg-transparent outline-none border-b py-1.5"
+                style={{ borderColor: INK_DASH, fontFamily: SANS_TC, fontSize: 14, color: INK }}
+              />
+            )}
           </Field>
 
           <Field label="標記顏色">
@@ -2032,76 +2065,62 @@ function DetailView({ trip, onBack, onEdit, onDelete, onUpdate }) {
     <div className="relative">
       <div style={{ height: 8, background: trip.color }} />
 
-      <div className="max-w-4xl mx-auto px-6 md:px-10 pt-7 flex items-center justify-between">
-        <button onClick={onBack} className="flex items-center gap-1 hover:opacity-60"
-          style={{ color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 14 }}>
-          <ChevronLeft className="w-5 h-5" /> 返回
-        </button>
-        <div className="flex items-center gap-2">
-          <button onClick={onEdit}
-            className="flex items-center gap-1 px-3.5 py-1.5 rounded-full hover:bg-black/5"
-            style={{ color: INK, border: `1.5px solid ${INK}`, fontFamily: SANS_TC, fontSize: 13, fontWeight: 500 }}>
-            <Edit3 className="w-3.5 h-3.5" /> 編輯
+      <div className="max-w-4xl mx-auto px-6 md:px-10 pt-4 pb-2">
+        <div className="flex items-center justify-between mb-2">
+          <button onClick={onBack} className="flex items-center gap-1 hover:opacity-60"
+            style={{ color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 14 }}>
+            <ChevronLeft className="w-5 h-5" /> 返回
           </button>
-          <button onClick={onDelete}
-            className="flex items-center gap-1 px-3.5 py-1.5 rounded-full hover:bg-black/5"
-            style={{ color: '#C44536', border: '1.5px solid #C44536', fontFamily: SANS_TC, fontSize: 13, fontWeight: 500 }}>
-            <Trash2 className="w-3.5 h-3.5" /> 刪除
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={onEdit}
+              className="flex items-center gap-1 px-3.5 py-1.5 rounded-full hover:bg-black/5"
+              style={{ color: INK, border: `1.5px solid ${INK}`, fontFamily: SANS_TC, fontSize: 13, fontWeight: 500 }}>
+              <Edit3 className="w-3.5 h-3.5" /> 編輯
+            </button>
+            <button onClick={onDelete}
+              className="flex items-center gap-1 px-3.5 py-1.5 rounded-full hover:bg-black/5"
+              style={{ color: '#C44536', border: '1.5px solid #C44536', fontFamily: SANS_TC, fontSize: 13, fontWeight: 500 }}>
+              <Trash2 className="w-3.5 h-3.5" /> 刪除
+            </button>
+          </div>
+        </div>
+
+        <h1 style={{
+          fontFamily: SANS_TC, fontSize: 'clamp(20px, 3vw, 28px)',
+          color: INK, letterSpacing: '0.05em', lineHeight: 1.2, fontWeight: 900, marginBottom: 6,
+        }}>
+          {trip.location}
+          {trip.country && <span style={{ fontWeight: 400, fontSize: '0.65em', color: INK_LIGHT, marginLeft: 8 }}>{trip.country}</span>}
+        </h1>
+
+        <div className="flex items-center flex-wrap gap-2 mb-1">
+          <span style={{ fontFamily: NUMERIC, fontSize: 13, color: INK_LIGHT }}>
+            {formatRange(trip.startDate, trip.endDate)} · {tripLength(trip)} 天
+          </span>
+          {purposeInfo && (
+            <span className="px-2.5 py-0.5 rounded-full"
+              style={{ background: purposeInfo.color + '18', color: purposeInfo.color, fontFamily: SANS_TC, fontSize: 12, fontWeight: 500 }}>
+              {purposeInfo.label}
+            </span>
+          )}
+          {companionInfo && (
+            <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full"
+              style={{ border: `1px solid ${INK_DASH}`, fontFamily: SANS_TC, fontSize: 12, color: INK }}>
+              <span>{companionInfo.emoji}</span>
+              <span>{companionInfo.label}</span>
+            </span>
+          )}
+          <a href={mapsUrl(trip.location, trip.country)} target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1 hover:underline"
+            style={{ color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 12 }}>
+            <MapPin className="w-3 h-3" /> Maps
+            <ExternalLink className="w-3 h-3" style={{ opacity: 0.5 }} />
+          </a>
         </div>
       </div>
 
-      <header className="max-w-4xl mx-auto px-6 md:px-10 pt-3 pb-3 text-center">
-        {purposeInfo && (
-          <div className="inline-block mb-3 px-3 py-0.5 rounded-full"
-            style={{
-              background: purposeInfo.color + '18', color: purposeInfo.color,
-              fontFamily: SANS_TC, fontSize: 13, fontWeight: 500,
-            }}>
-            {purposeInfo.label} · {purposeInfo.sublabel}
-          </div>
-        )}
-        <div className="mb-2" style={{ color: INK_LIGHT, fontFamily: NUMERIC, fontSize: 16 }}>
-          {formatRange(trip.startDate, trip.endDate)} · {tripLength(trip)} 天
-        </div>
-        <h1 style={{
-          fontFamily: SANS_TC,
-          fontSize: 'clamp(22px, 3.5vw, 36px)',
-          color: INK, letterSpacing: '0.06em', lineHeight: 1.1, fontWeight: 900,
-        }}>
-          {trip.location}
-        </h1>
-        {trip.country && (
-          <div className="mt-3" style={{ color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 16 }}>
-            {trip.country}
-          </div>
-        )}
-
-        <div className="mt-4 flex justify-center">
-          <a
-            href={mapsUrl(trip.location, trip.country)}
-            target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full hover:bg-black/5 transition-colors"
-            style={{
-              border: `1.5px solid ${INK_DASH}`,
-              fontFamily: SANS_TC, fontSize: 13, fontWeight: 500, color: INK,
-            }}>
-            <MapPin className="w-3.5 h-3.5" /> 在 Google Maps 開啟
-            <ExternalLink className="w-3 h-3" style={{ opacity: 0.6 }} />
-          </a>
-        </div>
-
-        {trip.companion && (
-          <div className="mt-3 flex justify-center">
-            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full"
-              style={{ border: `1px solid ${INK_DASH}`, fontFamily: SANS_TC, fontSize: 13, color: INK }}>
-              <span>{trip.companion === 'solo' ? '🎒' : trip.companion === 'friends' ? '👫' : '👨‍👩‍👧'}</span>
-              <span>{trip.companion === 'solo' ? '獨旅' : trip.companion === 'friends' ? '與朋友' : '與家人'}</span>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-7">
+      <div className="max-w-4xl mx-auto px-6 md:px-10">
+        <div className="mt-4">
           <div style={{
             color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 11,
             fontWeight: 500, letterSpacing: '0.25em', marginBottom: 8,
@@ -2136,7 +2155,8 @@ function DetailView({ trip, onBack, onEdit, onDelete, onUpdate }) {
             })}
           </div>
         </div>
-      </header>
+      </div>
+      </div>
 
       <section className="max-w-4xl mx-auto px-6 md:px-10 pb-24">
         <div className="mb-2 flex items-baseline gap-2">
