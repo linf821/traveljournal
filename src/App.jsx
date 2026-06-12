@@ -1109,6 +1109,7 @@ export default function App() {
       if (!start) return;
       const [a, b] = orderedRange(start, end || start);
       if (a === b && hadTrip && tripId) {
+        setPrevView(view);
         setSelectedTripId(tripId);
         setView('detail');
         cancelHide();
@@ -1187,6 +1188,7 @@ export default function App() {
     upsertTrip(newTrip);
     setShowQuickAdd(false);
     if (openDetail) {
+      setPrevView(view);
       setSelectedTripId(id);
       setView('detail');
     }
@@ -1310,7 +1312,7 @@ export default function App() {
           onMouseEnter={cancelHide}
           onMouseLeave={scheduleHide}
           onOpenDetail={(id) => {
-            setSelectedTripId(id); setView('detail');
+            setPrevView(view); setSelectedTripId(id); setView('detail');
             cancelHide(); setHoverTrips(null);
           }}
         />
@@ -1360,27 +1362,28 @@ function HomeView({
         </button>
       )}
 
-      <header className="flex items-center justify-between py-3 mb-1">
-        <div className="flex items-center gap-3">
-          <div style={{ width: 40, height: 40, flexShrink: 0 }}>
-            <HorseIllustration />
+      <header className="flex items-center gap-4 py-4 mb-2">
+        <div style={{ width: 64, height: 64, flexShrink: 0 }}>
+          <HorseIllustration />
+        </div>
+        <div>
+          <div style={{
+            fontFamily: HANDWRITE_EN, fontSize: 'clamp(16px, 2vw, 20px)',
+            color: INK, letterSpacing: '0.05em', fontStyle: 'italic', fontWeight: 500, lineHeight: 1.3,
+          }}>
+            year of the {ZODIAC[currentYear]} · {currentYear}
           </div>
-          <div>
-            <div style={{
-              fontFamily: HANDWRITE_EN, fontSize: 'clamp(13px, 1.4vw, 15px)',
-              color: INK, letterSpacing: '0.05em', fontStyle: 'italic', fontWeight: 500, lineHeight: 1.3,
-            }}>
-              year of the {ZODIAC[currentYear]} · {currentYear}
-            </div>
-            <div style={{
-              fontFamily: HANDWRITE_EN, fontSize: 'clamp(10px, 1.1vw, 12px)',
-              color: INK_LIGHT, fontStyle: 'italic',
-            }}>
-              every decision you're making is right.
-            </div>
+          <div style={{
+            fontFamily: HANDWRITE_EN, fontSize: 'clamp(11px, 1.2vw, 13px)',
+            color: INK_LIGHT, fontStyle: 'italic', marginTop: 2,
+          }}>
+            every decision you're making is right.
           </div>
         </div>
-        <div className="flex items-center gap-1.5">
+      </header>
+
+      <div className="mb-3 rounded-xl overflow-hidden" style={{ border: `1.5px solid ${INK_DASH}` }}>
+        <div className="flex items-center gap-2 px-3 py-2" style={{ borderBottom: `1px solid ${INK_DASH}` }}>
           {SUPPORTED_YEARS.map(y => {
             const active = y === currentYear;
             return (
@@ -1396,32 +1399,20 @@ function HomeView({
               </button>
             );
           })}
-          <button
-            onClick={() => setMapExpanded(v => !v)}
-            className="px-3 py-1 rounded-full transition-all"
-            title={mapExpanded ? '收起地圖' : '展開地圖'}
-            style={{
-              background: mapExpanded ? INK : 'transparent',
-              color: mapExpanded ? BG : INK_LIGHT,
-              border: `1.5px solid ${mapExpanded ? INK : INK_DASH}`,
-              fontSize: 14,
-            }}>
-            🌍
-          </button>
+          <span style={{ marginLeft: 'auto', fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT }}>
+            {yearTrips.length > 0 ? `${yearTrips.length} 段旅程` : '還沒有旅程記錄'}
+          </span>
         </div>
-      </header>
-
-      {mapExpanded && (
-        <div className="mb-3 rounded-xl overflow-hidden" style={{ border: `1.5px solid ${INK_DASH}` }}>
+        <div style={{ maxHeight: 220, overflow: 'hidden' }}>
           {yearTrips.length === 0 ? (
             <div className="p-6 text-center" style={{ fontFamily: SANS_TC, fontSize: 14, color: INK_LIGHT }}>
-              還沒有旅程記錄
+              點擊日曆建立第一段旅程
             </div>
           ) : (
             <WorldMap trips={yearTrips} onOpenDetail={onOpenDetail} />
           )}
         </div>
-      )}
+      </div>
 
       <div className="flex items-center justify-center gap-2 mb-3 opacity-65">
         <svg width="36" height="10" viewBox="0 0 60 10">
@@ -1616,6 +1607,16 @@ function Tooltip({ trips, position, onOpenDetail, onMouseEnter, onMouseLeave, in
                 fontFamily: SANS_TC, fontWeight: 500, fontSize: 12,
               }}>
                 {PURPOSE_PRESETS[t.purpose].label}
+              </div>
+            )}
+            {t.companion && (
+              <div className="mt-1" style={{ fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT }}>
+                {t.companion === 'solo' ? '🎒 獨旅'
+                  : t.companion === 'couple' ? '💑 情侶'
+                  : t.companion === 'friends' ? '👫 朋友'
+                  : t.companion === 'family' ? '👨‍👩‍👧 家人'
+                  : t.companion.startsWith('other:') ? `✏️ ${t.companion.slice(6) || '其他'}`
+                  : null}
               </div>
             )}
             <div className="mt-1.5" style={{ color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 12 }}>
