@@ -1362,7 +1362,7 @@ function HomeView({
         </button>
       )}
 
-      <header className="flex items-center gap-5 pt-6 pb-5 mb-2">
+      <header className="flex items-center gap-5 pt-6 pb-5 mb-2 sticky top-0 z-10" style={{ background: BG }}>
         <div style={{ width: 80, height: 80, flexShrink: 0 }}>
           <HorseIllustration />
         </div>
@@ -1574,6 +1574,7 @@ function Tooltip({ trips, position, onOpenDetail, onMouseEnter, onMouseLeave, in
             : t.companion === 'couple' ? '💑'
             : t.companion === 'friends' ? '👫'
             : t.companion === 'family' ? '👨‍👩‍👧'
+            : t.companion === 'colleague' ? '👔'
             : t.companion.startsWith('other:') ? '✏️'
             : null;
           return (
@@ -1678,9 +1679,6 @@ function TripLegend({ trips, onOpenDetail, onOpenRecap, currentYear }) {
         ))}
       </div>
 
-      <div className="mt-6 rounded-xl overflow-hidden" style={{ border: `1.5px solid ${INK_DASH}` }}>
-        <WorldMap trips={trips} onOpenDetail={onOpenDetail} />
-      </div>
     </div>
   );
 }
@@ -1858,7 +1856,7 @@ function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
   const [endDate, setEndDate] = useState(trip.endDate);
   const [color, setColor] = useState(trip.color);
   const [purpose, setPurpose] = useState(trip.purpose || 'overseasLeisure');
-  const [transport, setTransport] = useState(trip.transport || '');
+  const [transport, setTransport] = useState(trip.transport || 'plane');
   const [companion, setCompanion] = useState(
     trip.companion?.startsWith('other:') ? 'other' : (trip.companion || 'solo')
   );
@@ -1933,7 +1931,14 @@ function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
           <Field label="類型">
             <div className="flex gap-2">
               {Object.entries(PURPOSE_PRESETS).map(([key, p]) => (
-                <button key={key} onClick={() => { setPurpose(key); setColor(p.color); }}
+                <button key={key} onClick={() => {
+                  setPurpose(key);
+                  setColor(p.color);
+                  if (key === 'business') {
+                    setCompanion('colleague');
+                    setTransport('plane');
+                  }
+                }}
                   className="flex-1 py-2 rounded transition-all"
                   style={{
                     background: purpose === key ? p.color : 'transparent',
@@ -1954,6 +1959,7 @@ function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
                 { key: 'couple', label: '情侶', emoji: '💑' },
                 { key: 'friends', label: '朋友', emoji: '👫' },
                 { key: 'family', label: '家人', emoji: '👨‍👩‍👧' },
+                { key: 'colleague', label: '同事', emoji: '👔' },
                 { key: 'other', label: '其他', emoji: '✏️' },
               ].map(opt => (
                 <button key={opt.key} onClick={() => setCompanion(opt.key)}
@@ -2073,6 +2079,7 @@ function DetailView({ trip, onBack, onEdit, onDelete, onUpdate }) {
     couple: { emoji: '💑', label: '情侶' },
     friends: { emoji: '👫', label: '與朋友' },
     family: { emoji: '👨‍👩‍👧', label: '與家人' },
+    colleague: { emoji: '👔', label: '與同事' },
   };
   const companionInfo = trip.companion
     ? (trip.companion.startsWith('other:')
@@ -2534,12 +2541,15 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
   const maxMonthDays = Math.max(...monthDays, 1);
 
   return (
-    <div className="relative max-w-4xl mx-auto px-6 md:px-10 pt-8 pb-20">
-      <div className="flex items-center justify-between mb-8">
+    <div className="relative max-w-4xl mx-auto px-6 md:px-10 pb-20">
+      <div className="sticky top-0 z-10 flex items-center justify-between pt-5 pb-3 mb-2" style={{ background: BG }}>
         <button onClick={onBack} className="flex items-center gap-1 hover:opacity-60"
           style={{ color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 14 }}>
           <ChevronLeft className="w-5 h-5" /> 返回月曆
         </button>
+        <div style={{ fontFamily: HANDWRITE_EN, fontSize: 'clamp(15px, 2vw, 19px)', color: INK, fontStyle: 'italic', fontWeight: 500 }}>
+          recap · {year}
+        </div>
       </div>
 
       <header className="text-center mb-8">
@@ -2784,7 +2794,25 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
             </div>
           </section>
 
-          <footer className="mt-12 pt-6 text-center" style={{ borderTop: `1px dashed ${INK_DASH}` }}>
+          <section className="mt-10 mb-6">
+            <div style={{
+              fontFamily: 'sans-serif', fontSize: 11, color: '#888',
+              fontWeight: 500, letterSpacing: '0.25em', marginBottom: 10, textAlign: 'center',
+            }}>
+              世界足跡 · MAP
+            </div>
+            <div className="rounded-xl overflow-hidden" style={{ border: '1.5px solid rgba(31,26,20,0.15)' }}>
+              {filtered.length === 0 ? (
+                <div className="p-8 text-center" style={{ fontSize: 14, color: '#888' }}>
+                  此時段沒有旅程記錄
+                </div>
+              ) : (
+                <WorldMap trips={filtered} onOpenDetail={onOpenDetail} />
+              )}
+            </div>
+          </section>
+
+          <footer className="mt-6 pt-6 text-center" style={{ borderTop: '1px dashed rgba(31,26,20,0.2)' }}>
             <div style={{ fontFamily: SANS_TC, fontSize: 13, color: INK_LIGHT }}>
               {formatDateLabel(range.start)} – {formatDateLabel(range.end)} · 一共走過 {uniquePlaces} 個地方，共 {totalDays} 天
             </div>
