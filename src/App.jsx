@@ -1879,7 +1879,7 @@ function FullEditModal({ year, trip, onClose, onSave, onDelete }) {
       ...trip,
       location: location.trim(), country: country.trim(),
       startDate, endDate, color, purpose,
-      companion: companion === 'other' ? `other:\${companionOther.trim() || '其他'}` : companion,
+      companion: companion === 'other' ? `other:${companionOther.trim() || '其他'}` : companion,
     });
     setSaving(false);
   };
