@@ -2625,7 +2625,7 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
   const maxMonthDays = Math.max(...monthDays, 1);
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: BG }}>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: BG, width: '70%', margin: '0 auto' }}>
 
       {/* ── top bar ── */}
       <div className="flex items-center gap-3 flex-shrink-0 px-5"
