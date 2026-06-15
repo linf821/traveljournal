@@ -2625,180 +2625,174 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
   const maxMonthDays = Math.max(...monthDays, 1);
 
   return (
-    <div className="relative max-w-4xl mx-auto px-6 md:px-10 pb-20">
-      <div className="sticky top-0 z-10 flex items-center justify-between pt-5 pb-3 mb-2" style={{ background: BG }}>
-        <button onClick={onBack} className="flex items-center gap-1 hover:opacity-60"
-          style={{ color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 14 }}>
-          <ChevronLeft className="w-5 h-5" /> 返回月曆
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: BG }}>
+
+      {/* ── top bar ── */}
+      <div className="flex items-center gap-3 flex-shrink-0 px-5"
+        style={{ height: 52, borderBottom: `1px solid ${INK_DASH}`, background: BG }}>
+        <button onClick={onBack} className="flex items-center gap-0.5 hover:opacity-60 flex-shrink-0"
+          style={{ color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 13 }}>
+          <ChevronLeft className="w-4 h-4" /> 返回
         </button>
-        <div style={{ fontFamily: HANDWRITE_EN, fontSize: 'clamp(15px, 2vw, 19px)', color: INK, fontStyle: 'italic', fontWeight: 500 }}>
+        <div style={{ fontFamily: HANDWRITE_EN, fontSize: 18, color: INK, fontStyle: 'italic', fontWeight: 600, flexShrink: 0 }}>
           recap · {year}
         </div>
-      </div>
-
-      <header className="text-center mb-5">
-        <div style={{
-          fontFamily: HANDWRITE_EN, fontSize: 'clamp(36px, 6vw, 60px)',
-          color: INK, fontWeight: 700, fontStyle: 'italic',
-          lineHeight: 1, letterSpacing: '-0.02em',
-        }}>
-          recap
-        </div>
-        <div style={{
-          fontFamily: SANS_TC, fontSize: 'clamp(13px, 1.6vw, 16px)',
-          color: INK_LIGHT, letterSpacing: '0.1em', marginTop: 2, fontWeight: 500,
-        }}>
-          年度回顧 · {year}
-        </div>
-      </header>
-
-      <section className="mb-6">
-        <div className="flex flex-wrap justify-center gap-1.5 mb-2">
+        <div className="flex items-center gap-1.5 ml-auto flex-wrap">
           {presets.map(p => (
             <button key={p.id} onClick={() => setPresetId(p.id)}
-              className="px-3 py-1 rounded-full transition-all"
+              className="px-2.5 py-0.5 rounded-full transition-all"
               style={{
                 background: presetId === p.id ? INK : 'transparent',
                 color: presetId === p.id ? BG : INK,
                 border: `1.5px solid ${INK}`,
-                fontFamily: SANS_TC, fontSize: 12, fontWeight: 500,
+                fontFamily: SANS_TC, fontSize: 11, fontWeight: 500,
               }}>
               {p.label}
             </button>
           ))}
           <button onClick={() => setPresetId('custom')}
-            className="px-3 py-1 rounded-full transition-all"
+            className="px-2.5 py-0.5 rounded-full transition-all"
             style={{
               background: isCustom ? INK : 'transparent',
               color: isCustom ? BG : INK,
               border: `1.5px solid ${INK}`,
-              fontFamily: SANS_TC, fontSize: 12, fontWeight: 500,
+              fontFamily: SANS_TC, fontSize: 11, fontWeight: 500,
             }}>
             自訂
           </button>
+          {isCustom && (
+            <div className="flex items-center gap-1 ml-1" style={{ color: INK_LIGHT }}>
+              <input type="date" value={customStart}
+                min={`${year}-01-01`} max={`${year}-12-31`}
+                onChange={(e) => setCustomStart(e.target.value)}
+                className="bg-transparent outline-none border-b"
+                style={{ borderColor: INK_DASH, fontFamily: NUMERIC, color: INK, fontSize: 11, width: 110 }} />
+              <span style={{ fontSize: 11 }}>—</span>
+              <input type="date" value={customEnd}
+                min={`${year}-01-01`} max={`${year}-12-31`}
+                onChange={(e) => setCustomEnd(e.target.value)}
+                className="bg-transparent outline-none border-b"
+                style={{ borderColor: INK_DASH, fontFamily: NUMERIC, color: INK, fontSize: 11, width: 110 }} />
+            </div>
+          )}
         </div>
-        {isCustom ? (
-          <div className="flex items-center justify-center gap-2 text-sm" style={{ color: INK_LIGHT }}>
-            <input type="date" value={customStart}
-              min={`${year}-01-01`} max={`${year}-12-31`}
-              onChange={(e) => setCustomStart(e.target.value)}
-              className="bg-transparent outline-none border-b py-0.5 px-1"
-              style={{ borderColor: INK_DASH, fontFamily: NUMERIC, color: INK }} />
-            <span>—</span>
-            <input type="date" value={customEnd}
-              min={`${year}-01-01`} max={`${year}-12-31`}
-              onChange={(e) => setCustomEnd(e.target.value)}
-              className="bg-transparent outline-none border-b py-0.5 px-1"
-              style={{ borderColor: INK_DASH, fontFamily: NUMERIC, color: INK }} />
-          </div>
-        ) : (
-          <div className="text-center" style={{ fontFamily: NUMERIC, fontSize: 14, color: INK_LIGHT }}>
-            {formatDateLabel(range.start)} – {formatDateLabel(range.end)}
-          </div>
-        )}
-      </section>
+      </div>
 
+      {/* ── body ── */}
       {filtered.length === 0 ? (
-        <div className="text-center py-20" style={{ fontFamily: SANS_TC, fontSize: 16, color: INK_LIGHT }}>
+        <div className="flex-1 flex items-center justify-center"
+          style={{ fontFamily: SANS_TC, fontSize: 16, color: INK_LIGHT }}>
           這段時間還沒有旅程記錄
         </div>
       ) : (
-        <>
-          <section className="mb-6">
-            <div className="grid grid-cols-3 gap-2 md:gap-4">
-              <BigStat number={totalTrips} unit="段" label="旅程" />
-              <BigStat number={uniquePlaces} unit="個" label="地點" />
-              <BigStat number={totalDays} unit="天" label="在外天數" />
-            </div>
-          </section>
+        <div className="flex flex-1 min-h-0">
 
-          <section className="mb-8">
-            <div className="mb-3 flex items-baseline gap-2">
-              <span style={{ fontFamily: SANS_TC, fontSize: 15, fontWeight: 700, color: INK, letterSpacing: '0.05em' }}>
-                世界足跡
-              </span>
-              <span style={{ fontFamily: HANDWRITE_EN, fontSize: 14, color: INK_LIGHT, fontStyle: 'italic' }}>
-                · On the Map
-              </span>
-            </div>
-            <div className="rounded-xl overflow-hidden" style={{ border: `1.5px solid ${INK_DASH}` }}>
-              <WorldMap trips={filtered} onOpenDetail={onOpenDetail} />
-            </div>
-          </section>
+          {/* ── left panel ── */}
+          <div className="flex flex-col gap-4 p-5 flex-shrink-0 overflow-y-auto"
+            style={{ width: 280, borderRight: `1px solid ${INK_DASH}` }}>
 
-          <section className="mb-6">
-            <SectionTitle main="類型分布" sub="By Purpose" />
-            <div className="space-y-2">
-              {Object.entries(PURPOSE_PRESETS).map(([key, p]) => {
-                const count = purposeCounts[key];
-                const days = purposeDays[key];
-                const pct = (count / totalPurposeTrips) * 100;
-                const Icon = p.icon;
-                return (
-                  <div key={key}>
-                    <div className="flex items-center justify-between mb-0.5">
-                      <div className="flex items-center gap-1.5">
-                        <Icon className="w-3 h-3" style={{ color: p.color }} />
-                        <span style={{ fontFamily: SANS_TC, fontSize: 13, fontWeight: 700, color: INK }}>
-                          {p.label}
+            {/* stats */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { n: totalTrips, u: '段', l: '旅程' },
+                { n: uniquePlaces, u: '個', l: '地點' },
+                { n: totalDays, u: '天', l: '在外' },
+              ].map(s => (
+                <div key={s.l} className="text-center py-2 rounded-lg"
+                  style={{ border: `1.5px solid ${INK}`, background: PAPER_CREAM }}>
+                  <div style={{ fontFamily: NUMERIC, fontSize: 'clamp(22px, 3vw, 30px)', color: INK, fontWeight: 700, lineHeight: 1 }}>
+                    {s.n}
+                  </div>
+                  <div style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 600, color: INK, marginTop: 2 }}>{s.u}</div>
+                  <div style={{ fontFamily: SANS_TC, fontSize: 9, color: INK_LIGHT, letterSpacing: '0.15em', marginTop: 1 }}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 類型分布 */}
+            <div>
+              <div className="mb-2" style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 700, color: INK, letterSpacing: '0.1em' }}>
+                類型分布
+              </div>
+              <div className="space-y-2">
+                {Object.entries(PURPOSE_PRESETS).map(([key, p]) => {
+                  const count = purposeCounts[key];
+                  const days = purposeDays[key];
+                  const pct = (count / totalPurposeTrips) * 100;
+                  const Icon = p.icon;
+                  return (
+                    <div key={key}>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <div className="flex items-center gap-1">
+                          <Icon className="w-3 h-3 flex-shrink-0" style={{ color: p.color }} />
+                          <span style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 600, color: INK }}>
+                            {p.label}
+                          </span>
+                        </div>
+                        <span style={{ fontFamily: NUMERIC, fontSize: 10, color: INK_LIGHT }}>
+                          {count}次 · {days}天
                         </span>
                       </div>
-                      <div style={{ fontFamily: NUMERIC, fontSize: 12, color: INK_LIGHT }}>
-                        {count} 次 · {days} 天 · {Math.round(pct)}%
+                      <div className="rounded-full overflow-hidden" style={{ background: 'rgba(31,26,20,0.08)', height: 5 }}>
+                        <div className="h-full rounded-full transition-all"
+                          style={{ background: p.color, width: `${pct}%` }} />
                       </div>
                     </div>
-                    <div className="rounded-full overflow-hidden" style={{ background: 'rgba(31,26,20,0.08)', height: 7 }}>
-                      <div className="h-full rounded-full transition-all"
-                        style={{ background: p.color, width: `${pct}%` }} />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 月份分布 */}
+            <div>
+              <div className="mb-2" style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 700, color: INK, letterSpacing: '0.1em' }}>
+                月份分布
+              </div>
+              <div className="grid grid-cols-12 gap-0.5 items-end" style={{ height: 70 }}>
+                {monthDays.map((d, i) => {
+                  const h = (d / maxMonthDays) * 100;
+                  return (
+                    <div key={i} className="flex flex-col items-center justify-end h-full">
+                      <div className="w-full rounded-sm transition-all"
+                        style={{
+                          background: d > 0 ? INK : 'rgba(31,26,20,0.08)',
+                          height: `${Math.max(h, 4)}%`, minHeight: 3,
+                        }}
+                        title={`${MONTH_EN[i]}: ${monthCounts[i]} 段 · ${d} 天`} />
+                      <div className="text-center mt-0.5" style={{
+                        fontFamily: NUMERIC, fontSize: 8, color: INK_LIGHT,
+                      }}>
+                        {MONTH_EN[i].slice(0, 1)}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </section>
 
-          <section className="mb-6">
-            <SectionTitle main="月份分布" sub="By Month" />
-            <div className="grid grid-cols-12 gap-1 items-end" style={{ height: 90 }}>
-              {monthDays.map((d, i) => {
-                const h = (d / maxMonthDays) * 100;
-                const tripCount = monthCounts[i];
-                return (
-                  <div key={i} className="flex flex-col items-center justify-end h-full">
-                    <div style={{
-                      fontFamily: NUMERIC, fontSize: 11, color: INK_LIGHT,
-                      marginBottom: 2, opacity: d > 0 ? 1 : 0, fontWeight: 500,
-                    }}>
-                      {d}
-                    </div>
-                    <div className="w-full rounded-sm transition-all"
-                      style={{
-                        background: d > 0 ? INK : 'rgba(31,26,20,0.08)',
-                        height: `${Math.max(h, 4)}%`, minHeight: 4,
-                      }}
-                      title={`${MONTH_EN[i]}: ${tripCount} 段旅程 · ${d} 天`} />
-                    <div className="text-center mt-1" style={{
-                      fontFamily: NUMERIC, fontSize: 10, color: INK_LIGHT, fontWeight: 500,
-                    }}>
-                      {MONTH_EN[i].slice(0, 3)}
-                    </div>
-                  </div>
-                );
-              })}
+            {/* footer text */}
+            <div className="mt-auto pt-3" style={{ borderTop: `1px dashed ${INK_DASH}` }}>
+              <div style={{ fontFamily: SANS_TC, fontSize: 11, color: INK_LIGHT, lineHeight: 1.6 }}>
+                {formatDateLabel(range.start)} – {formatDateLabel(range.end)}
+                <br />{uniquePlaces} 個地方 · {totalDays} 天
+              </div>
             </div>
-            <div className="mt-3 text-center" style={{ fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT }}>
-              長條高度 = 該月在外天數
+          </div>
+
+          {/* ── right panel: WorldMap ── */}
+          <div className="flex-1 min-w-0 p-4 flex flex-col">
+            <div style={{
+              fontFamily: SANS_TC, fontSize: 11, color: INK_LIGHT,
+              letterSpacing: '0.15em', marginBottom: 8,
+            }}>
+              世界足跡 · MAP
             </div>
-          </section>
-
-
-
-          <footer className="mt-6 pt-6 text-center" style={{ borderTop: '1px dashed rgba(31,26,20,0.2)' }}>
-            <div style={{ fontFamily: SANS_TC, fontSize: 13, color: INK_LIGHT }}>
-              {formatDateLabel(range.start)} – {formatDateLabel(range.end)} · 一共走過 {uniquePlaces} 個地方，共 {totalDays} 天
+            <div className="flex-1 min-h-0 rounded-xl overflow-hidden" style={{ border: `1.5px solid ${INK_DASH}` }}>
+              <WorldMap trips={filtered} onOpenDetail={onOpenDetail} />
             </div>
-          </footer>
-        </>
+          </div>
+
+        </div>
       )}
     </div>
   );
