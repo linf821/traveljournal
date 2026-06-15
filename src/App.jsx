@@ -1384,33 +1384,30 @@ function HomeView({
         </button>
       )}
 
-      <header className="flex items-center gap-5 pt-6 pb-5 mb-2 sticky top-0 z-10" style={{ background: BG }}>
-        <div style={{ width: 80, height: 80, flexShrink: 0 }}>
+      <header className="flex items-center gap-5 pt-5 pb-4 mb-2 sticky top-0 z-10" style={{ background: BG }}>
+        <div style={{ width: 72, height: 72, flexShrink: 0 }}>
           <HorseIllustration />
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <div style={{
-            fontFamily: HANDWRITE_EN, fontSize: 'clamp(19px, 2.4vw, 26px)',
+            fontFamily: HANDWRITE_EN, fontSize: 'clamp(17px, 2.2vw, 24px)',
             color: INK, letterSpacing: '0.05em', fontStyle: 'italic', fontWeight: 500, lineHeight: 1.25,
           }}>
             year of the {ZODIAC[currentYear]} · {currentYear}
           </div>
           <div style={{
-            fontFamily: HANDWRITE_EN, fontSize: 'clamp(12px, 1.4vw, 15px)',
-            color: INK_LIGHT, fontStyle: 'italic', marginTop: 3,
+            fontFamily: HANDWRITE_EN, fontSize: 'clamp(11px, 1.3vw, 14px)',
+            color: INK_LIGHT, fontStyle: 'italic', marginTop: 2,
           }}>
             every decision you're making is right.
           </div>
         </div>
-      </header>
-
-      <div className="mb-5">
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           {SUPPORTED_YEARS.map(y => {
             const active = y === currentYear;
             return (
               <button key={y} onClick={() => onYearChange(y)}
-                className="px-3 py-1 rounded-full transition-all"
+                className="px-2.5 py-1 rounded-full transition-all"
                 style={{
                   background: active ? INK : 'transparent',
                   color: active ? BG : INK,
@@ -1421,53 +1418,71 @@ function HomeView({
               </button>
             );
           })}
-          <span style={{ marginLeft: 'auto', fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT }}>
-            {yearTrips.length > 0 ? `${yearTrips.length} 段旅程` : '還沒有旅程記錄'}
-          </span>
         </div>
+      </header>
 
-        {yearTrips.length > 0 && (
-          <div className="overflow-x-auto pb-1" style={{ scrollbarWidth: 'thin' }}>
-            <div className="flex gap-2.5" style={{ width: 'max-content' }}>
-              {[...yearTrips].sort((a, b) => a.startDate.localeCompare(b.startDate)).map(t => {
-                const p = t.purpose && PURPOSE_PRESETS[t.purpose];
-                const transportEmoji = t.transport === 'plane' ? '✈️' : t.transport === 'cruise' ? '🚢' : t.transport === 'train' ? '🚄' : null;
-                return (
-                  <button key={t.id}
-                    onClick={() => onOpenDetail(t.id)}
-                    className="flex-shrink-0 text-left rounded-xl px-3 py-2.5 hover:opacity-80 transition-opacity"
-                    style={{
-                      background: t.color + '12',
-                      border: `1.5px solid ${t.color}40`,
-                      minWidth: 130, maxWidth: 160,
-                    }}>
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: t.color }} />
-                      <span style={{ fontFamily: SANS_TC, fontSize: 13, fontWeight: 700, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {t.location}
-                      </span>
-                    </div>
-                    <div style={{ fontFamily: NUMERIC, fontSize: 11, color: INK_LIGHT, marginBottom: 4 }}>
-                      {formatRange(t.startDate, t.endDate)}
-                    </div>
-                    <div className="flex items-center gap-1 flex-wrap">
-                      {p && (
-                        <span style={{
-                          fontFamily: SANS_TC, fontSize: 10, fontWeight: 600,
-                          color: p.color, background: p.color + '18',
-                          borderRadius: 4, padding: '1px 5px',
-                        }}>{p.label}</span>
+      {(() => {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const upcoming = [...trips]
+          .filter(t => t.endDate >= todayStr)
+          .sort((a, b) => a.startDate.localeCompare(b.startDate))
+          .slice(0, 10);
+        if (upcoming.length === 0) return null;
+        return (
+          <div className="mb-5">
+            <div className="flex items-center gap-2 mb-2">
+              <span style={{ fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT, letterSpacing: '0.1em' }}>
+                即將到來 · UPCOMING
+              </span>
+            </div>
+            <div className="overflow-x-auto pb-1" style={{ scrollbarWidth: 'thin' }}>
+              <div className="flex gap-2.5" style={{ width: 'max-content' }}>
+                {upcoming.map(t => {
+                  const p = t.purpose && PURPOSE_PRESETS[t.purpose];
+                  const transportEmoji = t.transport === 'plane' ? '✈️' : t.transport === 'cruise' ? '🚢' : t.transport === 'train' ? '🚄' : null;
+                  const isActive = t.startDate <= todayStr && t.endDate >= todayStr;
+                  return (
+                    <button key={t.id}
+                      onClick={() => onOpenDetail(t.id)}
+                      className="flex-shrink-0 text-left rounded-xl px-3 py-2.5 hover:opacity-80 transition-opacity"
+                      style={{
+                        background: t.color + '14',
+                        border: `1.5px solid ${isActive ? t.color : t.color + '50'}`,
+                        minWidth: 130, maxWidth: 160,
+                      }}>
+                      {isActive && (
+                        <div style={{ fontFamily: SANS_TC, fontSize: 9, fontWeight: 700, color: t.color, letterSpacing: '0.1em', marginBottom: 3 }}>
+                          進行中
+                        </div>
                       )}
-                      {t.mood && <span style={{ fontSize: 11 }}>{t.mood}</span>}
-                      {transportEmoji && <span style={{ fontSize: 11 }}>{transportEmoji}</span>}
-                    </div>
-                  </button>
-                );
-              })}
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: t.color }} />
+                        <span style={{ fontFamily: SANS_TC, fontSize: 13, fontWeight: 700, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {t.location}
+                        </span>
+                      </div>
+                      <div style={{ fontFamily: NUMERIC, fontSize: 11, color: INK_LIGHT, marginBottom: 4 }}>
+                        {formatRange(t.startDate, t.endDate)}
+                      </div>
+                      <div className="flex items-center gap-1 flex-wrap">
+                        {p && (
+                          <span style={{
+                            fontFamily: SANS_TC, fontSize: 10, fontWeight: 600,
+                            color: p.color, background: p.color + '18',
+                            borderRadius: 4, padding: '1px 5px',
+                          }}>{p.label}</span>
+                        )}
+                        {t.mood && <span style={{ fontSize: 11 }}>{t.mood}</span>}
+                        {transportEmoji && <span style={{ fontSize: 11 }}>{transportEmoji}</span>}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        )}
-      </div>
+        );
+      })()}
 
       <div className="flex items-center justify-center gap-2 mb-3 opacity-65">
         <svg width="36" height="10" viewBox="0 0 60 10">
@@ -2621,48 +2636,43 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
         </div>
       </div>
 
-      <header className="text-center mb-8">
+      <header className="text-center mb-5">
         <div style={{
-          fontFamily: HANDWRITE_EN, fontSize: 'clamp(56px, 9vw, 96px)',
+          fontFamily: HANDWRITE_EN, fontSize: 'clamp(36px, 6vw, 60px)',
           color: INK, fontWeight: 700, fontStyle: 'italic',
           lineHeight: 1, letterSpacing: '-0.02em',
         }}>
           recap
         </div>
         <div style={{
-          fontFamily: SANS_TC, fontSize: 'clamp(16px, 2vw, 20px)',
-          color: INK, letterSpacing: '0.1em', marginTop: 2, fontWeight: 700,
+          fontFamily: SANS_TC, fontSize: 'clamp(13px, 1.6vw, 16px)',
+          color: INK_LIGHT, letterSpacing: '0.1em', marginTop: 2, fontWeight: 500,
         }}>
           年度回顧 · {year}
         </div>
       </header>
 
-      <section className="mb-10">
-        <div className="mb-3 text-center" style={{
-          color: INK_LIGHT, fontFamily: SANS_TC, fontSize: 11, fontWeight: 500, letterSpacing: '0.25em',
-        }}>
-          時間範圍 · DATE RANGE
-        </div>
-        <div className="flex flex-wrap justify-center gap-2 mb-3">
+      <section className="mb-6">
+        <div className="flex flex-wrap justify-center gap-1.5 mb-2">
           {presets.map(p => (
             <button key={p.id} onClick={() => setPresetId(p.id)}
-              className="px-4 py-1.5 rounded-full transition-all"
+              className="px-3 py-1 rounded-full transition-all"
               style={{
                 background: presetId === p.id ? INK : 'transparent',
                 color: presetId === p.id ? BG : INK,
                 border: `1.5px solid ${INK}`,
-                fontFamily: SANS_TC, fontSize: 13, fontWeight: 500,
+                fontFamily: SANS_TC, fontSize: 12, fontWeight: 500,
               }}>
               {p.label}
             </button>
           ))}
           <button onClick={() => setPresetId('custom')}
-            className="px-4 py-1.5 rounded-full transition-all"
+            className="px-3 py-1 rounded-full transition-all"
             style={{
               background: isCustom ? INK : 'transparent',
               color: isCustom ? BG : INK,
               border: `1.5px solid ${INK}`,
-              fontFamily: SANS_TC, fontSize: 13, fontWeight: 500,
+              fontFamily: SANS_TC, fontSize: 12, fontWeight: 500,
             }}>
             自訂
           </button>
@@ -2694,110 +2704,31 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
         </div>
       ) : (
         <>
-          <section className="mb-12">
-            <div className="grid grid-cols-3 gap-3 md:gap-6">
-              <BigStat number={totalTrips} unit="段" label="trips · 旅程" />
-              <BigStat number={uniquePlaces} unit="個" label="places · 地點" />
-              <BigStat number={totalDays} unit="天" label="days · 天數" />
+          <section className="mb-6">
+            <div className="grid grid-cols-3 gap-2 md:gap-4">
+              <BigStat number={totalTrips} unit="段" label="旅程" />
+              <BigStat number={uniquePlaces} unit="個" label="地點" />
+              <BigStat number={totalDays} unit="天" label="在外天數" />
             </div>
           </section>
 
-          <section className="mb-12">
-            <div className="mb-4 flex items-baseline justify-between gap-3 flex-wrap">
-              <div className="flex items-baseline gap-3">
-                <span style={{ fontFamily: SANS_TC, fontSize: 18, fontWeight: 700, color: INK, letterSpacing: '0.05em' }}>
-                  去過的地方
-                </span>
-                <span style={{ fontFamily: HANDWRITE_EN, fontSize: 17, color: INK_LIGHT, fontStyle: 'italic' }}>
-                  · On the Map
-                </span>
-              </div>
-              {sortedTrailTrips.length >= 2 && (
-                <div className="flex items-center gap-2">
-                  {trailMode === 'idle' && (
-                    <button
-                      onClick={handlePlayTrail}
-                      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full hover:opacity-85 transition"
-                      style={{
-                        background: INK, color: BG,
-                        fontFamily: SANS_TC, fontSize: 13, fontWeight: 500,
-                      }}>
-                      <svg width="10" height="10" viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9" fill="currentColor" /></svg>
-                      播放軌跡
-                    </button>
-                  )}
-                  {trailMode === 'playing' && (
-                    <div className="flex items-center gap-2">
-                      <span style={{ fontFamily: NUMERIC, fontSize: 12, color: INK_LIGHT, fontWeight: 500 }}>
-                        {trailIndex + 1} / {sortedTrailTrips.length}
-                      </span>
-                      <button
-                        onClick={handleResetTrail}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-full hover:bg-black/5 transition"
-                        style={{
-                          color: INK_LIGHT, border: `1px solid ${INK_DASH}`,
-                          fontFamily: SANS_TC, fontSize: 12,
-                        }}>
-                        停止
-                      </button>
-                    </div>
-                  )}
-                  {trailMode === 'done' && (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={handlePlayTrail}
-                        className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full hover:opacity-85 transition"
-                        style={{
-                          background: INK, color: BG,
-                          fontFamily: SANS_TC, fontSize: 13, fontWeight: 500,
-                        }}>
-                        <RotateCw className="w-3 h-3" /> 重新播放
-                      </button>
-                      <button
-                        onClick={handleResetTrail}
-                        className="px-3 py-1.5 rounded-full hover:bg-black/5 transition"
-                        style={{
-                          color: INK_LIGHT, border: `1px solid ${INK_DASH}`,
-                          fontFamily: SANS_TC, fontSize: 12,
-                        }}>
-                        清除軌跡
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+          <section className="mb-8">
+            <div className="mb-3 flex items-baseline gap-2">
+              <span style={{ fontFamily: SANS_TC, fontSize: 15, fontWeight: 700, color: INK, letterSpacing: '0.05em' }}>
+                世界足跡
+              </span>
+              <span style={{ fontFamily: HANDWRITE_EN, fontSize: 14, color: INK_LIGHT, fontStyle: 'italic' }}>
+                · On the Map
+              </span>
             </div>
-            <div className="rounded-xl p-4 md:p-5" style={{ border: `1.5px solid ${INK_DASH}`, background: PAPER_CREAM }}>
-              <TrailMap
-                trips={filtered}
-                sortedTrips={sortedTrailTrips}
-                trailMode={trailMode}
-                trailIndex={trailIndex}
-                onOpenDetail={onOpenDetail}
-              />
-              <div className="mt-3 text-center"
-                style={{ fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT, fontStyle: 'italic' }}>
-                {trailMode === 'idle' && (
-                  <>圓點大小與數字代表造訪次數 · Hover 圓點查看地點細節</>
-                )}
-                {trailMode === 'playing' && (
-                  <>正在播放：依時間順序展開 · 共 {sortedTrailTrips.length} 段</>
-                )}
-                {trailMode === 'done' && (
-                  <>軌跡完成 · 一共經過 {sortedTrailTrips.length} 段旅程</>
-                )}
-                {unmappedCount > 0 && (
-                  <span style={{ color: '#C44536', marginLeft: 6 }}>
-                    · {unmappedCount} 段未顯示
-                  </span>
-                )}
-              </div>
+            <div className="rounded-xl overflow-hidden" style={{ border: `1.5px solid ${INK_DASH}` }}>
+              <WorldMap trips={filtered} onOpenDetail={onOpenDetail} />
             </div>
           </section>
 
-          <section className="mb-12">
+          <section className="mb-6">
             <SectionTitle main="類型分布" sub="By Purpose" />
-            <div className="space-y-3">
+            <div className="space-y-2">
               {Object.entries(PURPOSE_PRESETS).map(([key, p]) => {
                 const count = purposeCounts[key];
                 const days = purposeDays[key];
@@ -2805,21 +2736,18 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
                 const Icon = p.icon;
                 return (
                   <div key={key}>
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4" style={{ color: p.color }} />
-                        <span style={{ fontFamily: SANS_TC, fontSize: 16, fontWeight: 700, color: INK }}>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <Icon className="w-3 h-3" style={{ color: p.color }} />
+                        <span style={{ fontFamily: SANS_TC, fontSize: 13, fontWeight: 700, color: INK }}>
                           {p.label}
                         </span>
-                        <span style={{ fontFamily: HANDWRITE_EN, fontSize: 15, color: INK_LIGHT, fontStyle: 'italic' }}>
-                          {p.sublabel}
-                        </span>
                       </div>
-                      <div style={{ fontFamily: NUMERIC, fontSize: 14, color: INK }}>
+                      <div style={{ fontFamily: NUMERIC, fontSize: 12, color: INK_LIGHT }}>
                         {count} 次 · {days} 天 · {Math.round(pct)}%
                       </div>
                     </div>
-                    <div className="rounded-full overflow-hidden" style={{ background: 'rgba(31,26,20,0.08)', height: 10 }}>
+                    <div className="rounded-full overflow-hidden" style={{ background: 'rgba(31,26,20,0.08)', height: 7 }}>
                       <div className="h-full rounded-full transition-all"
                         style={{ background: p.color, width: `${pct}%` }} />
                     </div>
@@ -2829,9 +2757,9 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
             </div>
           </section>
 
-          <section className="mb-12">
+          <section className="mb-6">
             <SectionTitle main="月份分布" sub="By Month" />
-            <div className="grid grid-cols-12 gap-1.5 items-end" style={{ height: 130 }}>
+            <div className="grid grid-cols-12 gap-1 items-end" style={{ height: 90 }}>
               {monthDays.map((d, i) => {
                 const h = (d / maxMonthDays) * 100;
                 const tripCount = monthCounts[i];
@@ -2863,23 +2791,7 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
             </div>
           </section>
 
-          <section className="mt-10 mb-6">
-            <div style={{
-              fontFamily: 'sans-serif', fontSize: 11, color: '#888',
-              fontWeight: 500, letterSpacing: '0.25em', marginBottom: 10, textAlign: 'center',
-            }}>
-              世界足跡 · MAP
-            </div>
-            <div className="rounded-xl overflow-hidden" style={{ border: '1.5px solid rgba(31,26,20,0.15)' }}>
-              {filtered.length === 0 ? (
-                <div className="p-8 text-center" style={{ fontSize: 14, color: '#888' }}>
-                  此時段沒有旅程記錄
-                </div>
-              ) : (
-                <WorldMap trips={filtered} onOpenDetail={onOpenDetail} />
-              )}
-            </div>
-          </section>
+
 
           <footer className="mt-6 pt-6 text-center" style={{ borderTop: '1px dashed rgba(31,26,20,0.2)' }}>
             <div style={{ fontFamily: SANS_TC, fontSize: 13, color: INK_LIGHT }}>
@@ -2894,7 +2806,7 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
 
 function BigStat({ number, unit, label }) {
   return (
-    <div className="text-center py-5 px-3 rounded-lg" style={{ border: `1.5px solid ${INK}`, background: PAPER_CREAM }}>
+    <div className="text-center py-3 px-2 rounded-lg" style={{ border: `1.5px solid ${INK}`, background: PAPER_CREAM }}>
       <div style={{
         fontFamily: NUMERIC, fontSize: 'clamp(40px, 6vw, 60px)',
         color: INK, fontWeight: 700, lineHeight: 1,
