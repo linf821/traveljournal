@@ -1404,25 +1404,69 @@ function HomeView({
         </div>
       </header>
 
-      <div className="flex items-center gap-2 mb-4">
-        {SUPPORTED_YEARS.map(y => {
-          const active = y === currentYear;
-          return (
-            <button key={y} onClick={() => onYearChange(y)}
-              className="px-3 py-1 rounded-full transition-all"
-              style={{
-                background: active ? INK : 'transparent',
-                color: active ? BG : INK,
-                border: `1.5px solid ${INK}`,
-                fontFamily: NUMERIC, fontSize: 12, fontWeight: 600,
-              }}>
-              {y}
-            </button>
-          );
-        })}
-        <span style={{ marginLeft: 'auto', fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT }}>
-          {yearTrips.length > 0 ? `${yearTrips.length} 段旅程` : '還沒有旅程記錄'}
-        </span>
+      <div className="mb-5">
+        <div className="flex items-center gap-2 mb-3">
+          {SUPPORTED_YEARS.map(y => {
+            const active = y === currentYear;
+            return (
+              <button key={y} onClick={() => onYearChange(y)}
+                className="px-3 py-1 rounded-full transition-all"
+                style={{
+                  background: active ? INK : 'transparent',
+                  color: active ? BG : INK,
+                  border: `1.5px solid ${INK}`,
+                  fontFamily: NUMERIC, fontSize: 12, fontWeight: 600,
+                }}>
+                {y}
+              </button>
+            );
+          })}
+          <span style={{ marginLeft: 'auto', fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT }}>
+            {yearTrips.length > 0 ? `${yearTrips.length} 段旅程` : '還沒有旅程記錄'}
+          </span>
+        </div>
+
+        {yearTrips.length > 0 && (
+          <div className="overflow-x-auto pb-1" style={{ scrollbarWidth: 'thin' }}>
+            <div className="flex gap-2.5" style={{ width: 'max-content' }}>
+              {[...yearTrips].sort((a, b) => a.startDate.localeCompare(b.startDate)).map(t => {
+                const p = t.purpose && PURPOSE_PRESETS[t.purpose];
+                const transportEmoji = t.transport === 'plane' ? '✈️' : t.transport === 'cruise' ? '🚢' : t.transport === 'train' ? '🚄' : null;
+                return (
+                  <button key={t.id}
+                    onClick={() => onOpenDetail(t.id)}
+                    className="flex-shrink-0 text-left rounded-xl px-3 py-2.5 hover:opacity-80 transition-opacity"
+                    style={{
+                      background: t.color + '12',
+                      border: `1.5px solid ${t.color}40`,
+                      minWidth: 130, maxWidth: 160,
+                    }}>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: t.color }} />
+                      <span style={{ fontFamily: SANS_TC, fontSize: 13, fontWeight: 700, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {t.location}
+                      </span>
+                    </div>
+                    <div style={{ fontFamily: NUMERIC, fontSize: 11, color: INK_LIGHT, marginBottom: 4 }}>
+                      {formatRange(t.startDate, t.endDate)}
+                    </div>
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {p && (
+                        <span style={{
+                          fontFamily: SANS_TC, fontSize: 10, fontWeight: 600,
+                          color: p.color, background: p.color + '18',
+                          borderRadius: 4, padding: '1px 5px',
+                        }}>{p.label}</span>
+                      )}
+                      {t.mood && <span style={{ fontSize: 11 }}>{t.mood}</span>}
+                      {transportEmoji && <span style={{ fontSize: 11 }}>{transportEmoji}</span>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-center gap-2 mb-3 opacity-65">
@@ -1457,10 +1501,6 @@ function HomeView({
           </div>
         </div>
       </main>
-
-      {yearTrips.length > 0 && (
-        <TripLegend trips={yearTrips} onOpenDetail={onOpenDetail} onOpenRecap={onOpenRecap} currentYear={currentYear} />
-      )}
 
       <footer className="mt-14 pt-6 text-center" style={{ borderTop: `1px dashed ${INK_DASH}` }}>
         <div className="flex items-center justify-center gap-2.5">
@@ -2262,8 +2302,8 @@ function DayEntry({ date, dayIndex, totalDays, places, color, location, country,
   const [collapsed, setCollapsed] = useState(true);
   const wd = ['日', '一', '二', '三', '四', '五', '六'][parseDate(date).getDay()];
 
-  const addPlace = () => {
-    const trimmed = inputValue.trim();
+  const addPlace = (overrideText) => {
+    const trimmed = (overrideText !== undefined ? overrideText : inputValue).trim();
     if (!trimmed) return;
     let newPlace;
     if (isGmapsUrl(trimmed)) {
@@ -2372,7 +2412,14 @@ function DayEntry({ date, dayIndex, totalDays, places, color, location, country,
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addPlace(); } }}
-              placeholder={`輸入${PLACE_TYPES[selectedType].label}名稱，或貼上 Google Maps 網址`}
+              onPaste={(e) => {
+                const text = e.clipboardData.getData('text');
+                if (isGmapsUrl(text.trim())) {
+                  e.preventDefault();
+                  addPlace(text.trim());
+                }
+              }}
+              placeholder={`輸入名稱，或貼上 Google Maps 網址自動匯入`}
               className="flex-1 min-w-0 bg-transparent outline-none py-1.5 px-1 border-b"
               style={{
                 borderColor: INK_DASH,
