@@ -1144,6 +1144,7 @@ export default function App() {
   const upsertTrip = (trip) => {
     setTrips((prev) => {
       const idx = prev.findIndex((t) => t.id === trip.id);
+      logChange(idx >= 0 ? '編輯' : '新增', trip);
       if (idx >= 0) {
         const next = [...prev];
         next[idx] = trip;
@@ -1153,8 +1154,29 @@ export default function App() {
     });
   };
 
+  const logChange = async (action, trip) => {
+    try {
+      const raw = await window.storage.get('changelog').catch(() => null);
+      const log = raw ? JSON.parse(raw.value) : [];
+      log.push({
+        ts: Date.now(),
+        action,
+        location: trip.location,
+        startDate: trip.startDate,
+        endDate: trip.endDate,
+        purpose: trip.purpose || '',
+      });
+      const cutoff = Date.now() - 90 * 24 * 3600 * 1000;
+      await window.storage.set('changelog', JSON.stringify(log.filter(e => e.ts > cutoff)));
+    } catch (e) {}
+  };
+
   const deleteTrip = (id) => {
-    setTrips((prev) => prev.filter((t) => t.id !== id));
+    setTrips((prev) => {
+      const trip = prev.find(t => t.id === id);
+      if (trip) logChange('刪除', trip);
+      return prev.filter((t) => t.id !== id);
+    });
     if (selectedTripId === id) {
       setSelectedTripId(null);
       setView('home');
