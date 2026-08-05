@@ -52,9 +52,9 @@ if (typeof window !== 'undefined' && !window.storage) {
    ============================================================ */
 
 const DEFAULT_YEAR = 2026;
-const SUPPORTED_YEARS = [2025, 2026];
-const ZODIAC = { 2025: 'snake', 2026: 'horse' };
-const ZODIAC_TC = { 2025: '蛇', 2026: '馬' };
+const SUPPORTED_YEARS = [2025, 2026, 2027];
+const ZODIAC = { 2025: 'snake', 2026: 'horse', 2027: 'goat' };
+const ZODIAC_TC = { 2025: '蛇', 2026: '馬', 2027: '羊' };
 
 // 台灣中心點（軌跡動畫起點）
 const TAIWAN_BASE = { lat: 23.7, lng: 121.0 };
