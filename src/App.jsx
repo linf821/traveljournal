@@ -520,6 +520,7 @@ function ContinentsLayer() {
 
 function WorldMap({ trips, onOpenDetail }) {
   const tripsWithCoords = trips.filter(t => typeof t.lat === 'number' && typeof t.lng === 'number');
+  const tripsWithoutCoords = trips.filter(t => typeof t.lat !== 'number' || typeof t.lng !== 'number');
   const groups = {};
   tripsWithCoords.forEach(t => {
     const key = `${t.lat.toFixed(2)},${t.lng.toFixed(2)}`;
@@ -588,6 +589,24 @@ function WorldMap({ trips, onOpenDetail }) {
           );
         })()}
       </svg>
+      {tripsWithoutCoords.length > 0 && (
+        <div className="mt-3 pt-3" style={{ borderTop: `1px dashed ${INK_DASH}` }}>
+          <div style={{ fontFamily: SANS_TC, fontSize: 10, color: INK_LIGHT, letterSpacing: '0.15em', marginBottom: 6 }}>
+            未標示位置 · {tripsWithoutCoords.length} 段
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {tripsWithoutCoords.map(t => (
+              <button key={t.id}
+                onClick={() => onOpenDetail && onOpenDetail(t.id)}
+                className="flex items-center gap-1 px-2 py-0.5 rounded-full hover:opacity-70 transition-opacity"
+                style={{ background: t.color + '18', border: `1px solid ${t.color}50` }}>
+                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: t.color }} />
+                <span style={{ fontFamily: SANS_TC, fontSize: 11, color: INK }}>{t.location}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1427,7 +1446,13 @@ function HomeView({
           .filter(t => t.endDate >= todayStr)
           .sort((a, b) => a.startDate.localeCompare(b.startDate))
           .slice(0, 10);
-        if (upcoming.length === 0) return null;
+        if (upcoming.length === 0) return (
+          <div className="mb-5 px-1">
+            <div style={{ fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT, letterSpacing: '0.05em' }}>
+              目前沒有即將到來的旅程 · 拖曳日期建立一段新旅程吧
+            </div>
+          </div>
+        );
         return (
           <div className="mb-5">
             <div className="flex items-center gap-2 mb-2">
