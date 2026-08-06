@@ -2624,6 +2624,17 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
   const mappedFiltered = filtered.filter(t => typeof t.lat === 'number' && typeof t.lng === 'number');
   const unmappedCount = filtered.length - mappedFiltered.length;
 
+  // 地點統計
+  const locationMap = {};
+  filtered.forEach(t => {
+    const key = t.location;
+    if (!locationMap[key]) locationMap[key] = { location: t.location, color: t.color, id: t.id, visits: 0, days: 0 };
+    locationMap[key].visits += 1;
+    locationMap[key].days += overlapDays(t, range.start, range.end);
+  });
+  const locationList = Object.values(locationMap).sort((a, b) => b.days - a.days);
+  const maxLocationDays = locationList[0]?.days || 1;
+
   const purposeCounts = { business: 0, domesticLeisure: 0, overseasLeisure: 0 };
   const purposeDays = { business: 0, domesticLeisure: 0, overseasLeisure: 0 };
   filtered.forEach(t => {
@@ -2734,64 +2745,31 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
               ))}
             </div>
 
-            {/* 類型分布 */}
-            <div>
+            {/* 地點排行 */}
+            <div className="flex-1 min-h-0 flex flex-col">
               <div className="mb-2" style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 700, color: INK, letterSpacing: '0.1em' }}>
-                類型分布
+                地點 · PLACES
               </div>
-              <div className="space-y-2">
-                {Object.entries(PURPOSE_PRESETS).map(([key, p]) => {
-                  const count = purposeCounts[key];
-                  const days = purposeDays[key];
-                  const pct = (count / totalPurposeTrips) * 100;
-                  const Icon = p.icon;
-                  return (
-                    <div key={key}>
-                      <div className="flex items-center justify-between mb-0.5">
-                        <div className="flex items-center gap-1">
-                          <Icon className="w-3 h-3 flex-shrink-0" style={{ color: p.color }} />
-                          <span style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 600, color: INK }}>
-                            {p.label}
-                          </span>
-                        </div>
-                        <span style={{ fontFamily: NUMERIC, fontSize: 10, color: INK_LIGHT }}>
-                          {count}次 · {days}天
+              <div className="space-y-1.5 overflow-y-auto flex-1" style={{ scrollbarWidth: 'thin' }}>
+                {locationList.map((loc, i) => (
+                  <div key={loc.location}>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: loc.color }} />
+                        <span style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 600, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {loc.location}
                         </span>
                       </div>
-                      <div className="rounded-full overflow-hidden" style={{ background: 'rgba(31,26,20,0.08)', height: 5 }}>
-                        <div className="h-full rounded-full transition-all"
-                          style={{ background: p.color, width: `${pct}%` }} />
-                      </div>
+                      <span style={{ fontFamily: NUMERIC, fontSize: 10, color: INK_LIGHT, flexShrink: 0, marginLeft: 4 }}>
+                        {loc.visits > 1 ? `${loc.visits}次 · ` : ''}{loc.days}天
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 月份分布 */}
-            <div>
-              <div className="mb-2" style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 700, color: INK, letterSpacing: '0.1em' }}>
-                月份分布
-              </div>
-              <div className="grid grid-cols-12 gap-0.5 items-end" style={{ height: 70 }}>
-                {monthDays.map((d, i) => {
-                  const h = (d / maxMonthDays) * 100;
-                  return (
-                    <div key={i} className="flex flex-col items-center justify-end h-full">
-                      <div className="w-full rounded-sm transition-all"
-                        style={{
-                          background: d > 0 ? INK : 'rgba(31,26,20,0.08)',
-                          height: `${Math.max(h, 4)}%`, minHeight: 3,
-                        }}
-                        title={`${MONTH_EN[i]}: ${monthCounts[i]} 段 · ${d} 天`} />
-                      <div className="text-center mt-0.5" style={{
-                        fontFamily: NUMERIC, fontSize: 8, color: INK_LIGHT,
-                      }}>
-                        {MONTH_EN[i].slice(0, 1)}
-                      </div>
+                    <div className="rounded-full overflow-hidden" style={{ background: 'rgba(31,26,20,0.08)', height: 4 }}>
+                      <div className="h-full rounded-full transition-all"
+                        style={{ background: loc.color, width: `${(loc.days / maxLocationDays) * 100}%` }} />
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -2812,7 +2790,7 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
             }}>
               世界足跡 · MAP
             </div>
-            <div className="flex-1 min-h-0 rounded-xl overflow-hidden" style={{ border: `1.5px solid ${INK_DASH}` }}>
+            <div className="rounded-xl overflow-hidden" style={{ border: `1.5px solid ${INK_DASH}`, maxHeight: '70%' }}>
               <WorldMap trips={filtered} onOpenDetail={onOpenDetail} />
             </div>
           </div>
