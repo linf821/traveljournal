@@ -2803,8 +2803,8 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
     locationMap[key].visits += 1;
     locationMap[key].days += overlapDays(t, range.start, range.end);
   });
-  const locationList = Object.values(locationMap).sort((a, b) => b.days - a.days);
-  const maxLocationDays = locationList[0]?.days || 1;
+  const locationList = Object.values(locationMap).sort((a, b) => b.visits - a.visits);
+  const maxLocationVisits = locationList[0]?.visits || 1;
 
   const purposeCounts = { business: 0, domesticLeisure: 0, overseasLeisure: 0 };
   const purposeDays = { business: 0, domesticLeisure: 0, overseasLeisure: 0 };
@@ -2932,12 +2932,12 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
                         </span>
                       </div>
                       <span style={{ fontFamily: NUMERIC, fontSize: 10, color: INK_LIGHT, flexShrink: 0, marginLeft: 4 }}>
-                        {loc.visits > 1 ? `${loc.visits}次 · ` : ''}{loc.days}天
+                        {loc.visits}次
                       </span>
                     </div>
                     <div className="rounded-full overflow-hidden" style={{ background: 'rgba(31,26,20,0.08)', height: 4 }}>
                       <div className="h-full rounded-full transition-all"
-                        style={{ background: loc.color, width: `${(loc.days / maxLocationDays) * 100}%` }} />
+                        style={{ background: loc.color, width: `${(loc.visits / maxLocationVisits) * 100}%` }} />
                     </div>
                   </div>
                 ))}
