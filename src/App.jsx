@@ -1721,6 +1721,9 @@ function HomeView({
             calendar · {currentYear} · 共 {yearTrips.length} 段旅程，{yearTrips.reduce((s, t) => s + tripLength(t), 0)} 天
           </div>
         </div>
+        <div className="mt-3" style={{ fontFamily: HANDWRITE_EN, fontSize: 11, color: INK_LIGHT, opacity: 0.6, letterSpacing: '0.1em' }}>
+          © HSINGFEI LIN
+        </div>
       </footer>
     </div>
   );
