@@ -2840,13 +2840,14 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
     countryMap[country][city].visits += 1;
   });
   const countryList = Object.entries(countryMap)
-    .map(([country, cities]) => ({
-      country,
-      totalVisits: Object.values(cities).reduce((s, c) => s + c.visits, 0),
-      cities: Object.entries(cities)
-        .map(([city, d]) => ({ city, ...d }))
-        .sort((a, b) => b.visits - a.visits),
-    }))
+    .map(([country, cities]) => {
+      const totalVisits = Object.values(cities).reduce((s, c) => s + c.visits, 0);
+      return {
+        country,
+        totalVisits,
+        cities: Object.entries(cities).map(([city, d]) => ({ city, ...d })).sort((a, b) => b.visits - a.visits),
+      };
+    })
     .sort((a, b) => b.totalVisits - a.totalVisits);
 
   const purposeCounts = { business: 0, domesticLeisure: 0, overseasLeisure: 0 };
@@ -2959,39 +2960,59 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
               ))}
             </div>
 
-            {/* 地點：國別 → 城市 */}
-            <div className="flex-1 min-h-0 flex flex-col">
-              <div className="mb-2" style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 700, color: INK, letterSpacing: '0.1em' }}>
-                地點 · PLACES
-              </div>
-              <div className="overflow-y-auto flex-1 space-y-3" style={{ scrollbarWidth: 'thin' }}>
-                {countryList.map(({ country, cities }) => (
-                  <div key={country}>
-                    <div className="mb-1" style={{ fontFamily: SANS_TC, fontSize: 9, fontWeight: 700, color: INK_LIGHT, letterSpacing: '0.2em' }}>
-                      {country.toUpperCase()}
-                    </div>
-                    <div className="space-y-1">
-                      {cities.map(({ city, color, visits }) => (
-                        <div key={city} className="flex items-center gap-2">
-                          <span style={{ fontFamily: SANS_TC, fontSize: 11, color: INK, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: '1 1 0' }}>
-                            {city}
-                          </span>
-                          <div className="flex items-center gap-0.5 flex-shrink-0">
-                            {Array.from({ length: Math.min(visits, 8) }).map((_, i) => (
-                              <span key={i} className="rounded-full inline-block"
-                                style={{ width: 6, height: 6, background: color, opacity: 0.85 }} />
-                            ))}
-                            {visits > 8 && (
-                              <span style={{ fontFamily: NUMERIC, fontSize: 9, color: INK_LIGHT, marginLeft: 2 }}>+{visits - 8}</span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+            {/* 地點：國別（可展開城市） */}
+            {(() => {
+              const [expanded, setExpanded] = React.useState(null);
+              return (
+                <div className="flex-1 min-h-0 flex flex-col">
+                  <div className="mb-3" style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 700, color: INK, letterSpacing: '0.1em' }}>
+                    地點 · PLACES
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="overflow-y-auto flex-1 space-y-1.5" style={{ scrollbarWidth: 'thin' }}>
+                    {countryList.map(({ country, cities, totalVisits }) => {
+                      const isOpen = expanded === country;
+                      const topColor = cities[0]?.color || INK;
+                      return (
+                        <div key={country}>
+                          <button
+                            className="w-full flex items-center justify-between gap-2 py-1 hover:opacity-70 transition-opacity text-left"
+                            onClick={() => setExpanded(isOpen ? null : country)}>
+                            <span style={{ fontFamily: SANS_TC, fontSize: 15, fontWeight: 700, color: INK }}>
+                              {country}
+                            </span>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              {Array.from({ length: Math.min(totalVisits, 8) }).map((_, i) => (
+                                <span key={i} className="rounded-full inline-block"
+                                  style={{ width: 7, height: 7, background: topColor, opacity: 0.8 }} />
+                              ))}
+                              {totalVisits > 8 && (
+                                <span style={{ fontFamily: NUMERIC, fontSize: 10, color: INK_LIGHT }}>+{totalVisits - 8}</span>
+                              )}
+                            </div>
+                          </button>
+                          {isOpen && (
+                            <div className="pl-3 pb-1 space-y-0.5" style={{ borderLeft: `2px solid ${topColor}30` }}>
+                              {cities.map(({ city, color, visits }) => (
+                                <div key={city} className="flex items-center justify-between gap-2">
+                                  <span style={{ fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT }}>{city}</span>
+                                  <div className="flex items-center gap-0.5 flex-shrink-0">
+                                    {Array.from({ length: Math.min(visits, 6) }).map((_, i) => (
+                                      <span key={i} className="rounded-full inline-block"
+                                        style={{ width: 5, height: 5, background: color, opacity: 0.7 }} />
+                                    ))}
+                                    {visits > 6 && <span style={{ fontFamily: NUMERIC, fontSize: 9, color: INK_LIGHT }}>+{visits - 6}</span>}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* footer text */}
             <div className="mt-auto pt-3" style={{ borderTop: `1px dashed ${INK_DASH}` }}>
