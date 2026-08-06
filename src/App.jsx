@@ -372,7 +372,7 @@ const FontLoader = () => {
    插畫
    ============================================================ */
 
-function HorseIllustration() {
+function HorseIllustration({ accent = SOFT_BLUE }) {
   return (
     <svg viewBox="0 0 480 320" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
       <g stroke={INK} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -385,13 +385,13 @@ function HorseIllustration() {
         <path d="M 400 69 L 410 71" />
         <circle cx="428" cy="67" r="0.9" fill={INK} />
       </g>
-      <g stroke={SOFT_BLUE} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <g stroke={accent} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
         <path d="M 350 35 L 350 55" />
         <path d="M 350 35 Q 358 32 360 38" />
-        <ellipse cx="347" cy="55" rx="3.5" ry="2.5" fill={SOFT_BLUE} stroke="none" />
+        <ellipse cx="347" cy="55" rx="3.5" ry="2.5" fill={accent} stroke="none" />
         <path d="M 145 70 L 145 88" />
         <path d="M 145 70 Q 152 67 154 73" />
-        <ellipse cx="142" cy="88" rx="3" ry="2" fill={SOFT_BLUE} stroke="none" />
+        <ellipse cx="142" cy="88" rx="3" ry="2" fill={accent} stroke="none" />
       </g>
       <g fill={CLOUD_SHADOW} stroke="none">
         <ellipse cx="240" cy="295" rx="220" ry="14" opacity="0.5" />
@@ -454,7 +454,7 @@ function HorseIllustration() {
   );
 }
 
-function SnakeIllustration() {
+function SnakeIllustration({ accent = SOFT_BLUE }) {
   return (
     <svg viewBox="0 0 480 320" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
       {/* decorations */}
@@ -516,19 +516,19 @@ function SnakeIllustration() {
         <line x1="185" y1="275" x2="185" y2="282" />
       </g>
       {/* small star decorations */}
-      <g stroke={SOFT_BLUE} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <g stroke={accent} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
         <path d="M 155 80 L 155 100" />
         <path d="M 155 80 Q 163 77 165 83" />
-        <ellipse cx="152" cy="100" rx="3.5" ry="2.5" fill={SOFT_BLUE} stroke="none" />
+        <ellipse cx="152" cy="100" rx="3.5" ry="2.5" fill={accent} stroke="none" />
         <path d="M 350 60 L 350 78" />
         <path d="M 350 60 Q 357 57 359 63" />
-        <ellipse cx="347" cy="78" rx="3" ry="2" fill={SOFT_BLUE} stroke="none" />
+        <ellipse cx="347" cy="78" rx="3" ry="2" fill={accent} stroke="none" />
       </g>
     </svg>
   );
 }
 
-function GoatIllustration() {
+function GoatIllustration({ accent = SOFT_BLUE }) {
   return (
     <svg viewBox="0 0 480 320" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
       {/* decorations */}
@@ -590,13 +590,13 @@ function GoatIllustration() {
       </g>
       <text x="231" y="173" textAnchor="middle" fill={INK} style={{ fontFamily: 'serif', fontSize: 13, fontWeight: 700 }}>2027</text>
       {/* decorative elements */}
-      <g stroke={SOFT_BLUE} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <g stroke={accent} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
         <path d="M 145 80 L 145 98" />
         <path d="M 145 80 Q 152 77 154 83" />
-        <ellipse cx="142" cy="98" rx="3" ry="2" fill={SOFT_BLUE} stroke="none" />
+        <ellipse cx="142" cy="98" rx="3" ry="2" fill={accent} stroke="none" />
         <path d="M 380 65 L 380 83" />
         <path d="M 380 65 Q 387 62 389 68" />
-        <ellipse cx="377" cy="83" rx="3.5" ry="2.5" fill={SOFT_BLUE} stroke="none" />
+        <ellipse cx="377" cy="83" rx="3.5" ry="2.5" fill={accent} stroke="none" />
       </g>
       <g stroke={INK} strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="220" cy="265" r="2.5" />
@@ -609,10 +609,17 @@ function GoatIllustration() {
   );
 }
 
+const ZODIAC_ACCENT = {
+  2025: '#7A9E6A',
+  2026: '#5A7FB0',
+  2027: '#8B7BB0',
+};
+
 function ZodiacIllustration({ year }) {
-  if (year === 2025) return <SnakeIllustration />;
-  if (year === 2027) return <GoatIllustration />;
-  return <HorseIllustration />;
+  const accent = ZODIAC_ACCENT[year] || SOFT_BLUE;
+  if (year === 2025) return <SnakeIllustration accent={accent} />;
+  if (year === 2027) return <GoatIllustration accent={accent} />;
+  return <HorseIllustration accent={accent} />;
 }
 
 /* ============================================================
