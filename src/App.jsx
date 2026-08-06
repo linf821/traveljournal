@@ -2795,16 +2795,24 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
   const mappedFiltered = filtered.filter(t => typeof t.lat === 'number' && typeof t.lng === 'number');
   const unmappedCount = filtered.length - mappedFiltered.length;
 
-  // 地點統計
-  const locationMap = {};
+  // 地點統計：以國別分組
+  const countryMap = {};
   filtered.forEach(t => {
-    const key = t.location;
-    if (!locationMap[key]) locationMap[key] = { location: t.location, color: t.color, id: t.id, visits: 0, days: 0 };
-    locationMap[key].visits += 1;
-    locationMap[key].days += overlapDays(t, range.start, range.end);
+    const country = t.country || '其他';
+    if (!countryMap[country]) countryMap[country] = {};
+    const city = t.location;
+    if (!countryMap[country][city]) countryMap[country][city] = { color: t.color, visits: 0 };
+    countryMap[country][city].visits += 1;
   });
-  const locationList = Object.values(locationMap).sort((a, b) => b.visits - a.visits);
-  const maxLocationVisits = locationList[0]?.visits || 1;
+  const countryList = Object.entries(countryMap)
+    .map(([country, cities]) => ({
+      country,
+      totalVisits: Object.values(cities).reduce((s, c) => s + c.visits, 0),
+      cities: Object.entries(cities)
+        .map(([city, d]) => ({ city, ...d }))
+        .sort((a, b) => b.visits - a.visits),
+    }))
+    .sort((a, b) => b.totalVisits - a.totalVisits);
 
   const purposeCounts = { business: 0, domesticLeisure: 0, overseasLeisure: 0 };
   const purposeDays = { business: 0, domesticLeisure: 0, overseasLeisure: 0 };
@@ -2916,28 +2924,34 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
               ))}
             </div>
 
-            {/* 地點排行 */}
+            {/* 地點：國別 → 城市 */}
             <div className="flex-1 min-h-0 flex flex-col">
               <div className="mb-2" style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 700, color: INK, letterSpacing: '0.1em' }}>
                 地點 · PLACES
               </div>
-              <div className="space-y-1.5 overflow-y-auto flex-1" style={{ scrollbarWidth: 'thin' }}>
-                {locationList.map((loc, i) => (
-                  <div key={loc.location}>
-                    <div className="flex items-center justify-between mb-0.5">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: loc.color }} />
-                        <span style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 600, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {loc.location}
-                        </span>
-                      </div>
-                      <span style={{ fontFamily: NUMERIC, fontSize: 10, color: INK_LIGHT, flexShrink: 0, marginLeft: 4 }}>
-                        {loc.visits}次
-                      </span>
+              <div className="overflow-y-auto flex-1 space-y-3" style={{ scrollbarWidth: 'thin' }}>
+                {countryList.map(({ country, cities }) => (
+                  <div key={country}>
+                    <div className="mb-1" style={{ fontFamily: SANS_TC, fontSize: 9, fontWeight: 700, color: INK_LIGHT, letterSpacing: '0.2em' }}>
+                      {country.toUpperCase()}
                     </div>
-                    <div className="rounded-full overflow-hidden" style={{ background: 'rgba(31,26,20,0.08)', height: 4 }}>
-                      <div className="h-full rounded-full transition-all"
-                        style={{ background: loc.color, width: `${(loc.visits / maxLocationVisits) * 100}%` }} />
+                    <div className="space-y-1">
+                      {cities.map(({ city, color, visits }) => (
+                        <div key={city} className="flex items-center gap-2">
+                          <span style={{ fontFamily: SANS_TC, fontSize: 11, color: INK, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: '1 1 0' }}>
+                            {city}
+                          </span>
+                          <div className="flex items-center gap-0.5 flex-shrink-0">
+                            {Array.from({ length: Math.min(visits, 8) }).map((_, i) => (
+                              <span key={i} className="rounded-full inline-block"
+                                style={{ width: 6, height: 6, background: color, opacity: 0.85 }} />
+                            ))}
+                            {visits > 8 && (
+                              <span style={{ fontFamily: NUMERIC, fontSize: 9, color: INK_LIGHT, marginLeft: 2 }}>+{visits - 8}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))}
