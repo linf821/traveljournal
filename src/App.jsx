@@ -2961,58 +2961,7 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
             </div>
 
             {/* 地點：國別（可展開城市） */}
-            {(() => {
-              const [expanded, setExpanded] = React.useState(null);
-              return (
-                <div className="flex-1 min-h-0 flex flex-col">
-                  <div className="mb-3" style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 700, color: INK, letterSpacing: '0.1em' }}>
-                    地點 · PLACES
-                  </div>
-                  <div className="overflow-y-auto flex-1 space-y-1.5" style={{ scrollbarWidth: 'thin' }}>
-                    {countryList.map(({ country, cities, totalVisits }) => {
-                      const isOpen = expanded === country;
-                      const topColor = cities[0]?.color || INK;
-                      return (
-                        <div key={country}>
-                          <button
-                            className="w-full flex items-center justify-between gap-2 py-1 hover:opacity-70 transition-opacity text-left"
-                            onClick={() => setExpanded(isOpen ? null : country)}>
-                            <span style={{ fontFamily: SANS_TC, fontSize: 15, fontWeight: 700, color: INK }}>
-                              {country}
-                            </span>
-                            <div className="flex items-center gap-1 flex-shrink-0">
-                              {Array.from({ length: Math.min(totalVisits, 8) }).map((_, i) => (
-                                <span key={i} className="rounded-full inline-block"
-                                  style={{ width: 7, height: 7, background: topColor, opacity: 0.8 }} />
-                              ))}
-                              {totalVisits > 8 && (
-                                <span style={{ fontFamily: NUMERIC, fontSize: 10, color: INK_LIGHT }}>+{totalVisits - 8}</span>
-                              )}
-                            </div>
-                          </button>
-                          {isOpen && (
-                            <div className="pl-3 pb-1 space-y-0.5" style={{ borderLeft: `2px solid ${topColor}30` }}>
-                              {cities.map(({ city, color, visits }) => (
-                                <div key={city} className="flex items-center justify-between gap-2">
-                                  <span style={{ fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT }}>{city}</span>
-                                  <div className="flex items-center gap-0.5 flex-shrink-0">
-                                    {Array.from({ length: Math.min(visits, 6) }).map((_, i) => (
-                                      <span key={i} className="rounded-full inline-block"
-                                        style={{ width: 5, height: 5, background: color, opacity: 0.7 }} />
-                                    ))}
-                                    {visits > 6 && <span style={{ fontFamily: NUMERIC, fontSize: 9, color: INK_LIGHT }}>+{visits - 6}</span>}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })()}
+            <CountryPlacesList countryList={countryList} />
 
             {/* footer text */}
             <div className="mt-auto pt-3" style={{ borderTop: `1px dashed ${INK_DASH}` }}>
@@ -3038,6 +2987,59 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
 
         </div>
       )}
+    </div>
+  );
+}
+
+function CountryPlacesList({ countryList }) {
+  const [expanded, setExpanded] = React.useState(null);
+  return (
+    <div className="flex-1 min-h-0 flex flex-col">
+      <div className="mb-3" style={{ fontFamily: SANS_TC, fontSize: 11, fontWeight: 700, color: INK, letterSpacing: '0.1em' }}>
+        地點 · PLACES
+      </div>
+      <div className="overflow-y-auto flex-1 space-y-1.5" style={{ scrollbarWidth: 'thin' }}>
+        {countryList.map(({ country, cities, totalVisits }) => {
+          const isOpen = expanded === country;
+          const topColor = cities[0]?.color || INK;
+          return (
+            <div key={country}>
+              <button
+                className="w-full flex items-center justify-between gap-2 py-1 hover:opacity-70 transition-opacity text-left"
+                onClick={() => setExpanded(isOpen ? null : country)}>
+                <span style={{ fontFamily: SANS_TC, fontSize: 15, fontWeight: 700, color: INK }}>
+                  {country}
+                </span>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  {Array.from({ length: Math.min(totalVisits, 8) }).map((_, i) => (
+                    <span key={i} className="rounded-full inline-block"
+                      style={{ width: 7, height: 7, background: topColor, opacity: 0.8 }} />
+                  ))}
+                  {totalVisits > 8 && (
+                    <span style={{ fontFamily: NUMERIC, fontSize: 10, color: INK_LIGHT }}>+{totalVisits - 8}</span>
+                  )}
+                </div>
+              </button>
+              {isOpen && (
+                <div className="pl-3 pb-1 space-y-0.5" style={{ borderLeft: `2px solid ${topColor}40` }}>
+                  {cities.map(({ city, color, visits }) => (
+                    <div key={city} className="flex items-center justify-between gap-2">
+                      <span style={{ fontFamily: SANS_TC, fontSize: 12, color: INK_LIGHT }}>{city}</span>
+                      <div className="flex items-center gap-0.5 flex-shrink-0">
+                        {Array.from({ length: Math.min(visits, 6) }).map((_, i) => (
+                          <span key={i} className="rounded-full inline-block"
+                            style={{ width: 5, height: 5, background: color, opacity: 0.7 }} />
+                        ))}
+                        {visits > 6 && <span style={{ fontFamily: NUMERIC, fontSize: 9, color: INK_LIGHT }}>+{visits - 6}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
