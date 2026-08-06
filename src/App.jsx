@@ -454,6 +454,167 @@ function HorseIllustration() {
   );
 }
 
+function SnakeIllustration() {
+  return (
+    <svg viewBox="0 0 480 320" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+      {/* decorations */}
+      <g fill={CLOUD_SHADOW} stroke="none">
+        <ellipse cx="240" cy="295" rx="220" ry="14" opacity="0.5" />
+      </g>
+      <g stroke={CLOUD_STROKE} strokeWidth="2" fill={CLOUD_FILL} strokeLinejoin="round" strokeLinecap="round">
+        <path d="M 20 280 Q 10 270 22 260 Q 22 246 38 248 Q 48 232 65 240 Q 75 232 88 244 Q 102 246 100 260 Q 110 268 100 278 Q 88 286 70 282 Q 50 290 32 284 Z" />
+      </g>
+      <g stroke={CLOUD_STROKE} strokeWidth="2.2" fill={CLOUD_FILL} strokeLinejoin="round" strokeLinecap="round">
+        <path d="M 110 285 Q 95 270 112 258 Q 115 240 138 244 Q 148 222 175 230 Q 188 215 215 222 Q 230 205 258 215 Q 275 200 305 212 Q 322 205 340 222 Q 358 222 365 240 Q 380 244 378 260 Q 388 272 376 282 Q 360 295 340 290 Q 318 298 295 290 Q 270 296 245 290 Q 220 296 198 290 Q 175 296 152 290 Q 130 295 110 285 Z" />
+      </g>
+      <g stroke={CLOUD_STROKE} strokeWidth="2" fill={CLOUD_FILL} strokeLinejoin="round" strokeLinecap="round">
+        <path d="M 390 280 Q 380 268 392 258 Q 395 245 412 248 Q 420 235 438 244 Q 452 244 452 260 Q 462 266 454 278 Q 442 286 425 282 Q 408 290 392 284 Z" />
+      </g>
+      {/* snake body – coiled S */}
+      <g stroke={INK} strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.08">
+        <path d="M 240 270 Q 290 265 305 240 Q 320 212 295 192 Q 268 172 240 185 Q 210 198 208 222 Q 206 248 230 255 Q 255 262 268 245 Q 278 230 265 218 Q 252 207 240 212" />
+      </g>
+      <g stroke={INK} strokeWidth="2.8" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M 240 270 Q 290 265 305 240 Q 320 212 295 192 Q 268 172 240 185 Q 210 198 208 222 Q 206 248 230 255 Q 255 262 268 245 Q 278 230 265 218 Q 252 207 240 212" />
+      </g>
+      {/* head */}
+      <g stroke={INK} strokeWidth="2.2" fill={BG} strokeLinecap="round" strokeLinejoin="round">
+        <ellipse cx="238" cy="205" rx="13" ry="9" />
+      </g>
+      {/* eye */}
+      <circle cx="243" cy="202" r="1.4" fill={INK} />
+      {/* tongue */}
+      <g stroke="#C44536" strokeWidth="1.4" fill="none" strokeLinecap="round">
+        <path d="M 250 205 L 262 205" />
+        <path d="M 260 203 L 263 205 L 260 207" />
+      </g>
+      {/* scales suggestion */}
+      <g stroke={INK} strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.5">
+        <path d="M 290 238 Q 294 234 298 238" />
+        <path d="M 272 248 Q 276 244 280 248" />
+        <path d="M 252 258 Q 256 254 260 258" />
+        <path d="M 230 255 Q 234 251 238 255" />
+      </g>
+      {/* year bubble */}
+      <g stroke={INK} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M 303 190 Q 303 177 316 177 Q 328 177 328 190 Q 328 199 316 199 Q 310 199 310 193 Q 310 188 316 188 Q 320 188 320 192" />
+        <path d="M 303 199 Q 290 199 286 205 L 284 207" />
+        <path d="M 284 205 L 280 203 M 284 207 L 281 209" />
+      </g>
+      <g stroke={INK} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M 345 155 Q 345 143 357 143 Q 369 143 369 155 Q 369 165 357 165 Q 350 165 350 159 Q 350 154 357 154 Q 361 154 361 158" strokeWidth="1.5" />
+        <path d="M 345 165 Q 333 165 330 172 L 328 173" strokeWidth="1.5" />
+        <path d="M 328 171 L 324 169 M 328 173 L 325 175" strokeWidth="1.5" />
+      </g>
+      <text x="316" y="192" textAnchor="middle" fill={INK} style={{ fontFamily: 'serif', fontSize: 13, fontWeight: 700 }}>2025</text>
+      {/* small rocks */}
+      <g stroke={INK} strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="185" cy="265" r="2.5" />
+        <circle cx="181" cy="269" r="1.8" />
+        <circle cx="189" cy="269" r="1.8" />
+        <circle cx="185" cy="271" r="2" />
+        <line x1="185" y1="275" x2="185" y2="282" />
+      </g>
+      {/* small star decorations */}
+      <g stroke={SOFT_BLUE} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M 155 80 L 155 100" />
+        <path d="M 155 80 Q 163 77 165 83" />
+        <ellipse cx="152" cy="100" rx="3.5" ry="2.5" fill={SOFT_BLUE} stroke="none" />
+        <path d="M 350 60 L 350 78" />
+        <path d="M 350 60 Q 357 57 359 63" />
+        <ellipse cx="347" cy="78" rx="3" ry="2" fill={SOFT_BLUE} stroke="none" />
+      </g>
+    </svg>
+  );
+}
+
+function GoatIllustration() {
+  return (
+    <svg viewBox="0 0 480 320" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+      {/* decorations */}
+      <g fill={CLOUD_SHADOW} stroke="none">
+        <ellipse cx="240" cy="295" rx="220" ry="14" opacity="0.5" />
+      </g>
+      <g stroke={CLOUD_STROKE} strokeWidth="2" fill={CLOUD_FILL} strokeLinejoin="round" strokeLinecap="round">
+        <path d="M 20 280 Q 10 270 22 260 Q 22 246 38 248 Q 48 232 65 240 Q 75 232 88 244 Q 102 246 100 260 Q 110 268 100 278 Q 88 286 70 282 Q 50 290 32 284 Z" />
+      </g>
+      <g stroke={CLOUD_STROKE} strokeWidth="2.2" fill={CLOUD_FILL} strokeLinejoin="round" strokeLinecap="round">
+        <path d="M 110 285 Q 95 270 112 258 Q 115 240 138 244 Q 148 222 175 230 Q 188 215 215 222 Q 230 205 258 215 Q 275 200 305 212 Q 322 205 340 222 Q 358 222 365 240 Q 380 244 378 260 Q 388 272 376 282 Q 360 295 340 290 Q 318 298 295 290 Q 270 296 245 290 Q 220 296 198 290 Q 175 296 152 290 Q 130 295 110 285 Z" />
+      </g>
+      <g stroke={CLOUD_STROKE} strokeWidth="2" fill={CLOUD_FILL} strokeLinejoin="round" strokeLinecap="round">
+        <path d="M 390 280 Q 380 268 392 258 Q 395 245 412 248 Q 420 235 438 244 Q 452 244 452 260 Q 462 266 454 278 Q 442 286 425 282 Q 408 290 392 284 Z" />
+      </g>
+      {/* goat body */}
+      <g stroke={INK} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M 155 225 Q 160 205 185 200 Q 230 195 275 200 Q 305 205 315 220 Q 320 235 310 248 Q 295 258 260 258 Q 220 260 185 255 Q 158 248 155 235 Z" />
+      </g>
+      {/* neck + head */}
+      <g stroke={INK} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M 290 208 Q 310 195 325 185 Q 335 178 338 188 L 336 195 Q 345 190 352 196 Q 356 205 348 212 L 340 215 Q 330 218 320 215 L 312 220" />
+        <path d="M 336 195 Q 340 185 348 185 Q 355 182 356 190" />
+      </g>
+      {/* horns */}
+      <g stroke={INK} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M 335 180 Q 332 165 338 155 Q 343 148 348 155" />
+        <path d="M 345 178 Q 348 163 356 158 Q 362 154 364 162" />
+      </g>
+      {/* eye */}
+      <circle cx="344" cy="200" r="1.4" fill={INK} />
+      {/* ear */}
+      <path d="M 330 196 Q 322 192 318 198 Q 322 204 330 200" stroke={INK} strokeWidth="1.8" fill="none" strokeLinecap="round" />
+      {/* beard */}
+      <g stroke={INK} strokeWidth="1.8" fill="none" strokeLinecap="round">
+        <path d="M 348 213 Q 350 222 346 228 Q 342 234 346 238" />
+      </g>
+      {/* tail */}
+      <path d="M 160 235 Q 148 228 145 218 Q 143 210 150 208" stroke={INK} strokeWidth="2" fill="none" strokeLinecap="round" />
+      {/* legs */}
+      <g stroke={INK} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M 190 255 Q 188 268 185 278 L 183 285" />
+        <path d="M 210 258 Q 208 272 206 282 L 204 288" />
+        <path d="M 265 257 Q 263 270 261 280 L 259 287" />
+        <path d="M 285 254 Q 284 268 282 278 L 280 285" />
+      </g>
+      {/* hooves */}
+      <g stroke={INK} strokeWidth="1.5" fill="none" strokeLinecap="round">
+        <path d="M 181 284 Q 179 288 183 290 Q 187 290 185 285" />
+        <path d="M 202 287 Q 200 291 204 293 Q 208 293 206 288" />
+        <path d="M 257 286 Q 255 290 259 292 Q 263 292 261 287" />
+        <path d="M 278 284 Q 276 288 280 290 Q 284 290 282 285" />
+      </g>
+      {/* year bubble */}
+      <g stroke={INK} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M 218 170 Q 218 157 231 157 Q 243 157 243 170 Q 243 180 231 180 Q 225 180 225 174 Q 225 169 231 169 Q 235 169 235 173" />
+        <path d="M 218 180 Q 205 180 202 186 L 200 188" />
+        <path d="M 200 186 L 196 184 M 200 188 L 197 190" />
+      </g>
+      <text x="231" y="173" textAnchor="middle" fill={INK} style={{ fontFamily: 'serif', fontSize: 13, fontWeight: 700 }}>2027</text>
+      {/* decorative elements */}
+      <g stroke={SOFT_BLUE} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M 145 80 L 145 98" />
+        <path d="M 145 80 Q 152 77 154 83" />
+        <ellipse cx="142" cy="98" rx="3" ry="2" fill={SOFT_BLUE} stroke="none" />
+        <path d="M 380 65 L 380 83" />
+        <path d="M 380 65 Q 387 62 389 68" />
+        <ellipse cx="377" cy="83" rx="3.5" ry="2.5" fill={SOFT_BLUE} stroke="none" />
+      </g>
+      <g stroke={INK} strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="220" cy="265" r="2.5" />
+        <circle cx="216" cy="269" r="1.8" />
+        <circle cx="224" cy="269" r="1.8" />
+        <circle cx="220" cy="271" r="2" />
+        <line x1="220" y1="275" x2="220" y2="282" />
+      </g>
+    </svg>
+  );
+}
+
+function ZodiacIllustration({ year }) {
+  if (year === 2025) return <SnakeIllustration />;
+  if (year === 2027) return <GoatIllustration />;
+  return <HorseIllustration />;
+}
+
 /* ============================================================
    世界地圖（共用元件）
    ============================================================ */
@@ -1405,7 +1566,7 @@ function HomeView({
 
       <header className="flex items-center gap-5 pt-5 pb-4 mb-2 sticky top-0 z-10" style={{ background: BG }}>
         <div style={{ width: 72, height: 72, flexShrink: 0 }}>
-          <HorseIllustration />
+          <ZodiacIllustration year={currentYear} />
         </div>
         <div className="flex-1 min-w-0">
           <div style={{
