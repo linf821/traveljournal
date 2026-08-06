@@ -257,6 +257,40 @@ const LOCATION_COORDS = {
   '杜拜': { lat: 25.20, lng: 55.27 }, '伊斯坦堡': { lat: 41.01, lng: 28.98 },
 };
 
+const CITY_COUNTRY = {
+  '台北': '台灣', '台北市': '台灣', 'Taipei': '台灣', '高雄': '台灣', '台中': '台灣', '台南': '台灣',
+  '花蓮': '台灣', '宜蘭': '台灣', '墾丁': '台灣', '新竹': '台灣', '桃園': '台灣', '嘉義': '台灣',
+  '南投': '台灣', '苗栗': '台灣', '基隆': '台灣', '屏東': '台灣', '台東': '台灣', '澎湖': '台灣',
+  '金門': '台灣', '馬祖': '台灣', '阿里山': '台灣', '日月潭': '台灣', '九份': '台灣',
+  '東京': '日本', 'Tokyo': '日本', '大阪': '日本', 'Osaka': '日本', '京都': '日本', 'Kyoto': '日本',
+  '北海道': '日本', '札幌': '日本', '沖繩': '日本', '名古屋': '日本', '福岡': '日本',
+  '橫濱': '日本', '神戶': '日本', '奈良': '日本', '廣島': '日本',
+  '首爾': '韓國', 'Seoul': '韓國', '釜山': '韓國', '濟州': '韓國', '濟州島': '韓國',
+  '上海': '中國', '北京': '中國', '深圳': '中國', '廣州': '中國', '成都': '中國',
+  '杭州': '中國', '蘇州': '中國', '南京': '中國', '青島': '中國', '廈門': '中國',
+  '重慶': '中國', '西安': '中國', '武漢': '中國',
+  '香港': '香港', 'Hong Kong': '香港', '澳門': '澳門',
+  '新加坡': '新加坡', 'Singapore': '新加坡',
+  '曼谷': '泰國', '清邁': '泰國', '普吉島': '泰國',
+  '巴厘島': '印尼', '峇里島': '印尼', '雅加達': '印尼',
+  '河內': '越南', '胡志明市': '越南', '峴港': '越南',
+  '吉隆坡': '馬來西亞', '馬尼拉': '菲律賓', '宿霧': '菲律賓', '長灘島': '菲律賓',
+  '倫敦': '英國', 'London': '英國',
+  '巴黎': '法國', 'Paris': '法國',
+  '羅馬': '義大利', '米蘭': '義大利',
+  '巴塞隆納': '西班牙', '馬德里': '西班牙',
+  '阿姆斯特丹': '荷蘭', '柏林': '德國', '慕尼黑': '德國',
+  '蘇黎世': '瑞士', '維也納': '奧地利', '布拉格': '捷克',
+  '哥本哈根': '丹麥', '冰島': '冰島', '雷克雅維克': '冰島',
+  '紐約': '美國', 'New York': '美國', '洛杉磯': '美國', '舊金山': '美國',
+  '西雅圖': '美國', '拉斯維加斯': '美國', '芝加哥': '美國', '波士頓': '美國',
+  '華盛頓': '美國', '邁阿密': '美國',
+  '溫哥華': '加拿大', '多倫多': '加拿大',
+  '雪梨': '澳洲', '墨爾本': '澳洲', '布里斯本': '澳洲',
+  '紐西蘭': '紐西蘭', '奧克蘭': '紐西蘭',
+  '杜拜': '阿聯酋', '伊斯坦堡': '土耳其',
+};
+
 const COUNTRY_COORDS = {
   '台灣': { lat: 23.7, lng: 121.0 }, 'Taiwan': { lat: 23.7, lng: 121.0 },
   '日本': { lat: 36.0, lng: 138.0 }, 'Japan': { lat: 36.0, lng: 138.0 },
@@ -288,7 +322,7 @@ async function geocodeLocation(location, country) {
   if (!trimmedLoc) return null;
 
   if (LOCATION_COORDS[trimmedLoc]) {
-    return { ...LOCATION_COORDS[trimmedLoc], source: 'builtin' };
+    return { ...LOCATION_COORDS[trimmedLoc], source: 'builtin', country: CITY_COUNTRY[trimmedLoc] || trimmedCountry || null };
   }
   try {
     const query = trimmedCountry ? `${trimmedLoc} ${trimmedCountry}` : trimmedLoc;
@@ -302,7 +336,8 @@ async function geocodeLocation(location, country) {
         const lat = parseFloat(data[0].lat);
         const lng = parseFloat(data[0].lon);
         if (!isNaN(lat) && !isNaN(lng)) {
-          return { lat, lng, source: 'nominatim' };
+          const detectedCountry = data[0].address?.country || null;
+          return { lat, lng, source: 'nominatim', country: detectedCountry || trimmedCountry || null };
         }
       }
     }
@@ -1420,7 +1455,7 @@ export default function App() {
     if (locChanged || typeof newTrip.lat !== 'number') {
       const coords = await geocodeLocation(newTrip.location, newTrip.country);
       finalTrip = coords
-        ? { ...newTrip, lat: coords.lat, lng: coords.lng }
+        ? { ...newTrip, lat: coords.lat, lng: coords.lng, country: newTrip.country || coords.country || '' }
         : { ...newTrip, lat: null, lng: null };
     }
     upsertTrip(finalTrip);
@@ -2798,7 +2833,7 @@ function RecapView({ trips, year, onBack, onOpenDetail }) {
   // 地點統計：以國別分組
   const countryMap = {};
   filtered.forEach(t => {
-    const country = t.country || '其他';
+    const country = t.country || CITY_COUNTRY[t.location] || '其他';
     if (!countryMap[country]) countryMap[country] = {};
     const city = t.location;
     if (!countryMap[country][city]) countryMap[country][city] = { color: t.color, visits: 0 };
