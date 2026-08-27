@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅行日誌 · Travel Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&family=Caveat:wght@500;600;700&family=Inter+Tight:wght@500;600;700&display=swap" rel="stylesheet">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+<style>
+  :root{
+    --parchment:#EAE4D6; --parchment-lo:#DAD2C1; --paper:#F5F2EB; --appbg:#E6E1D4;
+    --gold:#CBB781; --gold-deep:#AC9A63;
+    --purple:#8A7A9C; --purple-deep:#6C5C80;
+    --teal:#5B968A; --teal-deep:#457C71;
+    --lavender:#C6BDCE; --dusty:#A69CAF; --dusty-deep:#82778E;
+    --sage:#8E9E77; --sage-deep:#6C7B54;
+    --sky-cream:#E8E3D4; --sky-lav:#C4D4D9; --sky-top:#B1C6CE;
+    --sea:#5A8494; --sea-lo:#6E97A6;
+    --brown:#7C6349; --brown-lo:#96795C;
+    --rust:#C67B65; --rust-lo:#D3927E; --red:#BE6754;
+    --ink:#3B3745; --ink-soft:#7A7382; --cream:#F5F2EB;
+    --line:#DED5C1; --ivory:#FCF8EC;
+    --f-en:'Space Grotesk'; --f-hand:'Space Grotesk'; --f-num:'Space Grotesk';
+  }
+  /* ===== JOURNAL SKIN (old hand-drawn paper look) ===== */
+  .app[data-skin="journal"]{
+    --parchment:#FAFAF7; --parchment-lo:#F0EFE9; --paper:#FFFFFF; --appbg:#FFFFFF;
+    --gold:#5A7FB0; --gold-deep:#48688F;
+    --purple:#6B5B7A; --purple-deep:#544665;
+    --teal:#4F6E5B; --teal-deep:#3D5748;
+    --sage:#6B7A3F; --sage-deep:#556030;
+    --rust:#C44536; --rust-lo:#D25A4A; --red:#C44536;
+    --ink:#1F1A14; --ink-soft:#5C5247; --cream:#FFFFFF;
+    --line:#D4D4D4; --ivory:#FEFEFC;
+    --f-en:'Caveat'; --f-hand:'Caveat'; --f-num:'Inter Tight';
+  }
+  /* dates & counts stay clean (legible) */
+  .app[data-skin="journal"] .calnav .rg,.app[data-skin="journal"] .m h4,.app[data-skin="journal"] .dow,.app[data-skin="journal"] .d,.app[data-skin="journal"] .clist .c .ct{font-family:'Inter Tight','Noto Sans TC',sans-serif}
+  /* all english + numeric titles → handwriting */
+  .app[data-skin="journal"] .yswitch .cur,.app[data-skin="journal"] .recapteaser .stat .n,.app[data-skin="journal"] .rstat .n{font-family:'Caveat',cursive;font-weight:700}
+  .app[data-skin="journal"] .fld>label,.app[data-skin="journal"] .miss .lbl,.app[data-skin="journal"] .loading{font-family:'Caveat',cursive;font-style:italic}
+  .app[data-skin="journal"] .hero{background:#FBFBF8}
+  .app[data-skin="journal"] .hero::after{display:none}
+  .app[data-skin="journal"] .sh .r,.app[data-skin="journal"] .calnav .rg{}
+  .app[data-skin="journal"] .sh .r{background:none;border-top:1.5px dashed var(--line);height:0}
+  .app[data-skin="journal"] .m{background:#FAFAF7;border:1px dashed #E2E2DC}
+  .app[data-skin="journal"] .foot{border-top:1px dashed var(--line)}
+  .app[data-skin="journal"] .hcard .lead,.app[data-skin="journal"] .topbar .sub,.app[data-skin="journal"] .sh .e{font-style:italic}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--appbg);color:var(--ink);font-family:'Noto Sans TC','PingFang TC',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+  .en{font-family:var(--f-en),sans-serif}
+  button{font-family:inherit;cursor:pointer}
+  input,select,textarea{font-family:inherit}
+  ::-webkit-scrollbar{height:8px;width:8px}
+  ::-webkit-scrollbar-thumb{background:var(--parchment-lo);border-radius:4px}
+
+  .app{max-width:960px;margin:0 auto;min-height:100vh;background:var(--paper);position:relative;padding-bottom:40px}
+
+  /* topbar */
+  .topbar{display:flex;align-items:center;gap:12px;padding:16px 20px;background:var(--parchment);position:sticky;top:0;z-index:20}
+  .logom{width:34px;height:34px;flex:none}
+  .topbar .zh{font-size:21px;font-weight:900;letter-spacing:-.01em}
+  .topbar .sub{font-family:var(--f-en);font-size:11px;color:var(--ink-soft);font-weight:600;letter-spacing:.08em}
+  .yswitch{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .yswitch .arw{width:34px;height:34px;background:var(--gold);font-size:17px;font-weight:700;color:var(--ink);border:none;display:flex;align-items:center;justify-content:center}
+  .yswitch .arw:hover{background:var(--gold-deep);color:var(--cream)}
+  .yswitch .cur{font-family:'Space Grotesk';font-size:19px;font-weight:700;min-width:56px;text-align:center}
+  .backbtn{background:var(--parchment-lo);color:var(--ink);border:none;padding:7px 14px;font-weight:700;font-size:13px}
+
+  /* section head */
+  .sh{display:flex;align-items:center;gap:9px;margin:22px 20px 12px}
+  .sh .zh{font-weight:900;font-size:16px}
+  .sh .e{font-family:var(--f-en);font-size:10px;letter-spacing:.16em;color:var(--ink-soft);font-weight:600}
+  .sh .r{height:2px;background:var(--line);flex:1}
+  .pad{padding:0 20px}
+
+  /* hero : text integrated into the full-bleed illustration */
+  .hero{position:relative;overflow:hidden;background:var(--sky-cream);height:clamp(220px,30vw,300px)}
+  .hero .scene{position:absolute;inset:0;font-size:0;line-height:0}
+  .hero .scene svg{display:block;width:100%;height:100%}
+  /* fade the left of the illustration into the background so text stays readable */
+  .hero::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#E8E3D4 0%,#E8E3D4 14%,rgba(232,227,212,0) 52%)}
+  .hcard{position:absolute;left:0;top:0;z-index:2;padding:clamp(16px,3vw,26px) clamp(18px,3.4vw,32px);max-width:64%}
+  .hcard .lead{font-family:var(--f-en);font-weight:700;font-size:clamp(9px,2.1vw,11px);letter-spacing:.12em;color:var(--purple-deep);display:flex;align-items:center;gap:5px}
+  .hcard .dest{font-weight:900;font-size:clamp(16px,3.6vw,25px);margin-top:6px;color:var(--ink);line-height:1.14;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+  .hcard .big{margin-top:3px;line-height:1;display:flex;align-items:baseline;gap:5px;color:var(--ink)}
+  .hcard .big b{font-family:var(--f-hand);font-weight:700;font-size:clamp(38px,9vw,66px);color:var(--rust);text-shadow:0 1px 0 rgba(255,255,255,.35)}
+  .hero .jart{position:absolute;right:2%;top:0;bottom:0;width:54%;display:flex;align-items:center;justify-content:center;z-index:1}
+  .hero .jart svg{width:100%;height:92%}
+  .skinopt{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;margin-bottom:9px;background:var(--cream);border:2px solid var(--line);text-align:left;cursor:pointer}
+  .skinopt[data-on="true"]{border-color:var(--purple);background:var(--parchment-lo)}
+  .gear{width:34px;height:34px;background:var(--parchment-lo);border:none;font-size:16px;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+  .gear:hover{background:var(--gold)}
+  /* sticker album */
+  .album{padding:16px 20px 28px}
+  .albumhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+  .addstk{border:none;background:var(--purple);color:var(--cream);padding:10px 18px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:7px}
+  .stkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+  .stkcard{background:var(--parchment);padding:9px;position:relative}
+  .stkcard img{width:100%;display:block;border-radius:3px;cursor:pointer;aspect-ratio:16/10;object-fit:cover;background:var(--cream)}
+  .stkcard .cap{margin-top:8px;display:flex;align-items:center;gap:7px}
+  .stkcard .cdot{width:9px;height:9px;border-radius:50%;flex:none}
+  .stkcard .tname{font-weight:800;font-size:13px}
+  .stkcard .tdate{font-size:11px;color:var(--ink-soft);margin-left:auto}
+  .stkcard .del{position:absolute;top:5px;right:5px;background:rgba(30,26,36,.5);color:#fff;border:none;width:24px;height:24px;border-radius:50%;font-size:12px;cursor:pointer;line-height:1}
+  .stkempty{text-align:center;color:var(--ink-soft);padding:46px 20px;font-size:14px;line-height:1.9}
+  .uploadbox{border:2px dashed var(--line);background:var(--cream);padding:26px;text-align:center;color:var(--ink-soft);cursor:pointer;font-size:13px;font-weight:600;border-radius:4px}
+  .uploadprev{width:100%;border-radius:6px;display:block;max-height:230px;object-fit:contain;background:var(--cream)}
+  .lightbox{position:fixed;inset:0;background:rgba(30,26,36,.82);display:flex;align-items:center;justify-content:center;z-index:60;padding:20px;cursor:zoom-out}
+  .lightbox img{max-width:96%;max-height:92vh;border-radius:6px}
+  .stkteaser{cursor:pointer}
+  .stkstrip{display:flex;gap:10px;overflow:hidden;padding:2px 0}
+  .stkstrip img{height:80px;width:80px;object-fit:contain;flex:none}
+  .stkteaser-empty{color:var(--ink-soft);font-size:13px;padding:14px 2px;font-weight:600}
+  .stkteaser-foot{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+  .stkteaser-foot .cnt{font-weight:700;font-size:13px}
+  .stkteaser-foot .enter{margin-left:auto;font-weight:700;color:var(--purple);font-size:13px}
+  .hcard .big small{font-family:'Noto Sans TC';font-size:clamp(12px,2.7vw,17px);font-weight:700;color:var(--ink)}
+  .hcard .big .ongoing{font-family:'Noto Sans TC';font-weight:900;font-size:clamp(24px,5.4vw,40px);color:var(--teal-deep)}
+  .hcard .meta{font-size:clamp(10px,2.3vw,13px);color:var(--ink);margin-top:7px;font-weight:700}
+  .hcard .empty{font-size:clamp(12px,2.8vw,15px);color:var(--ink);font-weight:700;line-height:1.6}
+
+  /* calendar (compact, per-month tint) */
+  .calnav{display:flex;align-items:center;justify-content:center;gap:14px;max-width:640px;margin:0 auto 10px}
+  .calnav button{width:30px;height:30px;background:var(--parchment-lo);color:var(--ink);border:none;font-size:15px;font-weight:700;border-radius:4px}
+  .calnav button:hover{background:var(--gold)}
+  .calnav .rg{font-family:'Space Grotesk';font-size:13px;font-weight:700;color:var(--ink);letter-spacing:.03em;min-width:150px;text-align:center}
+  .months{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:640px;margin:0 auto}
+  @media(max-width:640px){.months{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:400px){.months{grid-template-columns:1fr}}
+  .m{background:rgba(255,255,255,.5);padding:7px 7px 8px;user-select:none;border-radius:5px}
+  .m h4{font-family:'Space Grotesk';display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+  .m h4 .mon{color:var(--purple-deep);font-weight:900;font-size:11px;letter-spacing:.02em;display:flex;align-items:baseline;gap:2px}
+  .m h4 .mon b{font-size:14px;font-weight:900}
+  .m h4 .mo{color:var(--ink-soft);font-size:9px;font-weight:600}
+  .dow{display:grid;grid-template-columns:repeat(7,1fr);font-family:'Space Grotesk';font-size:7px;color:var(--ink-soft);font-weight:600;text-align:center;margin-bottom:2px}
+  .dg{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+  .d{position:relative;height:18px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-size:9px;font-weight:500;color:var(--ink);cursor:pointer}
+  .d.blank{visibility:hidden;cursor:default}
+  .d .ring{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .d.trip .ring{color:var(--cream);font-weight:700}
+  .d.today.plain{color:var(--purple);font-weight:800}
+  .d.today .ring{outline:1.5px solid var(--purple);outline-offset:0}
+  .d.sel .ring{background:var(--gold)!important;color:var(--ink)!important;font-weight:700}
+  .caltip{display:flex;align-items:center;justify-content:center;gap:8px;margin:11px 0 2px;font-size:11px;color:var(--ink-soft)}
+
+  /* recap teaser */
+  .panel{background:var(--parchment);padding:16px}
+  .recapteaser{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .recapteaser .stat{flex:1;min-width:74px;text-align:center}
+  .recapteaser .stat .n{font-family:'Space Grotesk';font-size:26px;font-weight:700}
+  .recapteaser .stat .l{font-size:11px;color:var(--ink-soft);margin-top:2px}
+  .genbtn{border:none;background:var(--teal);color:var(--cream);padding:11px 16px;font-weight:800;font-size:13px;display:flex;align-items:center;gap:8px}
+
+  /* fab */
+  .fab{position:fixed;right:calc(50% - 480px + 24px);bottom:26px;background:var(--rust);color:var(--cream);border:none;padding:13px 20px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(59,55,69,.25);z-index:15;border-radius:2px}
+  @media(max-width:1010px){.fab{right:24px}}
+
+  /* modal */
+  .scrim{position:fixed;inset:0;background:rgba(40,36,50,.42);display:flex;align-items:center;justify-content:center;z-index:40;padding:16px}
+  .modal{width:400px;max-width:100%;max-height:92vh;overflow:auto;background:var(--ivory);position:relative}
+  .modal .mbar{background:var(--purple);color:var(--cream);font-weight:800;font-size:14px;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}
+  .modal .mbar .x{cursor:pointer;font-size:16px;background:none;border:none;color:var(--cream)}
+  .modal .mbody{padding:18px 20px 20px}
+  .fld{margin-bottom:16px}
+  .fld>label{font-family:'Space Grotesk';font-size:10px;color:var(--ink-soft);letter-spacing:.08em;font-weight:600;display:block;margin-bottom:5px}
+  .fld input[type=text],.fld input[type=date],.fld select{width:100%;background:transparent;border:none;border-bottom:1.5px solid var(--line);padding:5px 1px;font-size:15px;color:var(--ink);outline:none;border-radius:0}
+  .fld input[type=text]:focus,.fld input[type=date]:focus,.fld select:focus{border-bottom-color:var(--purple)}
+  .fld textarea{width:100%;background:transparent;border:none;border-bottom:1.5px solid var(--line);padding:5px 1px;font-size:15px;color:var(--ink);outline:none;min-height:52px;resize:vertical;line-height:1.6}
+  .f2{display:flex;gap:16px}.f2>.fld{flex:1}
+  .seg-in{display:flex;flex-wrap:wrap;gap:7px}
+  .chipbtn{background:transparent;border:1.5px solid var(--line);border-radius:16px;padding:5px 13px;font-size:13px;font-weight:600;color:var(--ink-soft)}
+  .chipbtn.on{background:var(--purple);border-color:var(--purple);color:var(--cream)}
+  .swatches{display:flex;gap:9px;flex-wrap:wrap}
+  .sw{width:22px;height:22px;border:none;border-radius:50%;cursor:pointer;position:relative}
+  .sw.on{outline:2px solid var(--ink);outline-offset:2px}
+  .sw.on::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800}
+  .mbtns{display:flex;gap:10px;margin-top:6px}
+  .btn{border:none;background:var(--purple);color:var(--cream);padding:11px 18px;font-weight:800;font-size:14px;flex:1}
+  .btn.ghost{background:var(--parchment-lo);color:var(--ink);flex:0 0 auto}
+  .btn.gold{background:var(--gold);color:var(--ink)}
+  .btn.warn{background:transparent;color:var(--red)}
+  .btn:disabled{opacity:.5}
+
+  /* detail */
+  .metarow{display:flex;flex-wrap:wrap;align-items:center}
+  .mi{display:flex;align-items:center;gap:7px;padding:2px 15px;font-size:13px;font-weight:600;color:var(--ink);border-right:1px solid var(--line);line-height:1.9}
+  .mi:first-child{padding-left:0}.mi:last-child{border-right:none}
+  .mi .cat{font-weight:800}
+  .mi .dotc{width:12px;height:12px;border-radius:50%}
+  .mi a{color:var(--purple);font-weight:700;text-decoration:none}
+  .ta-view{font-size:14.5px;color:var(--ink);line-height:1.95;white-space:pre-wrap}
+  .ta-edit{width:100%;background:var(--cream);border:none;padding:10px;font-size:14px;line-height:1.7;min-height:70px;resize:vertical;outline:none;color:var(--ink)}
+  .day{margin-bottom:16px}
+  .day .dh{padding:0 0 7px;font-weight:800;font-size:14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);margin-bottom:11px}
+  .day .dc{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .chip{padding:4px 2px;font-size:13px;font-weight:600;display:flex;gap:7px;align-items:center;color:var(--ink)}
+  .chip .dotc{width:9px;height:9px;border-radius:50%;flex:none}
+  .chip .del{color:var(--ink-soft);font-size:12px;background:none;border:none;padding:0 0 0 2px}
+  .chip a{color:inherit;text-decoration:none}
+  .addchip{color:var(--gold-deep);padding:4px 10px;font-size:12px;font-weight:700;background:var(--parchment-lo);border:none;border-radius:14px}
+  .gmapsbox{margin-top:8px;display:flex;gap:8px}
+  .gmapsbox input{flex:1;background:var(--cream);border:none;padding:8px 10px;font-size:12px;outline:none;color:var(--ink)}
+
+  /* recap page */
+  .seg{display:flex;background:var(--cream);flex-wrap:wrap}
+  .seg button{border:0;background:transparent;padding:7px 13px;font-size:12px;font-weight:700;color:var(--ink)}
+  .seg button.on{background:var(--gold);color:var(--ink)}
+  .rgrid{display:grid;grid-template-columns:290px 1fr;gap:16px}
+  @media(max-width:720px){.rgrid{grid-template-columns:1fr}}
+  .stat3{display:flex;gap:10px;margin-bottom:14px}
+  .rstat{flex:1;background:var(--cream);padding:13px 8px;text-align:center}
+  .rstat .n{font-family:'Space Grotesk';font-size:26px;font-weight:700}
+  .rstat .l{font-size:10px;color:var(--ink-soft);margin-top:2px}
+  .clist .c{background:var(--cream);padding:10px 12px;margin-bottom:7px;cursor:pointer}
+  .clist .c .top{display:flex;justify-content:space-between;align-items:center}
+  .clist .c .nm{font-size:14px;font-weight:800}
+  .clist .c .ct{font-family:'Space Grotesk';font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:4px}
+  .cdot{width:7px;height:7px;border-radius:50%;display:inline-block}
+  .clist .cities{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+  .citytag{font-size:12px;color:var(--ink);background:var(--parchment);padding:3px 9px;display:flex;gap:5px;align-items:center}
+  .worldwrap{background:var(--sky-lav);padding:6px}
+  .genbar{margin:16px 20px 8px;background:var(--teal-deep);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .genbar .t{color:var(--cream);font-weight:900;font-size:15px}
+  .genbar .s{color:#D6E7E2;font-size:12px;margin-top:2px}
+  .genbar .go{border:none;background:var(--gold);color:var(--ink);padding:11px 20px;font-weight:900;font-size:14px}
+  .foot{padding:20px;text-align:center}
+  .foot .en{font-size:11px;color:var(--ink-soft);letter-spacing:.14em}
+  .loading{display:flex;align-items:center;justify-content:center;height:100vh;font-family:'Space Grotesk';color:var(--ink-soft);font-weight:600;letter-spacing:.1em}
+  .miss{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .miss .lbl{font-family:'Space Grotesk';font-size:10px;color:var(--ink-soft);letter-spacing:.12em;margin-bottom:6px}
+  .miss .tags{display:flex;flex-wrap:wrap;gap:6px}
+</style>
+</head>
+<body>
+<div id="root"><div class="loading">LOADING…</div></div>
+
+<script type="text/babel" data-presets="react">
+const {useState,useEffect,useRef,useMemo} = React;
+
+/* ============ storage shim (tjv2:) ============ */
+const SUPABASE_URL='https://jknnwvqphvrvyiudzwkf.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imprbm53dnFwaHZydnlpdWR6d2tmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDM0NDUsImV4cCI6MjA5NjgxOTQ0NX0.870HbTuQHXdKMo6euSGWfghXq1CSSIByn1Sv19dqB68';
+const BASE=`${SUPABASE_URL}/rest/v1/trips`;
+const PREFIX='tjv2:';
+const OLD_PREFIX='tj2026:';
+const H={apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'};
+const storage={
+  get:async(key)=>{const id=PREFIX+key;const r=await fetch(`${BASE}?id=eq.${encodeURIComponent(id)}&select=data`,{headers:H});const rows=await r.json();return rows.length?rows[0].data:null;},
+  set:async(key,value)=>{const id=PREFIX+key;await fetch(BASE,{method:'POST',headers:{...H,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id,data:{value}})});return {value};},
+  getRaw:async(fullId)=>{const r=await fetch(`${BASE}?id=eq.${encodeURIComponent(fullId)}&select=data`,{headers:H});const rows=await r.json();return rows.length?rows[0].data:null;},
+};
+async function loadTrips(){
+  let r=await storage.get('trips').catch(()=>null);
+  if(!r||!r.value){ // seed from old app once
+    const old=await storage.getRaw(OLD_PREFIX+'trips').catch(()=>null);
+    if(old&&old.value){await storage.set('trips',old.value);r=old;}
+  }
+  try{return r&&r.value?JSON.parse(r.value):[];}catch(e){return [];}
+}
+const saveTrips=(trips)=>storage.set('trips',JSON.stringify(trips)).catch(e=>console.error(e));
+async function loadStickers(){const r=await storage.get('stickers').catch(()=>null);try{return r&&r.value?JSON.parse(r.value):[];}catch(e){return [];}}
+const saveStickers=(s)=>storage.set('stickers',JSON.stringify(s)).catch(e=>console.error(e));
+function compressImage(file,max=860,q=0.82){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max;}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max;}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',q));};img.onerror=rej;img.src=e.target.result;};r.onerror=rej;r.readAsDataURL(file);});}
+function fileToDataURL(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});}
+function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+const clamp255=v=>v<0?0:v>255?255:v;
+/* client-side flat sticker: posterize + white die-cut border + soft shadow (transparent PNG) */
+function makeSticker(srcDataURL){return new Promise((res,rej)=>{
+  const img=new Image();
+  img.onload=()=>{
+    const S=560, pad=24, size=S+pad*2, R=44;
+    const c=document.createElement('canvas');c.width=size;c.height=size;
+    const ctx=c.getContext('2d');
+    // white die-cut card with soft shadow
+    ctx.save();ctx.shadowColor='rgba(45,40,55,0.30)';ctx.shadowBlur=15;ctx.shadowOffsetY=7;
+    rrect(ctx,8,8,size-16,size-16,R);ctx.fillStyle='#FBF8EF';ctx.fill();ctx.restore();
+    // clip inner rounded, draw center-cropped square photo
+    ctx.save();rrect(ctx,pad,pad,S,S,R-12);ctx.clip();
+    const m=Math.min(img.width,img.height),sx=(img.width-m)/2,sy=(img.height-m)/2;
+    ctx.drawImage(img,sx,sy,m,m,pad,pad,S,S);
+    // stylize: saturation boost + contrast + posterize
+    try{
+      const idata=ctx.getImageData(pad,pad,S,S);const d=idata.data;
+      const levels=6,step=255/(levels-1),sat=1.32,con=1.10;
+      for(let i=0;i<d.length;i+=4){
+        let r=d[i],g=d[i+1],b=d[i+2];const gray=(r+g+b)/3;
+        r=gray+(r-gray)*sat;g=gray+(g-gray)*sat;b=gray+(b-gray)*sat;
+        r=(r-128)*con+128;g=(g-128)*con+128;b=(b-128)*con+128;
+        d[i]=Math.round(Math.round(clamp255(r)/step)*step);
+        d[i+1]=Math.round(Math.round(clamp255(g)/step)*step);
+        d[i+2]=Math.round(Math.round(clamp255(b)/step)*step);
+      }
+      ctx.putImageData(idata,pad,pad);
+    }catch(e){}
+    ctx.restore();
+    res(c.toDataURL('image/png'));
+  };
+  img.onerror=rej;img.src=srcDataURL;
+});}
+
+/* ============ constants ============ */
+const OWNER='HSINGFEI';
+const SUPPORTED_YEARS=[2025,2026,2027];
+const ZODIAC_TC={2025:'蛇',2026:'馬',2027:'羊'};
+const PURPOSE={
+  business:{label:'出差',color:'var(--sea)'},
+  domesticLeisure:{label:'國內旅遊',color:'var(--sage)'},
+  overseasLeisure:{label:'海外旅遊',color:'var(--rust)'},
+};
+const PURPOSE_ORDER=['overseasLeisure','domesticLeisure','business'];
+const migratePurpose=(p)=>p==='workTravel'?'business':p==='leisure'?'overseasLeisure':p;
+const TRANSPORT={
+  plane:{label:'飛機',emoji:'✈️'},
+  cruise:{label:'郵輪',emoji:'🚢'},
+  train:{label:'鐵路',emoji:'🚄'},
+};
+const PLACE_TYPES={
+  sight:{label:'景點',color:'var(--sea)'},
+  food:{label:'餐廳',color:'var(--rust)'},
+  shopping:{label:'購物',color:'var(--gold-deep)'},
+  stay:{label:'住宿',color:'var(--teal)'},
+  other:{label:'其他',color:'var(--purple)'},
+};
+const PLACE_ORDER=['sight','food','shopping','stay','other'];
+const PALETTE=['#C67B65','#5A8494','#8E9E77','#B98BA0','#C7A24E','#8A7A9C','#5B968A','#514A5A'];
+const MOODS=['🤩','😊','😌','😎','🥹','😅'];
+const COMPANIONS=[['solo','獨自'],['couple','情侶'],['friends','朋友'],['family','家人'],['colleague','同事']];
+
+/* ============ date utils ============ */
+const pad=n=>String(n).padStart(2,'0');
+const fmtDate=(y,m,d)=>`${y}-${pad(m+1)}-${pad(d)}`;
+const parseDate=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);};
+const todayStr=()=>{const d=new Date();return fmtDate(d.getFullYear(),d.getMonth(),d.getDate());};
+const daysBetween=(a,b)=>{const arr=[];let c=parseDate(a);const e=parseDate(b);while(c<=e){arr.push(fmtDate(c.getFullYear(),c.getMonth(),c.getDate()));c.setDate(c.getDate()+1);}return arr;};
+const tripLength=t=>daysBetween(t.startDate,t.endDate).length;
+const fmtLabel=s=>{const d=parseDate(s);return `${d.getMonth()+1}月${d.getDate()}日`;};
+const fmtRange=(a,b)=>a===b?fmtLabel(a):`${fmtLabel(a)} – ${fmtLabel(b)}`;
+const newId=()=>'trip-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
+const newPlaceId=()=>'place-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
+const overlapDays=(t,s,e)=>{if(t.endDate<s||t.startDate>e)return 0;const a=t.startDate<s?s:t.startDate;const b=t.endDate>e?e:t.endDate;return daysBetween(a,b).length;};
+const daysUntil=s=>{const ms=parseDate(s)-parseDate(todayStr());return Math.round(ms/86400000);};
+
+/* ============ google maps ============ */
+const mapsUrl=(loc,country)=>{const q=(country&&loc!==country?`${loc} ${country}`:loc).trim();return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;};
+const isGmapsUrl=t=>t&&typeof t==='string'&&t.toLowerCase().startsWith('http')&&/(google\.[a-z.]+\/maps|maps\.google|maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(t);
+const parseGmapsUrl=url=>{try{const u=new URL(url);const m=u.pathname.match(/\/maps\/place\/([^/@]+)/);if(m)return decodeURIComponent(m[1].replace(/\+/g,' ')).trim();const q=u.searchParams.get('query')||u.searchParams.get('q');if(q)return decodeURIComponent(q.replace(/\+/g,' ')).trim();return null;}catch(e){return null;}};
+
+/* ============ geocoding ============ */
+const LOCATION_COORDS={'台北':{lat:25.03,lng:121.57},'台北市':{lat:25.03,lng:121.57},'Taipei':{lat:25.03,lng:121.57},'高雄':{lat:22.62,lng:120.31},'台中':{lat:24.15,lng:120.67},'台南':{lat:22.99,lng:120.21},'花蓮':{lat:23.99,lng:121.61},'宜蘭':{lat:24.75,lng:121.75},'墾丁':{lat:21.95,lng:120.79},'新竹':{lat:24.81,lng:120.97},'桃園':{lat:24.99,lng:121.31},'嘉義':{lat:23.48,lng:120.45},'南投':{lat:23.91,lng:120.68},'苗栗':{lat:24.56,lng:120.82},'基隆':{lat:25.13,lng:121.74},'屏東':{lat:22.67,lng:120.49},'台東':{lat:22.76,lng:121.15},'澎湖':{lat:23.57,lng:119.58},'金門':{lat:24.45,lng:118.32},'馬祖':{lat:26.16,lng:119.95},'阿里山':{lat:23.51,lng:120.80},'日月潭':{lat:23.86,lng:120.92},'九份':{lat:25.11,lng:121.84},'東京':{lat:35.68,lng:139.69},'Tokyo':{lat:35.68,lng:139.69},'大阪':{lat:34.69,lng:135.50},'Osaka':{lat:34.69,lng:135.50},'京都':{lat:35.01,lng:135.77},'Kyoto':{lat:35.01,lng:135.77},'北海道':{lat:43.06,lng:141.35},'札幌':{lat:43.06,lng:141.35},'沖繩':{lat:26.21,lng:127.68},'名古屋':{lat:35.18,lng:136.91},'福岡':{lat:33.59,lng:130.40},'橫濱':{lat:35.44,lng:139.64},'神戶':{lat:34.69,lng:135.20},'奈良':{lat:34.69,lng:135.83},'廣島':{lat:34.40,lng:132.46},'首爾':{lat:37.57,lng:126.98},'Seoul':{lat:37.57,lng:126.98},'釜山':{lat:35.18,lng:129.08},'濟州':{lat:33.50,lng:126.53},'濟州島':{lat:33.50,lng:126.53},'上海':{lat:31.23,lng:121.47},'北京':{lat:39.90,lng:116.40},'深圳':{lat:22.54,lng:114.06},'廣州':{lat:23.13,lng:113.26},'成都':{lat:30.66,lng:104.07},'杭州':{lat:30.27,lng:120.15},'蘇州':{lat:31.30,lng:120.59},'南京':{lat:32.06,lng:118.79},'青島':{lat:36.07,lng:120.38},'廈門':{lat:24.48,lng:118.08},'重慶':{lat:29.43,lng:106.91},'西安':{lat:34.34,lng:108.94},'武漢':{lat:30.59,lng:114.31},'香港':{lat:22.31,lng:114.17},'Hong Kong':{lat:22.31,lng:114.17},'澳門':{lat:22.20,lng:113.54},'新加坡':{lat:1.35,lng:103.82},'Singapore':{lat:1.35,lng:103.82},'曼谷':{lat:13.76,lng:100.50},'清邁':{lat:18.79,lng:98.99},'普吉島':{lat:7.88,lng:98.39},'巴厘島':{lat:-8.65,lng:115.22},'峇里島':{lat:-8.65,lng:115.22},'河內':{lat:21.03,lng:105.85},'胡志明市':{lat:10.82,lng:106.63},'峴港':{lat:16.05,lng:108.20},'吉隆坡':{lat:3.14,lng:101.69},'馬尼拉':{lat:14.60,lng:120.98},'宿霧':{lat:10.32,lng:123.90},'長灘島':{lat:11.97,lng:121.92},'雅加達':{lat:-6.21,lng:106.85},'倫敦':{lat:51.51,lng:-0.13},'London':{lat:51.51,lng:-0.13},'巴黎':{lat:48.86,lng:2.35},'Paris':{lat:48.86,lng:2.35},'羅馬':{lat:41.90,lng:12.50},'米蘭':{lat:45.46,lng:9.19},'巴塞隆納':{lat:41.39,lng:2.17},'馬德里':{lat:40.42,lng:-3.70},'阿姆斯特丹':{lat:52.37,lng:4.90},'柏林':{lat:52.52,lng:13.40},'慕尼黑':{lat:48.14,lng:11.58},'蘇黎世':{lat:47.38,lng:8.54},'維也納':{lat:48.21,lng:16.37},'布拉格':{lat:50.08,lng:14.44},'哥本哈根':{lat:55.68,lng:12.57},'冰島':{lat:64.13,lng:-21.94},'雷克雅維克':{lat:64.13,lng:-21.94},'紐約':{lat:40.71,lng:-74.01},'New York':{lat:40.71,lng:-74.01},'洛杉磯':{lat:34.05,lng:-118.24},'舊金山':{lat:37.77,lng:-122.42},'西雅圖':{lat:47.61,lng:-122.33},'拉斯維加斯':{lat:36.17,lng:-115.14},'芝加哥':{lat:41.88,lng:-87.63},'波士頓':{lat:42.36,lng:-71.06},'華盛頓':{lat:38.91,lng:-77.04},'邁阿密':{lat:25.76,lng:-80.19},'溫哥華':{lat:49.28,lng:-123.12},'多倫多':{lat:43.65,lng:-79.38},'雪梨':{lat:-33.87,lng:151.21},'墨爾本':{lat:-37.81,lng:144.96},'布里斯本':{lat:-27.47,lng:153.03},'紐西蘭':{lat:-41.29,lng:174.78},'奧克蘭':{lat:-36.85,lng:174.76},'杜拜':{lat:25.20,lng:55.27},'伊斯坦堡':{lat:41.01,lng:28.98}};
+const CITY_COUNTRY={'台北':'台灣','台北市':'台灣','Taipei':'台灣','高雄':'台灣','台中':'台灣','台南':'台灣','花蓮':'台灣','宜蘭':'台灣','墾丁':'台灣','新竹':'台灣','桃園':'台灣','嘉義':'台灣','南投':'台灣','苗栗':'台灣','基隆':'台灣','屏東':'台灣','台東':'台灣','澎湖':'台灣','金門':'台灣','馬祖':'台灣','阿里山':'台灣','日月潭':'台灣','九份':'台灣','東京':'日本','Tokyo':'日本','大阪':'日本','Osaka':'日本','京都':'日本','Kyoto':'日本','北海道':'日本','札幌':'日本','沖繩':'日本','名古屋':'日本','福岡':'日本','橫濱':'日本','神戶':'日本','奈良':'日本','廣島':'日本','首爾':'韓國','Seoul':'韓國','釜山':'韓國','濟州':'韓國','濟州島':'韓國','上海':'中國','北京':'中國','深圳':'中國','廣州':'中國','成都':'中國','杭州':'中國','蘇州':'中國','南京':'中國','青島':'中國','廈門':'中國','重慶':'中國','西安':'中國','武漢':'中國','香港':'香港','Hong Kong':'香港','澳門':'澳門','新加坡':'新加坡','Singapore':'新加坡','曼谷':'泰國','清邁':'泰國','普吉島':'泰國','巴厘島':'印尼','峇里島':'印尼','雅加達':'印尼','河內':'越南','胡志明市':'越南','峴港':'越南','吉隆坡':'馬來西亞','馬尼拉':'菲律賓','宿霧':'菲律賓','長灘島':'菲律賓','倫敦':'英國','London':'英國','巴黎':'法國','Paris':'法國','羅馬':'義大利','米蘭':'義大利','巴塞隆納':'西班牙','馬德里':'西班牙','阿姆斯特丹':'荷蘭','柏林':'德國','慕尼黑':'德國','蘇黎世':'瑞士','維也納':'奧地利','布拉格':'捷克','哥本哈根':'丹麥','冰島':'冰島','雷克雅維克':'冰島','紐約':'美國','New York':'美國','洛杉磯':'美國','舊金山':'美國','西雅圖':'美國','拉斯維加斯':'美國','芝加哥':'美國','波士頓':'美國','華盛頓':'美國','邁阿密':'美國','溫哥華':'加拿大','多倫多':'加拿大','雪梨':'澳洲','墨爾本':'澳洲','布里斯本':'澳洲','紐西蘭':'紐西蘭','奧克蘭':'紐西蘭','杜拜':'阿聯酋','伊斯坦堡':'土耳其'};
+const COUNTRY_COORDS={'台灣':{lat:23.7,lng:121.0},'日本':{lat:36.0,lng:138.0},'韓國':{lat:37.0,lng:127.5},'中國':{lat:35.0,lng:105.0},'美國':{lat:39.0,lng:-98.0},'英國':{lat:54.0,lng:-2.0},'法國':{lat:47.0,lng:2.0},'德國':{lat:51.0,lng:10.0},'義大利':{lat:42.0,lng:12.5},'泰國':{lat:13.0,lng:100.5},'越南':{lat:16.0,lng:108.0},'菲律賓':{lat:13.0,lng:122.0},'馬來西亞':{lat:4.0,lng:102.0},'印尼':{lat:-2.0,lng:118.0},'澳洲':{lat:-25.0,lng:135.0},'加拿大':{lat:56.0,lng:-106.0},'荷蘭':{lat:52.0,lng:5.5},'西班牙':{lat:40.0,lng:-3.7},'瑞士':{lat:46.8,lng:8.2},'新加坡':{lat:1.35,lng:103.82},'香港':{lat:22.31,lng:114.17}};
+async function geocode(location,country){
+  const loc=(location||'').trim(),cty=(country||'').trim();
+  if(!loc)return null;
+  if(LOCATION_COORDS[loc])return{...LOCATION_COORDS[loc],country:CITY_COUNTRY[loc]||cty||null};
+  try{
+    const q=cty?`${loc} ${cty}`:loc;
+    const res=await fetch(`https://nominatim.openstreetmap.org/search?${new URLSearchParams({q,format:'json',limit:'1','accept-language':'zh-TW,en',addressdetails:'1'})}`);
+    if(res.ok){const data=await res.json();if(Array.isArray(data)&&data.length){const lat=parseFloat(data[0].lat),lng=parseFloat(data[0].lon);if(!isNaN(lat)&&!isNaN(lng))return{lat,lng,country:data[0].address&&data[0].address.country||cty||null};}}
+  }catch(e){}
+  if(cty&&COUNTRY_COORDS[cty])return{...COUNTRY_COORDS[cty]};
+  return null;
+}
+
+/* ============ ICONS ============ */
+const Spark=({c='var(--gold-deep)',s=11})=>(<svg width={s} height={s} viewBox="0 0 12 12"><path d="M6 0l1.5 4.5L12 6l-4.5 1.5L6 12l-1.5-4.5L0 6l4.5-1.5z" fill={c}/></svg>);
+
+/* ============ HERO SCENE ============ */
+function traveler(x,y,s){
+  const skin='#EAC79A',hat='var(--rust)',hatlo='var(--rust-lo)',pack='var(--brown)',packlo='var(--brown-lo)',shirt='var(--teal)',shirtlo='var(--teal-deep)',ink='var(--ink)';
+  return `<g transform="translate(${x},${y}) scale(${s})">
+    <rect x="-20" y="-2" width="15" height="22" rx="3" fill="${pack}"/><rect x="-20" y="5" width="15" height="5" fill="${packlo}"/>
+    <rect x="-6" y="20" width="6" height="12" fill="${pack}"/><rect x="3" y="20" width="6" height="12" fill="${packlo}"/>
+    <rect x="-8" y="30" width="10" height="5" fill="${ink}"/><rect x="2" y="30" width="10" height="5" fill="${ink}"/>
+    <rect x="-8" y="-2" width="18" height="24" rx="4" fill="${shirt}"/><rect x="-8" y="10" width="18" height="12" fill="${shirtlo}"/>
+    <rect x="4" y="2" width="7" height="15" rx="3" fill="${shirtlo}"/>
+    <circle cx="4" cy="-12" r="11" fill="${skin}"/>
+    <path d="M -8 -14 A 12 12 0 0 1 16 -14 Z" fill="${hat}"/><rect x="-10" y="-15" width="28" height="4" rx="2" fill="${hatlo}"/>
+    <circle cx="9" cy="-12" r="1.7" fill="${ink}"/><path d="M 11 -7 q 2 2 4 0" stroke="${ink}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  </g>`;
+}
+// simple flat flag by destination country, drawn within (x,y,w,h)
+function flagShapes(country,x,y,w,h){
+  const R='#C0392B',WH='#F7F4EC',BL='#2E5A88',YE='#E7B84E',NB='#243A5E',GR='#4E8C5A',OR='#E07B39',BK='#3A3745';
+  const rc=(px,py,pw,ph,f)=>`<rect x="${x+px}" y="${y+py}" width="${pw}" height="${ph}" fill="${f}"/>`;
+  const ci=(cx,cy,rad,f)=>`<circle cx="${x+cx}" cy="${y+cy}" r="${rad}" fill="${f}"/>`;
+  const bg=f=>rc(0,0,w,h,f);
+  const c=country||'';
+  if(c==='日本')return bg(WH)+ci(w/2,h/2,h*0.26,R);
+  if(c==='中國')return bg(R)+ci(w*0.26,h*0.42,h*0.16,YE);
+  if(c==='韓國')return bg(WH)+ci(w/2,h/2,h*0.24,R);
+  if(c==='台灣')return bg(R)+rc(0,0,w*0.5,h*0.5,NB)+ci(w*0.25,h*0.25,h*0.13,WH);
+  if(c==='香港')return bg(R)+ci(w/2,h/2,h*0.2,WH);
+  if(c==='澳門')return bg(GR)+ci(w/2,h*0.45,h*0.18,WH);
+  if(c==='新加坡')return rc(0,0,w,h*0.5,R)+rc(0,h*0.5,w,h*0.5,WH)+ci(w*0.24,h*0.26,h*0.16,WH)+ci(w*0.31,h*0.26,h*0.14,R);
+  if(c==='泰國')return rc(0,0,w,h*0.28,R)+rc(0,h*0.28,w,h*0.16,WH)+rc(0,h*0.44,w,h*0.12,NB)+rc(0,h*0.56,w,h*0.16,WH)+rc(0,h*0.72,w,h*0.28,R);
+  if(c==='越南')return bg(R)+ci(w/2,h/2,h*0.22,YE);
+  if(c==='馬來西亞')return bg(R)+rc(0,0,w*0.5,h*0.55,NB)+ci(w*0.24,h*0.28,h*0.14,YE);
+  if(c==='印尼')return rc(0,0,w,h*0.5,R)+rc(0,h*0.5,w,h*0.5,WH);
+  if(c==='菲律賓')return rc(0,0,w,h*0.5,BL)+rc(0,h*0.5,w,h*0.5,R)+ci(w*0.16,h*0.5,h*0.12,YE);
+  if(c==='美國')return bg(WH)+rc(0,h*0.14,w,h*0.14,R)+rc(0,h*0.43,w,h*0.14,R)+rc(0,h*0.72,w,h*0.14,R)+rc(0,0,w*0.42,h*0.57,NB);
+  if(c==='英國')return bg(NB)+rc(w*0.42,0,w*0.16,h,WH)+rc(0,h*0.42,w,h*0.16,WH)+rc(w*0.46,0,w*0.08,h,R)+rc(0,h*0.46,w,h*0.08,R);
+  if(c==='法國')return rc(0,0,w/3,h,NB)+rc(w/3,0,w/3,h,WH)+rc(2*w/3,0,w/3,h,R);
+  if(c==='德國')return rc(0,0,w,h/3,BK)+rc(0,h/3,w,h/3,R)+rc(0,2*h/3,w,h/3,YE);
+  if(c==='義大利')return rc(0,0,w/3,h,GR)+rc(w/3,0,w/3,h,WH)+rc(2*w/3,0,w/3,h,R);
+  if(c==='西班牙')return rc(0,0,w,h*0.28,R)+rc(0,h*0.28,w,h*0.44,YE)+rc(0,h*0.72,w,h*0.28,R);
+  if(c==='荷蘭')return rc(0,0,w,h/3,R)+rc(0,h/3,w,h/3,WH)+rc(0,2*h/3,w,h/3,NB);
+  if(c==='瑞士')return bg(R)+rc(w*0.4,h*0.22,w*0.2,h*0.56,WH)+rc(w*0.24,h*0.4,w*0.52,h*0.2,WH);
+  if(c==='澳洲'||c==='紐西蘭')return bg(NB)+rc(0,0,w*0.5,h*0.5,NB)+ci(w*0.72,h*0.62,h*0.12,WH)+ci(w*0.25,h*0.25,h*0.1,WH);
+  if(c==='加拿大')return rc(0,0,w*0.25,h,R)+rc(w*0.75,0,w*0.25,h,R)+rc(w*0.25,0,w*0.5,h,WH)+ci(w*0.5,h*0.5,h*0.16,R);
+  if(c==='阿聯酋')return rc(0,0,w,h/3,GR)+rc(0,h/3,w,h/3,WH)+rc(0,2*h/3,w,h/3,BK)+rc(0,0,w*0.22,h,R);
+  if(c==='土耳其')return bg(R)+ci(w*0.44,h*0.5,h*0.2,WH)+ci(w*0.5,h*0.5,h*0.16,R);
+  if(c==='冰島')return bg(NB)+rc(w*0.3,0,w*0.14,h,WH)+rc(0,h*0.4,w,h*0.2,WH)+rc(w*0.33,0,w*0.08,h,R)+rc(0,h*0.44,w,h*0.12,R);
+  return bg(OR)+rc(0,h*0.55,w,h*0.45,NB); // generic
+}
+function island(cx,base,S,country){
+  const lav='var(--lavender)',dus='var(--dusty)',sage='var(--sage)',saged='var(--sage-deep)',ink='var(--ink)';
+  return `<g transform="translate(${cx},${base})">
+    <path d="M ${-150*S} 0 Q ${-120*S} ${-40*S} ${-70*S} ${-52*S} Q ${20*S} ${-64*S} ${90*S} ${-46*S} Q ${150*S} ${-30*S} ${180*S} 0 Z" fill="${sage}"/>
+    <path d="M ${-90*S} ${-42*S} Q ${-40*S} ${-96*S} ${20*S} ${-92*S} Q ${70*S} ${-88*S} ${95*S} ${-44*S} Q ${20*S} ${-58*S} ${-90*S} ${-42*S} Z" fill="${saged}"/>
+    <ellipse cx="${-120*S}" cy="${-6*S}" rx="${34*S}" ry="${10*S}" fill="${dus}"/>
+    <ellipse cx="${130*S}" cy="${-6*S}" rx="${40*S}" ry="${11*S}" fill="${lav}"/>
+    <rect x="${8*S}" y="${-150*S}" width="3" height="${62*S}" fill="${ink}"/>
+    ${flagShapes(country,11*S,-150*S,43*S,32*S)}
+  </g>`;
+}
+const cloud=(x,y,w)=>`<rect x="${x}" y="${y}" width="${w}" height="${w*0.32}" rx="${w*0.16}" fill="var(--cream)"/>`;
+function sceneSVG(t,country){
+  const W=920,H=360;
+  let s=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">`;
+  s+=`<rect width="${W}" height="${H}" fill="var(--sky-cream)"/><rect width="${W}" height="${H*0.34}" fill="var(--sky-lav)"/><rect width="${W}" height="${H*0.17}" fill="var(--sky-top)"/>`;
+  s+=`<circle cx="${W*0.86}" cy="${H*0.16}" r="${H*0.08}" fill="var(--gold)"/>`;
+  s+=cloud(W*0.56,H*0.12,104)+cloud(W*0.78,H*0.30,78)+cloud(W*0.66,H*0.33,60);
+  const S=H/300;
+  if(t==='cruise'){
+    const wY=H*0.60;s+=island(W*0.80,wY,S,country);
+    s+=`<rect y="${wY}" width="${W}" height="${H-wY}" fill="var(--sea)"/><rect y="${wY}" width="${W}" height="${H*0.05}" fill="var(--sea-lo)"/>`;
+    for(let i=0;i<11;i++)s+=`<path d="M ${i*W/10-20} ${wY+H*0.22} l 42 12 l 42 -12" stroke="var(--sea-lo)" stroke-width="3" fill="none" stroke-linecap="round" opacity=".5"/>`;
+    s+=`<path d="M ${W*0.40} ${wY+8} Q ${W*0.58} ${wY-H*0.14} ${W*0.72} ${wY-8}" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="2 8" fill="none" stroke-linecap="round" opacity=".5"/>`;
+    const bx=W*0.32,by=wY+H*0.02;
+    s+=`<g transform="translate(${bx},${by})"><path d="M -100 0 L 100 0 L 78 40 L -78 40 Z" fill="var(--rust)"/><rect x="-100" y="-6" width="200" height="8" fill="var(--red)"/><rect x="-64" y="-34" width="118" height="30" fill="var(--cream)"/><circle cx="-40" cy="-19" r="6" fill="var(--sky-lav)"/><circle cx="-14" cy="-19" r="6" fill="var(--sky-lav)"/><circle cx="12" cy="-19" r="6" fill="var(--sky-lav)"/><circle cx="38" cy="-19" r="6" fill="var(--sky-lav)"/><rect x="26" y="-64" width="22" height="34" fill="var(--purple)"/><rect x="26" y="-64" width="22" height="10" fill="var(--cream)"/></g>`;
+    s+=traveler(bx-8,by-46,S*1.05);
+  }else if(t==='plane'){
+    const gY=H*0.80;s+=`<rect y="${gY}" width="${W}" height="${H-gY}" fill="var(--sage)"/>`;s+=island(W*0.80,gY,S*0.9,country);
+    s+=`<path d="M ${W*0.42} ${H*0.56} Q ${W*0.58} ${H*0.44} ${W*0.72} ${gY-H*0.10}" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="2 8" fill="none" stroke-linecap="round" opacity=".5"/>`;
+    const px=W*0.34,py=H*0.56;
+    s+=`<g transform="translate(${px},${py}) rotate(-8)"><path d="M -110 0 Q -70 -22 84 -14 L 120 0 L 84 14 Q -70 22 -110 0 Z" fill="var(--cream)"/><path d="M -110 0 L 120 0" stroke="var(--red)" stroke-width="5"/><path d="M 18 -6 L 54 -58 L 30 -6 Z" fill="var(--rust)"/><path d="M 6 6 L 42 44 L 22 6 Z" fill="var(--red)"/><circle cx="-58" cy="0" r="5.5" fill="var(--sky-lav)"/><circle cx="-34" cy="0" r="5.5" fill="var(--sky-lav)"/><circle cx="-10" cy="0" r="5.5" fill="var(--sky-lav)"/></g>`;
+    s+=cloud(W*0.5,H*0.5,120)+cloud(W*0.1,H*0.68,90);
+  }else{
+    const gY=H*0.66;s+=`<rect y="${gY}" width="${W}" height="${H-gY}" fill="var(--sage)"/>`;s+=island(W*0.80,gY,S,country);
+    s+=`<rect y="${gY+H*0.11}" width="${W}" height="6" fill="var(--ink)"/>`;
+    for(let i=0;i<18;i++)s+=`<rect x="${i*W/17}" y="${gY+H*0.085}" width="9" height="16" fill="var(--brown)"/>`;
+    s+=`<path d="M ${W*0.44} ${gY+8} Q ${W*0.58} ${gY-H*0.12} ${W*0.72} ${gY-8}" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="2 8" fill="none" stroke-linecap="round" opacity=".45"/>`;
+    const tx=W*0.26,ty=gY+H*0.10;
+    s+=`<g transform="translate(${tx},${ty})"><path d="M 0 -60 L 260 -60 Q 310 -60 326 -28 L 326 0 L 0 0 Z" fill="var(--red)"/><rect x="0" y="-60" width="326" height="10" fill="var(--cream)"/><rect x="18" y="-44" width="46" height="26" fill="var(--sky-lav)"/><rect x="82" y="-44" width="46" height="26" fill="var(--sky-lav)"/><rect x="146" y="-44" width="46" height="26" fill="var(--sky-lav)"/><path d="M 248 -44 L 300 -44 L 314 -22 L 248 -22 Z" fill="var(--sky-lav)"/><circle cx="70" cy="2" r="13" fill="var(--ink)"/><circle cx="240" cy="2" r="13" fill="var(--ink)"/><circle cx="70" cy="2" r="5" fill="var(--cream)"/><circle cx="240" cy="2" r="5" fill="var(--cream)"/></g>`;
+    s+=traveler(tx+40,ty-58,S*0.72);
+  }
+  s+=`</svg>`;return s;
+}
+/* ---- JOURNAL SKIN : hand-drawn zodiac illustrations (ported from old app) ---- */
+const JINK='#1F1A14',JBG='#FFFFFF',JCS='#B5C7DC',JCF='#FFFFFF',JCSH='#DDE5EE';
+const ZODIAC_ACCENT={2025:'#7A9E6A',2026:'#5A7FB0',2027:'#8B7BB0'};
+const ZODIAC_OF={2025:'snake',2026:'horse',2027:'goat'};
+const svgStyle={width:'100%',height:'100%'};
+function HorseIllustration({accent='#5A7FB0'}){return (
+  <svg viewBox="0 0 480 320" style={svgStyle} preserveAspectRatio="xMidYMid meet">
+    <g stroke={JINK} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M 60 60 Q 75 48 90 58 Q 100 53 110 60 L 113 64 L 105 67 L 96 65 L 88 68 L 80 65 L 70 66 Z"/><path d="M 80 64 L 90 66"/><circle cx="108" cy="62" r="0.9" fill={JINK}/></g>
+    <g stroke={JINK} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M 380 65 Q 395 53 410 63 Q 420 58 430 65 L 433 69 L 425 72 L 416 70 L 408 73 L 400 70 L 390 71 Z"/><path d="M 400 69 L 410 71"/><circle cx="428" cy="67" r="0.9" fill={JINK}/></g>
+    <g stroke={accent} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M 350 35 L 350 55"/><path d="M 350 35 Q 358 32 360 38"/><ellipse cx="347" cy="55" rx="3.5" ry="2.5" fill={accent} stroke="none"/><path d="M 145 70 L 145 88"/><path d="M 145 70 Q 152 67 154 73"/><ellipse cx="142" cy="88" rx="3" ry="2" fill={accent} stroke="none"/></g>
+    <g fill={JCSH} stroke="none"><ellipse cx="240" cy="295" rx="220" ry="14" opacity="0.5"/></g>
+    <g stroke={JCS} strokeWidth="2" fill={JCF} strokeLinejoin="round" strokeLinecap="round"><path d="M 20 280 Q 10 270 22 260 Q 22 246 38 248 Q 48 232 65 240 Q 75 232 88 244 Q 102 246 100 260 Q 110 268 100 278 Q 88 286 70 282 Q 50 290 32 284 Z"/></g>
+    <g stroke={JCS} strokeWidth="2.2" fill={JCF} strokeLinejoin="round" strokeLinecap="round"><path d="M 110 285 Q 95 270 112 258 Q 115 240 138 244 Q 148 222 175 230 Q 188 215 215 222 Q 230 205 258 215 Q 275 200 305 212 Q 322 205 340 222 Q 358 222 365 240 Q 380 244 378 260 Q 388 272 376 282 Q 360 295 340 290 Q 318 298 295 290 Q 270 296 245 290 Q 220 296 198 290 Q 175 296 152 290 Q 130 295 110 285 Z"/></g>
+    <g stroke={JCS} strokeWidth="2" fill={JCF} strokeLinejoin="round" strokeLinecap="round"><path d="M 390 280 Q 380 268 392 258 Q 395 245 412 248 Q 420 235 438 244 Q 452 244 452 260 Q 462 266 454 278 Q 442 286 425 282 Q 408 290 392 284 Z"/></g>
+    <g stroke={JINK} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M 145 215 Q 175 200 215 198 Q 255 196 290 202 Q 310 205 320 212 L 327 218 Q 323 225 310 225 L 300 224 L 295 235 L 285 240 L 280 235 L 275 228 L 245 228 L 235 240 L 225 238 L 220 228 L 190 228 L 175 245 L 167 240 L 163 228 L 145 225 Q 137 220 145 215 Z"/><path d="M 310 205 Q 325 192 340 185 Q 355 182 363 192 Q 367 200 365 210 L 360 218 Q 353 222 347 218 L 340 215 Q 333 218 325 215"/><circle cx="353" cy="200" r="1.1" fill={JINK}/><path d="M 145 215 Q 125 207 110 215 Q 100 225 110 235 Q 120 240 130 232"/><path d="M 285 240 Q 283 256 290 270 L 293 278"/><path d="M 265 235 Q 260 252 265 268 L 268 278"/><path d="M 180 240 Q 173 258 167 274 L 163 282"/><path d="M 160 235 Q 150 254 143 274 L 139 282"/></g>
+    <g stroke={JINK} strokeWidth="1.9" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M 230 170 Q 230 185 233 195 L 235 202"/><circle cx="228" cy="163" r="6" fill={JBG}/><path d="M 233 178 Q 243 170 255 162"/></g>
+    <g stroke={JINK} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><line x1="255" y1="162" x2="260" y2="120"/><path d="M 260 118 Q 267 105 283 110 Q 295 105 305 115 Q 315 112 320 122 Q 323 132 310 135 Q 300 140 290 135 Q 280 140 273 135 Q 263 135 260 125 Z" fill={JBG}/></g>
+    <text x="290" y="128" textAnchor="middle" fill={JINK} style={{fontFamily:"'Caveat',cursive",fontSize:17,fontWeight:700}}>2026</text>
+  </svg>
+);}
+function SnakeIllustration({accent='#7A9E6A'}){return (
+  <svg viewBox="0 0 480 320" style={svgStyle} preserveAspectRatio="xMidYMid meet">
+    <g fill={JCSH} stroke="none"><ellipse cx="240" cy="295" rx="220" ry="14" opacity="0.5"/></g>
+    <g stroke={JCS} strokeWidth="2" fill={JCF} strokeLinejoin="round" strokeLinecap="round"><path d="M 20 280 Q 10 270 22 260 Q 22 246 38 248 Q 48 232 65 240 Q 75 232 88 244 Q 102 246 100 260 Q 110 268 100 278 Q 88 286 70 282 Q 50 290 32 284 Z"/></g>
+    <g stroke={JCS} strokeWidth="2.2" fill={JCF} strokeLinejoin="round" strokeLinecap="round"><path d="M 110 285 Q 95 270 112 258 Q 115 240 138 244 Q 148 222 175 230 Q 188 215 215 222 Q 230 205 258 215 Q 275 200 305 212 Q 322 205 340 222 Q 358 222 365 240 Q 380 244 378 260 Q 388 272 376 282 Q 360 295 340 290 Q 318 298 295 290 Q 270 296 245 290 Q 220 296 198 290 Q 175 296 152 290 Q 130 295 110 285 Z"/></g>
+    <g stroke={JINK} strokeWidth="2.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M 240 270 Q 290 265 305 240 Q 320 212 295 192 Q 268 172 240 185 Q 210 198 208 222 Q 206 248 230 255 Q 255 262 268 245 Q 278 230 265 218 Q 252 207 240 212"/></g>
+    <g stroke={JINK} strokeWidth="2.2" fill={JBG} strokeLinecap="round" strokeLinejoin="round"><ellipse cx="238" cy="205" rx="13" ry="9"/></g>
+    <circle cx="243" cy="202" r="1.4" fill={JINK}/>
+    <g stroke="#C44536" strokeWidth="1.4" fill="none" strokeLinecap="round"><path d="M 250 205 L 262 205"/><path d="M 260 203 L 263 205 L 260 207"/></g>
+    <g stroke={accent} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M 155 80 L 155 100"/><path d="M 155 80 Q 163 77 165 83"/><ellipse cx="152" cy="100" rx="3.5" ry="2.5" fill={accent} stroke="none"/><path d="M 350 60 L 350 78"/><path d="M 350 60 Q 357 57 359 63"/><ellipse cx="347" cy="78" rx="3" ry="2" fill={accent} stroke="none"/></g>
+    <text x="238" y="150" textAnchor="middle" fill={JINK} style={{fontFamily:"'Caveat',cursive",fontSize:17,fontWeight:700}}>2025</text>
+  </svg>
+);}
+function GoatIllustration({accent='#8B7BB0'}){return (
+  <svg viewBox="0 0 480 320" style={svgStyle} preserveAspectRatio="xMidYMid meet">
+    <g fill={JCSH} stroke="none"><ellipse cx="240" cy="295" rx="220" ry="14" opacity="0.5"/></g>
+    <g stroke={JCS} strokeWidth="2" fill={JCF} strokeLinejoin="round" strokeLinecap="round"><path d="M 20 280 Q 10 270 22 260 Q 22 246 38 248 Q 48 232 65 240 Q 75 232 88 244 Q 102 246 100 260 Q 110 268 100 278 Q 88 286 70 282 Q 50 290 32 284 Z"/></g>
+    <g stroke={JCS} strokeWidth="2.2" fill={JCF} strokeLinejoin="round" strokeLinecap="round"><path d="M 110 285 Q 95 270 112 258 Q 115 240 138 244 Q 148 222 175 230 Q 188 215 215 222 Q 230 205 258 215 Q 275 200 305 212 Q 322 205 340 222 Q 358 222 365 240 Q 380 244 378 260 Q 388 272 376 282 Q 360 295 340 290 Q 318 298 295 290 Q 270 296 245 290 Q 220 296 198 290 Q 175 296 152 290 Q 130 295 110 285 Z"/></g>
+    <g stroke={JINK} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M 155 225 Q 160 205 185 200 Q 230 195 275 200 Q 305 205 315 220 Q 320 235 310 248 Q 295 258 260 258 Q 220 260 185 255 Q 158 248 155 235 Z"/><path d="M 290 208 Q 310 195 325 185 Q 335 178 338 188 L 336 195 Q 345 190 352 196 Q 356 205 348 212 L 340 215 Q 330 218 320 215 L 312 220"/></g>
+    <g stroke={JINK} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M 335 180 Q 332 165 338 155 Q 343 148 348 155"/><path d="M 345 178 Q 348 163 356 158 Q 362 154 364 162"/></g>
+    <circle cx="344" cy="200" r="1.4" fill={JINK}/>
+    <path d="M 330 196 Q 322 192 318 198 Q 322 204 330 200" stroke={JINK} strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+    <g stroke={JINK} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M 190 255 Q 188 268 185 278 L 183 285"/><path d="M 210 258 Q 208 272 206 282 L 204 288"/><path d="M 265 257 Q 263 270 261 280 L 259 287"/><path d="M 285 254 Q 284 268 282 278 L 280 285"/></g>
+    <g stroke={accent} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M 145 80 L 145 98"/><path d="M 145 80 Q 152 77 154 83"/><ellipse cx="142" cy="98" rx="3" ry="2" fill={accent} stroke="none"/><path d="M 380 65 L 380 83"/><path d="M 380 65 Q 387 62 389 68"/><ellipse cx="377" cy="83" rx="3.5" ry="2.5" fill={accent} stroke="none"/></g>
+    <text x="231" y="150" textAnchor="middle" fill={JINK} style={{fontFamily:"'Caveat',cursive",fontSize:17,fontWeight:700}}>2027</text>
+  </svg>
+);}
+function ZodiacIllustration({year}){
+  const accent=ZODIAC_ACCENT[year]||'#5A7FB0';
+  const z=ZODIAC_OF[year]||'horse';
+  if(z==='snake')return <SnakeIllustration accent={accent}/>;
+  if(z==='goat')return <GoatIllustration accent={accent}/>;
+  return <HorseIllustration accent={accent}/>;
+}
+function JournalHero({nextTrip,year,cd}){
+  const t=nextTrip;
+  return (
+    <div className="hero jhero">
+      <div className="jart"><ZodiacIllustration year={year}/></div>
+      <div className="hcard">
+        {t?(<>
+          <div className="lead"><Spark c="var(--gold)"/> 下一趟 · next trip</div>
+          <div className="dest">{t.location}{t.country?` · ${t.country}`:''}</div>
+          <div className="big">{cd===0?<span className="ongoing">進行中</span>:<><b>{cd}</b><small>天後</small></>}</div>
+          <div className="meta">{fmtRange(t.startDate,t.endDate)}{(TRANSPORT[t.transport]||t.transport)?` · ${TRANSPORT[t.transport]?TRANSPORT[t.transport].label:t.transport}`:''}</div>
+        </>):(
+          <div className="empty">目前沒有即將到來的旅程<br/>在下方年曆點選日期<br/>開始計畫下一趟旅行 ✦</div>
+        )}
+      </div>
+    </div>
+  );
+}
+function Hero({nextTrip,skin,year}){
+  const t=nextTrip;
+  const transport=t&&TRANSPORT[t.transport]?t.transport:'cruise';
+  const country=t&&t.country||'';
+  const svg=useMemo(()=>sceneSVG(transport,country),[transport,country]);
+  let cd=null;
+  if(t){const du=daysUntil(t.startDate);cd=du>0?du:(t.endDate>=todayStr()?0:null);}
+  if(skin==='journal')return <JournalHero nextTrip={t} year={year} cd={cd}/>;
+  return (
+    <div className="hero">
+      <div className="scene" dangerouslySetInnerHTML={{__html:svg}}/>
+      <div className="hcard">
+        {t?(<>
+          <div className="lead"><Spark/> 下一趟 · NEXT TRIP</div>
+          <div className="dest">{t.location}{t.country?` · ${t.country}`:''}</div>
+          <div className="big">{cd===0?<span className="ongoing">進行中</span>:<><b>{cd}</b><small>天後</small></>}</div>
+          <div className="meta">{fmtRange(t.startDate,t.endDate)}{(TRANSPORT[t.transport]||t.transport)?` · ${TRANSPORT[t.transport]?TRANSPORT[t.transport].label:t.transport}`:''}</div>
+        </>):(
+          <div className="empty">目前沒有即將到來的旅程<br/>在下方年曆點選日期<br/>開始計畫下一趟旅行 ✦</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ============ CALENDAR ============ */
+function Calendar({start,trips,onCreate,onOpenTrip,onShift}){
+  const [drag,setDrag]=useState(null); // {start, cur}
+  const today=todayStr();
+  // 6 months from the anchor (start)
+  const months=[];
+  for(let i=0;i<6;i++){const tot=start.y*12+start.m+i;months.push({y:Math.floor(tot/12),m:((tot%12)+12)%12});}
+  const last=months[5];
+
+  const tripByDate={};
+  trips.forEach(t=>{daysBetween(t.startDate,t.endDate).forEach(d=>{if(!tripByDate[d])tripByDate[d]=t;});});
+
+  const endDrag=()=>{
+    if(drag&&drag.start&&drag.cur){
+      const[a,b]=drag.start<=drag.cur?[drag.start,drag.cur]:[drag.cur,drag.start];
+      onCreate(a,b);
+    }
+    setDrag(null);
+  };
+  useEffect(()=>{
+    if(!drag)return;
+    const up=()=>endDrag();
+    window.addEventListener('mouseup',up);window.addEventListener('touchend',up);
+    return()=>{window.removeEventListener('mouseup',up);window.removeEventListener('touchend',up);};
+  });
+
+  const inSel=(ds)=>{if(!drag)return false;const[a,b]=drag.start<=drag.cur?[drag.start,drag.cur]:[drag.cur,drag.start];return ds>=a&&ds<=b;};
+  const DOW=['日','一','二','三','四','五','六'];
+
+  return (
+    <div>
+    <div className="calnav">
+      <button onClick={()=>onShift(-6)} aria-label="上半年">‹</button>
+      <span className="rg">{start.y}/{pad(start.m+1)} – {last.y}/{pad(last.m+1)}</span>
+      <button onClick={()=>onShift(6)} aria-label="下半年">›</button>
+    </div>
+    <div className="months">
+      {months.map(({y,m},mi)=>{
+        const first=new Date(y,m,1).getDay();
+        const dim=new Date(y,m+1,0).getDate();
+        const cells=[];
+        for(let b=0;b<first;b++)cells.push(<div key={'b'+b} className="d blank"/>);
+        for(let d=1;d<=dim;d++){
+          const ds=fmtDate(y,m,d);
+          const tr=tripByDate[ds];
+          const isToday=ds===today;
+          const sel=inSel(ds);
+          let cls='d';
+          if(tr)cls+=' trip';
+          if(isToday)cls+=tr?' today':' today plain';
+          if(sel)cls+=' sel';
+          const ring=tr?{background:tr.color}:{};
+          const handleDown=(e)=>{
+            if(tr){onOpenTrip(tr.id);return;}
+            setDrag({start:ds,cur:ds});
+          };
+          const handleEnter=()=>{if(drag)setDrag(dr=>({...dr,cur:ds}));};
+          cells.push(
+            <div key={ds} className={cls}
+              onMouseDown={handleDown} onMouseEnter={handleEnter}
+              onTouchStart={handleDown}>
+              <span className="ring" style={ring}>{d}</span>
+            </div>
+          );
+        }
+        return (
+          <div key={y+'-'+m} className="m">
+            <h4><span className="mon"><b>{pad(m+1)}</b>月</span><span className="mo">{y}</span></h4>
+            <div className="dow">{DOW.map((x,i)=><div key={i}>{x}</div>)}</div>
+            <div className="dg">{cells}</div>
+          </div>
+        );
+      })}
+    </div>
+    </div>
+  );
+}
+
+/* ============ TRIP MODAL (create + edit) ============ */
+function TripModal({initial,onClose,onSave,onDelete}){
+  const isEdit=!!initial.id;
+  const [location,setLocation]=useState(initial.location||'');
+  const [country,setCountry]=useState(initial.country||'');
+  const autoRef=useRef(!initial.country); // eligible for auto-country until user edits it manually
+  // instant auto-fill country from known-city dictionary as the city is typed
+  useEffect(()=>{const c=CITY_COUNTRY[location.trim()];if(c&&(country===''||autoRef.current)){setCountry(c);autoRef.current=true;}},[location]);
+  // for cities not in the dictionary, geocode on blur to fill country
+  const onCityBlur=async()=>{const loc=location.trim();if(!loc||CITY_COUNTRY[loc])return;if(country===''||autoRef.current){const g=await geocode(loc,'');if(g&&g.country){setCountry(g.country);autoRef.current=true;}}};
+  const [startDate,setStartDate]=useState(initial.startDate);
+  const [endDate,setEndDate]=useState(initial.endDate);
+  const [purpose,setPurpose]=useState(migratePurpose(initial.purpose)||'overseasLeisure');
+  const [transport,setTransport]=useState(initial.transport&&TRANSPORT[initial.transport]?initial.transport:(initial.transport?'custom':'cruise'));
+  const [customTransport,setCustomTransport]=useState(initial.transport&&!TRANSPORT[initial.transport]?initial.transport:'');
+  const initComp=initial.companion||'';
+  const [companion,setCompanion]=useState(initComp.startsWith('other:')?'other':initComp||'');
+  const [companionOther,setCompanionOther]=useState(initComp.startsWith('other:')?initComp.slice(6):'');
+  const [mood,setMood]=useState(initial.mood||'');
+  const [color,setColor]=useState(initial.color||PALETTE[0]);
+  const [saving,setSaving]=useState(false);
+
+  const save=async()=>{
+    if(!location.trim())return;
+    setSaving(true);
+    const finalTransport=transport==='custom'?(customTransport.trim()||'其他'):transport;
+    const finalCompanion=companion==='other'?('other:'+companionOther.trim()):companion;
+    const geo=await geocode(location,country);
+    const trip={
+      id:initial.id||newId(),
+      location:location.trim(),
+      country:(geo&&geo.country)||country.trim()||CITY_COUNTRY[location.trim()]||'',
+      startDate,endDate,color,purpose,
+      transport:finalTransport,companion:finalCompanion,mood:mood||null,
+      summary:initial.summary||'',dailyPlaces:initial.dailyPlaces||{},
+      lat:geo?geo.lat:(initial.lat),lng:geo?geo.lng:(initial.lng),
+    };
+    onSave(trip);
+  };
+
+  return (
+    <div className="scrim" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div className="modal">
+        <div className="mbar"><span>{isEdit?'編輯旅程':'新增旅程'} · {fmtRange(startDate,endDate)}</span><button className="x" onClick={onClose}>✕</button></div>
+        <div className="mbody">
+          <div className="f2">
+            <div className="fld"><label>城市 CITY</label><input type="text" value={location} onChange={e=>setLocation(e.target.value)} onBlur={onCityBlur} placeholder="例：東京" autoFocus/></div>
+            <div className="fld"><label>國家 COUNTRY</label><input type="text" value={country} onChange={e=>{autoRef.current=false;setCountry(e.target.value);}} placeholder="輸入城市後自動判定"/></div>
+          </div>
+          <div className="f2">
+            <div className="fld"><label>開始 START</label><input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)}/></div>
+            <div className="fld"><label>結束 END</label><input type="date" value={endDate} min={startDate} onChange={e=>setEndDate(e.target.value)}/></div>
+          </div>
+          <div className="fld"><label>旅行類別 CATEGORY</label>
+            <div className="seg-in">{PURPOSE_ORDER.map(k=><button key={k} className={'chipbtn'+(purpose===k?' on':'')} onClick={()=>setPurpose(k)}>{PURPOSE[k].label}</button>)}</div>
+          </div>
+          <div className="fld"><label>交通 TRANSPORT</label>
+            <div className="seg-in">
+              {Object.keys(TRANSPORT).map(k=><button key={k} className={'chipbtn'+(transport===k?' on':'')} onClick={()=>setTransport(k)}>{TRANSPORT[k].emoji} {TRANSPORT[k].label}</button>)}
+              <button className={'chipbtn'+(transport==='custom'?' on':'')} onClick={()=>setTransport('custom')}>✎ 自訂</button>
+            </div>
+            {transport==='custom'&&<input style={{marginTop:8}} type="text" value={customTransport} onChange={e=>setCustomTransport(e.target.value)} placeholder="輸入交通方式，例：自駕、機車環島"/>}
+          </div>
+          <div className="fld"><label>同行 COMPANION</label>
+            <div className="seg-in">
+              {COMPANIONS.map(([k,l])=><button key={k} className={'chipbtn'+(companion===k?' on':'')} onClick={()=>setCompanion(k)}>{l}</button>)}
+              <button className={'chipbtn'+(companion==='other'?' on':'')} onClick={()=>setCompanion('other')}>✎ 其他</button>
+            </div>
+            {companion==='other'&&<input style={{marginTop:8}} type="text" value={companionOther} onChange={e=>setCompanionOther(e.target.value)} placeholder="輸入同行對象"/>}
+          </div>
+          <div className="f2">
+            <div className="fld"><label>心情 MOOD</label>
+              <div className="seg-in">{MOODS.map(e=><button key={e} className={'chipbtn'+(mood===e?' on':'')} style={{fontSize:16,padding:'5px 9px'}} onClick={()=>setMood(mood===e?'':e)}>{e}</button>)}</div>
+            </div>
+          </div>
+          <div className="fld"><label>顏色 COLOR</label>
+            <div className="swatches">{PALETTE.map(c=><button key={c} className={'sw'+(color===c?' on':'')} style={{background:c}} onClick={()=>setColor(c)}/>)}</div>
+          </div>
+          <div className="mbtns">
+            <button className="btn" onClick={save} disabled={saving||!location.trim()}>{saving?'儲存中…':(isEdit?'儲存變更':'建立旅程')}</button>
+            {isEdit&&<button className="btn warn" onClick={()=>{if(confirm('確定刪除這段旅程？'))onDelete(initial.id);}}>刪除</button>}
+            <button className="btn ghost" onClick={onClose}>取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============ DETAIL ============ */
+function Detail({trip,onBack,onEdit,onUpdate}){
+  const [summary,setSummary]=useState(trip.summary||'');
+  const [editingSum,setEditingSum]=useState(false);
+  const days=daysBetween(trip.startDate,trip.endDate);
+  const dp=trip.dailyPlaces||{};
+  const [adding,setAdding]=useState(null); // {date,type}
+  const [nameInput,setNameInput]=useState('');
+  const [gmapsFor,setGmapsFor]=useState(null);
+  const [gmapsVal,setGmapsVal]=useState('');
+
+  const commitSummary=()=>{setEditingSum(false);if(summary!==trip.summary)onUpdate({...trip,summary});};
+  const addPlace=(date,type,name,gmapsUrl)=>{
+    const places={...dp};const list=(places[date]||[]).slice();
+    list.push({id:newPlaceId(),type,name:name.trim(),gmapsUrl:gmapsUrl||null});
+    places[date]=list;onUpdate({...trip,dailyPlaces:places});
+  };
+  const removePlace=(date,id)=>{
+    const places={...dp};places[date]=(places[date]||[]).filter(p=>p.id!==id);onUpdate({...trip,dailyPlaces:places});
+  };
+  const submitAdd=()=>{
+    if(adding&&nameInput.trim()){addPlace(adding.date,adding.type,nameInput);}
+    setAdding(null);setNameInput('');
+  };
+  const submitGmaps=(date)=>{
+    if(isGmapsUrl(gmapsVal)){const nm=parseGmapsUrl(gmapsVal);if(nm)addPlace(date,'sight',nm,gmapsVal);}
+    setGmapsFor(null);setGmapsVal('');
+  };
+  const p=PURPOSE[migratePurpose(trip.purpose)];
+  const tp=TRANSPORT[trip.transport];
+  const compLabel=(()=>{const c=trip.companion||'';if(c.startsWith('other:'))return c.slice(6);const f=COMPANIONS.find(x=>x[0]===c);return f?f[1]:'';})();
+
+  return (
+    <div>
+      <div className="topbar">
+        <button className="backbtn" onClick={onBack}>‹ 返回</button>
+        <div style={{marginLeft:6}}><div className="zh" style={{fontSize:19}}>{trip.location}{trip.country?` · ${trip.country}`:''}</div><div className="sub">{fmtRange(trip.startDate,trip.endDate)} · {tripLength(trip)} 天</div></div>
+        <div style={{marginLeft:'auto',display:'flex',gap:9}}>
+          <button className="btn gold" style={{padding:'8px 16px',flex:'none'}} onClick={onEdit}>編輯</button>
+        </div>
+      </div>
+
+      <div className="sh"><span className="zh">旅程資訊</span><span className="e">OVERVIEW</span><span className="r"/></div>
+      <div className="pad">
+        <div className="metarow">
+          <span className="mi">📅 {fmtRange(trip.startDate,trip.endDate)} · {tripLength(trip)} 天</span>
+          {p&&<span className="mi"><span className="cat" style={{color:p.color}}>{p.label}</span></span>}
+          <span className="mi">{tp?`${tp.emoji} ${tp.label}`:`🧭 ${trip.transport||'—'}`}</span>
+          {compLabel&&<span className="mi">👥 {compLabel}</span>}
+          {trip.mood&&<span className="mi" style={{fontSize:16}}>{trip.mood}</span>}
+          <span className="mi"><span className="dotc" style={{background:trip.color}}/>顏色</span>
+          <span className="mi"><a href={mapsUrl(trip.location,trip.country)} target="_blank" rel="noreferrer">📍 Google Maps</a></span>
+        </div>
+      </div>
+
+      <div className="sh"><span className="zh">摘要</span><span className="e">SUMMARY</span><span className="r"/></div>
+      <div className="pad">
+        {editingSum?(
+          <textarea className="ta-edit" value={summary} autoFocus onChange={e=>setSummary(e.target.value)} onBlur={commitSummary} placeholder="寫下這趟旅程的心得 / 備註…"/>
+        ):(
+          <div className="ta-view" onClick={()=>setEditingSum(true)} style={{cursor:'text',minHeight:24,color:summary?'var(--ink)':'var(--ink-soft)'}}>{summary||'點此新增摘要…'}</div>
+        )}
+      </div>
+
+      <div className="sh"><span className="zh">每日行程</span><span className="e">DAILY PLACES</span><span className="r"/></div>
+      <div className="pad" style={{paddingBottom:16}}>
+        {days.map((ds,i)=>{
+          const list=dp[ds]||[];
+          const sorted=[...list].sort((a,b)=>PLACE_ORDER.indexOf(a.type)-PLACE_ORDER.indexOf(b.type));
+          return (
+            <div className="day" key={ds}>
+              <div className="dh"><span>{fmtLabel(ds)} · 第 {i+1} 天</span></div>
+              <div className="dc">
+                {sorted.map(pl=>{
+                  const pt=PLACE_TYPES[pl.type]||PLACE_TYPES.other;
+                  return (
+                    <span className="chip" key={pl.id}>
+                      <span className="dotc" style={{background:pt.color}}/>
+                      {pl.gmapsUrl?<a href={pl.gmapsUrl} target="_blank" rel="noreferrer">{pl.name}</a>:pl.name}
+                      <button className="del" onClick={()=>removePlace(ds,pl.id)}>✕</button>
+                    </span>
+                  );
+                })}
+                {adding&&adding.date===ds?(
+                  <span className="chip" style={{background:'var(--parchment-lo)',padding:'2px 6px'}}>
+                    <span className="dotc" style={{background:(PLACE_TYPES[adding.type]||PLACE_TYPES.other).color}}/>
+                    <input autoFocus value={nameInput} onChange={e=>setNameInput(e.target.value)}
+                      onKeyDown={e=>{if(e.key==='Enter')submitAdd();if(e.key==='Escape'){setAdding(null);setNameInput('');}}}
+                      onBlur={submitAdd} placeholder={(PLACE_TYPES[adding.type]||{}).label+'名稱'}
+                      style={{border:'none',background:'transparent',outline:'none',fontSize:13,width:110,color:'var(--ink)'}}/>
+                  </span>
+                ):(
+                  PLACE_ORDER.map(tk=><button key={tk} className="addchip" onClick={()=>{setAdding({date:ds,type:tk});setNameInput('');}}>＋ {PLACE_TYPES[tk].label}</button>)
+                )}
+              </div>
+              {gmapsFor===ds?(
+                <div className="gmapsbox">
+                  <input autoFocus value={gmapsVal} onChange={e=>setGmapsVal(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')submitGmaps(ds);}} placeholder="貼上 Google Maps 連結…"/>
+                  <button className="addchip" onClick={()=>submitGmaps(ds)}>匯入</button>
+                  <button className="addchip" onClick={()=>{setGmapsFor(null);setGmapsVal('');}}>取消</button>
+                </div>
+              ):(
+                <div className="gmapsbox"><button className="addchip" onClick={()=>{setGmapsFor(ds);setGmapsVal('');}} style={{background:'transparent',color:'var(--ink-soft)'}}>📋 貼 Google Maps 連結匯入地點</button></div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ============ WORLD MAP (recap) ============ */
+const project=(lat,lng)=>({x:((lng+180)/360)*1000,y:((90-lat)/180)*500});
+function Continents(){
+  return (<g fill="var(--sage)" stroke="none">
+    <path d="M 30 70 L 75 55 L 145 50 L 245 50 L 305 65 L 340 100 L 348 130 L 320 165 L 305 185 L 290 195 L 282 188 L 250 200 L 220 215 L 245 230 L 275 232 L 240 220 L 200 195 L 175 165 L 155 140 L 130 120 L 105 105 L 75 95 L 45 85 Z"/>
+    <path d="M 365 50 L 412 45 L 425 70 L 420 105 L 395 110 L 368 100 L 358 80 Z"/>
+    <path d="M 285 220 L 310 215 L 345 215 L 380 235 L 405 250 L 410 290 L 400 320 L 380 355 L 365 380 L 345 405 L 315 410 L 305 380 L 295 340 L 285 290 L 280 245 Z"/>
+    <path d="M 460 65 L 540 48 L 700 52 L 850 48 L 970 75 L 945 110 L 920 130 L 900 145 L 875 145 L 858 158 L 845 168 L 837 178 L 830 192 L 818 195 L 808 205 L 802 215 L 803 230 L 790 248 L 786 245 L 780 232 L 775 220 L 768 215 L 758 220 L 745 225 L 720 232 L 712 222 L 700 200 L 692 188 L 685 195 L 670 215 L 658 220 L 625 218 L 620 200 L 605 175 L 593 168 L 583 152 L 575 138 L 560 132 L 538 132 L 522 130 L 488 138 L 478 122 L 478 100 L 510 80 Z"/>
+    <path d="M 472 88 L 488 88 L 492 102 L 488 113 L 478 115 L 470 110 L 468 95 Z"/>
+    <path d="M 510 155 L 545 145 L 600 155 L 625 170 L 640 200 L 645 215 L 660 222 L 645 245 L 635 285 L 615 320 L 580 348 L 555 345 L 535 320 L 518 290 L 505 260 L 490 225 L 488 200 L 488 180 L 495 165 Z"/>
+    <path d="M 880 122 L 910 120 L 912 140 L 895 145 L 880 138 Z"/>
+    <path d="M 880 145 L 908 148 L 928 160 L 925 175 L 895 178 L 868 175 L 860 165 L 868 153 Z"/>
+    <path d="M 833 175 L 842 175 L 845 195 L 836 195 Z"/>
+    <path d="M 833 205 L 855 205 L 860 245 L 838 250 L 830 225 Z"/>
+    <path d="M 770 250 L 800 250 L 825 255 L 850 268 L 880 270 L 895 285 L 882 295 L 850 285 L 815 280 L 800 275 L 770 270 Z"/>
+    <path d="M 815 280 L 855 273 L 895 280 L 935 295 L 940 325 L 920 350 L 880 360 L 845 360 L 825 345 L 815 320 Z"/>
+    <path d="M 970 350 L 990 348 L 992 368 L 975 372 Z"/><path d="M 975 372 L 992 372 L 998 392 L 980 395 Z"/>
+  </g>);
+}
+function WorldMap({trips,onOpenTrip}){
+  const withC=trips.filter(t=>typeof t.lat==='number'&&typeof t.lng==='number');
+  const without=trips.filter(t=>typeof t.lat!=='number'||typeof t.lng!=='number');
+  const groups={};
+  withC.forEach(t=>{const k=`${t.lat.toFixed(2)},${t.lng.toFixed(2)}`;if(!groups[k])groups[k]={lat:t.lat,lng:t.lng,name:t.location,trips:[]};groups[k].trips.push(t);});
+  const pts=Object.values(groups).map(p=>{const s=[...p.trips].sort((a,b)=>b.startDate.localeCompare(a.startDate));return{...p,color:s[0].color,size:Math.min(9,5+Math.floor(p.trips.length*0.8))};});
+  const [hover,setHover]=useState(null);
+  const [world,setWorld]=useState(false);
+  const vb=world?'0 0 1000 500':'560 60 460 320';
+  return (
+    <div>
+      <div style={{display:'flex',justifyContent:'flex-end',marginBottom:6}}>
+        <button className="chipbtn" onClick={()=>setWorld(v=>!v)} style={{background:'var(--parchment)',fontSize:11,padding:'4px 10px'}}>{world?'🗾 聚焦亞洲':'🌍 全球視野'}</button>
+      </div>
+      <div className="worldwrap">
+      <svg viewBox={vb} style={{width:'100%',height:'auto',display:'block',maxHeight:420}}>
+        <Continents/>
+        {pts.map((p,i)=>{const{x,y}=project(p.lat,p.lng);const h=hover===i;return (
+          <g key={i} onMouseEnter={()=>setHover(i)} onMouseLeave={()=>setHover(null)} onClick={()=>p.trips.length===1&&onOpenTrip(p.trips[0].id)} style={{cursor:p.trips.length===1?'pointer':'default'}}>
+            <circle cx={x} cy={y} r={p.size+5} fill={p.color} opacity={h?0.4:0.22}/>
+            <circle cx={x} cy={y} r={p.size} fill={p.color} stroke="var(--cream)" strokeWidth="1.5"/>
+            {p.trips.length>1&&<text x={x} y={y+1} textAnchor="middle" dominantBaseline="middle" fill="#fff" style={{fontFamily:"var(--f-num)",fontSize:p.size+2,fontWeight:700,pointerEvents:'none'}}>{p.trips.length}</text>}
+          </g>
+        );})}
+        {hover!==null&&pts[hover]&&(()=>{const p=pts[hover];const{x,y}=project(p.lat,p.lng);const days=p.trips.reduce((s,t)=>s+tripLength(t),0);const txt=`${p.name} · ${p.trips.length} 段 · ${days} 天`;const w=Math.max(120,txt.length*13);const lx=Math.min(Math.max(x-w/2,10),1000-w-10);const ly=y-p.size-30;return (<g pointerEvents="none"><rect x={lx} y={ly} width={w} height={24} rx={3} fill="var(--ink)"/><text x={lx+w/2} y={ly+16} textAnchor="middle" fill="#fff" style={{fontSize:13,fontWeight:600}}>{txt}</text></g>);})()}
+      </svg>
+      </div>
+      {without.length>0&&(
+        <div className="miss">
+          <div className="lbl">未標示位置 · {without.length} 段</div>
+          <div className="tags">{without.map(t=><button key={t.id} className="citytag" onClick={()=>onOpenTrip(t.id)}><span className="cdot" style={{background:t.color}}/>{t.location}</button>)}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============ RECAP ============ */
+function Recap({year,trips,onBack,onOpenTrip}){
+  const [range,setRange]=useState('full');
+  const bounds=(()=>{
+    if(range==='h1')return[`${year}-01-01`,`${year}-06-30`];
+    if(range==='h2')return[`${year}-07-01`,`${year}-12-31`];
+    return[`${year}-01-01`,`${year}-12-31`];
+  })();
+  const yTrips=trips.filter(t=>overlapDays(t,bounds[0],bounds[1])>0);
+  const totalDays=yTrips.reduce((s,t)=>s+overlapDays(t,bounds[0],bounds[1]),0);
+  const totalPlaces=yTrips.reduce((s,t)=>s+Object.values(t.dailyPlaces||{}).reduce((a,l)=>a+l.length,0),0);
+  const [expanded,setExpanded]=useState(null);
+  // country -> cities
+  const countries={};
+  yTrips.forEach(t=>{const c=t.country||'其他';if(!countries[c])countries[c]={visits:0,cities:{}};countries[c].visits++;const city=t.location;countries[c].cities[city]=(countries[c].cities[city]||0)+1;});
+  const countryList=Object.entries(countries).sort((a,b)=>b[1].visits-a[1].visits);
+
+  const genAnim=()=>{alert(`🎬「${OWNER} 的 ${year} Trips」動畫產出功能開發中，敬請期待！`);};
+
+  return (
+    <div>
+      <div className="topbar">
+        <button className="backbtn" onClick={onBack}>‹ 返回</button>
+        <div style={{marginLeft:6}}><div className="zh" style={{fontSize:19}}>{year} 年度回顧</div><div className="sub">YEAR IN REVIEW</div></div>
+        <div className="seg" style={{marginLeft:'auto'}}>
+          {[['full','全年'],['h1','上半年'],['h2','下半年']].map(([k,l])=><button key={k} className={range===k?'on':''} onClick={()=>setRange(k)}>{l}</button>)}
+        </div>
+      </div>
+      <div className="pad" style={{paddingTop:18}}>
+        <div className="rgrid">
+          <div>
+            <div className="stat3">
+              <div className="rstat"><div className="n">{yTrips.length}</div><div className="l">旅程段數</div></div>
+              <div className="rstat"><div className="n">{totalPlaces}</div><div className="l">造訪地點</div></div>
+              <div className="rstat"><div className="n">{totalDays}</div><div className="l">在外天數</div></div>
+            </div>
+            <div className="panel">
+              <div style={{fontWeight:900,fontSize:13,marginBottom:9}}>國家清單 · 點擊展開城市</div>
+              <div className="clist">
+                {countryList.length===0&&<div style={{fontSize:13,color:'var(--ink-soft)'}}>這段期間還沒有旅程</div>}
+                {countryList.map(([c,info])=>(
+                  <div className="c" key={c} onClick={()=>setExpanded(expanded===c?null:c)}>
+                    <div className="top"><span className="nm">{c}</span><span className="ct">{Array.from({length:Math.min(info.visits,5)}).map((_,i)=><span key={i} className="cdot" style={{background:'var(--rust)'}}/>)} {info.visits}</span></div>
+                    {expanded===c&&<div className="cities">{Object.entries(info.cities).map(([city,n])=><span className="citytag" key={city}>{city}{n>1?` ×${n}`:''}</span>)}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="panel" style={{padding:12}}>
+            <WorldMap trips={yTrips} onOpenTrip={onOpenTrip}/>
+          </div>
+        </div>
+      </div>
+      <div className="genbar">
+        <div><div className="t">🎬 一鍵產出動畫</div><div className="s">產出「{OWNER} 的 {year} Trips」該年度所有行程演示</div></div>
+        <button className="go" onClick={genAnim}>產出動畫 ▶</button>
+      </div>
+      <div className="foot"><div className="en">© {OWNER} LIN · {year}</div></div>
+    </div>
+  );
+}
+
+/* ============ STICKER ALBUM ============ */
+function StickerAlbum({stickers,trips,onBack,onAdd,onDelete,onView}){
+  const tripById={};trips.forEach(t=>tripById[t.id]=t);
+  return (
+    <div>
+      <div className="topbar">
+        <button className="backbtn" onClick={onBack}>‹ 返回</button>
+        <div style={{marginLeft:6}}><div className="zh" style={{fontSize:19}}>貼紙收集冊</div><div className="sub">STICKER ALBUM</div></div>
+        <button className="addstk" style={{marginLeft:'auto'}} onClick={onAdd}>＋ 加入貼紙</button>
+      </div>
+      <div className="album">
+        {stickers.length===0?(
+          <div className="stkempty">還沒有貼紙　✦<br/>點右上「＋ 加入貼紙」上傳旅遊照片，<br/>自動變成貼紙並標示旅程</div>
+        ):(
+          <div className="stkgrid">
+            {stickers.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).map(s=>{const t=tripById[s.tripId];return (
+              <div className="stkcard" key={s.id}>
+                <button className="del" onClick={()=>{if(confirm('刪除這張貼紙？'))onDelete(s.id);}}>✕</button>
+                <img src={s.img} alt={s.title||''} onClick={()=>onView(s.img)}/>
+                <div className="cap">
+                  <span className="cdot" style={{background:t?t.color:'var(--line)'}}/>
+                  <span className="tname">{t?t.location:(s.title||'未標示')}</span>
+                  <span className="tdate">{t?fmtRange(t.startDate,t.endDate):''}</span>
+                </div>
+              </div>
+            );})}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+function AddStickerModal({trips,onClose,onSave}){
+  const [img,setImg]=useState(null);
+  const [tripId,setTripId]=useState('');
+  const [title,setTitle]=useState('');
+  const [busy,setBusy]=useState(false);
+  const fileRef=useRef(null);
+  const pick=async(e)=>{const f=e.target.files&&e.target.files[0];if(!f)return;setBusy(true);try{const src=await fileToDataURL(f);const stk=await makeSticker(src);setImg(stk);}catch(err){}setBusy(false);};
+  const sortedTrips=[...trips].sort((a,b)=>b.startDate.localeCompare(a.startDate));
+  const save=()=>{if(!img)return;onSave({id:'stk-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),img,tripId:tripId||null,title:title.trim(),ts:Date.now()});};
+  return (
+    <div className="scrim" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div className="modal" style={{width:400}}>
+        <div className="mbar"><span>加入貼紙</span><button className="x" onClick={onClose}>✕</button></div>
+        <div className="mbody">
+          <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={pick}/>
+          {img?(
+            <div style={{marginBottom:14,textAlign:'center'}}>
+              <img className="uploadprev" src={img} onClick={()=>fileRef.current.click()} style={{cursor:'pointer'}}/>
+              <div style={{fontSize:11,color:'var(--ink-soft)',marginTop:6}}>點圖可重新選照片</div>
+            </div>
+          ):(
+            <div className="uploadbox" style={{marginBottom:14}} onClick={()=>fileRef.current.click()}>{busy?'生成貼紙中…':'📷 上傳旅遊照片 → 自動變成貼紙'}</div>
+          )}
+          <div className="fld"><label>標示旅程 TRIP</label>
+            <select value={tripId} onChange={e=>setTripId(e.target.value)}>
+              <option value="">（不標示）</option>
+              {sortedTrips.map(t=><option key={t.id} value={t.id}>{t.location}{t.country?` · ${t.country}`:''}　{fmtRange(t.startDate,t.endDate)}</option>)}
+            </select>
+          </div>
+          <div className="fld"><label>備註 NOTE（選填）</label><input type="text" value={title} onChange={e=>setTitle(e.target.value)} placeholder="例：晴空塔的夕陽"/></div>
+          <div className="mbtns"><button className="btn" onClick={save} disabled={!img}>加入收集冊</button><button className="btn ghost" onClick={onClose}>取消</button></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============ APP ============ */
+function App(){
+  const [loading,setLoading]=useState(true);
+  const [trips,setTrips]=useState([]);
+  const [year,setYear]=useState(2026);
+  const [calStart,setCalStart]=useState(()=>{const n=new Date();let y=n.getFullYear(),m=n.getMonth()-1;if(m<0){m+=12;y--;}return {y,m};});
+  const [view,setView]=useState('home');
+  const [selId,setSelId]=useState(null);
+  const [modal,setModal]=useState(null); // {mode:'create'|'edit', ...}
+  const [skin,setSkin]=useState('island');
+  const [settingsOpen,setSettingsOpen]=useState(false);
+  const changeSkin=(s)=>{setSkin(s);storage.set('skin',s).catch(()=>{});};
+  const [stickers,setStickers]=useState([]);
+  const [addStk,setAddStk]=useState(false);
+  const [lightbox,setLightbox]=useState(null);
+  const addSticker=(s)=>{const next=[...stickers,s];setStickers(next);saveStickers(next);setAddStk(false);};
+  const deleteSticker=(id)=>{const next=stickers.filter(s=>s.id!==id);setStickers(next);saveStickers(next);};
+  const shiftCal=(delta)=>{const tot=calStart.y*12+calStart.m+delta;const y=Math.floor(tot/12),m=((tot%12)+12)%12;setCalStart({y,m});setYear(y);};
+  const goYear=(ny)=>{setYear(ny);setCalStart({y:ny,m:0});};
+
+  useEffect(()=>{(async()=>{
+    const sk=await storage.get('skin').catch(()=>null);if(sk&&sk.value)setSkin(sk.value);
+    loadStickers().then(setStickers).catch(()=>{});
+    const t=await loadTrips();
+    // backfill country / coords from the built-in dictionary (instant)
+    let changed=false;
+    for(const tr of t){
+      if(!tr.country&&CITY_COUNTRY[tr.location]){tr.country=CITY_COUNTRY[tr.location];changed=true;}
+      if(typeof tr.lat!=='number'&&LOCATION_COORDS[tr.location]){const c=LOCATION_COORDS[tr.location];tr.lat=c.lat;tr.lng=c.lng;changed=true;}
+    }
+    setTrips(t);setLoading(false);
+    if(changed)saveTrips(t);
+    // geocode any trips still missing a country (throttled for Nominatim), then merge
+    let geo=false;
+    for(const tr of t){
+      if(!tr.country&&tr.location){
+        try{const g=await geocode(tr.location,'');if(g){if(g.country){tr.country=g.country;geo=true;}if(typeof tr.lat!=='number'&&typeof g.lat==='number'){tr.lat=g.lat;tr.lng=g.lng;geo=true;}}}catch(e){}
+        await new Promise(r=>setTimeout(r,1100));
+      }
+    }
+    if(geo)setTrips(prev=>{const byId={};t.forEach(x=>byId[x.id]=x);const merged=prev.map(p=>{const m=byId[p.id];return (m&&!p.country&&m.country)?{...p,country:m.country,lat:(typeof p.lat==='number'?p.lat:m.lat),lng:(typeof p.lng==='number'?p.lng:m.lng)}:p;});saveTrips(merged);return merged;});
+  })();},[]);
+  const persist=(next)=>{setTrips(next);saveTrips(next);};
+
+  const upcoming=useMemo(()=>{
+    const td=todayStr();
+    return [...trips].filter(t=>t.endDate>=td).sort((a,b)=>a.startDate.localeCompare(b.startDate));
+  },[trips]);
+  const nextTrip=upcoming[0]||null;
+
+  const openCreate=(a,b)=>setModal({mode:'edit-obj',initial:{startDate:a,endDate:b}});
+  const openTrip=(id)=>{setSelId(id);setView('detail');};
+  const selTrip=trips.find(t=>t.id===selId);
+
+  const saveTrip=(trip)=>{
+    const exists=trips.some(t=>t.id===trip.id);
+    const next=exists?trips.map(t=>t.id===trip.id?trip:t):[...trips,trip];
+    persist(next);setModal(null);
+  };
+  const deleteTrip=(id)=>{persist(trips.filter(t=>t.id!==id));setModal(null);if(selId===id){setSelId(null);setView('home');}};
+  const updateTrip=(trip)=>persist(trips.map(t=>t.id===trip.id?trip:t));
+
+  if(loading)return <div className="loading">LOADING…</div>;
+
+  return (
+    <div className="app" data-skin={skin}>
+      {view==='home'&&(<>
+        <div className="topbar">
+          <svg className="logom" viewBox="0 0 40 40"><rect x="4" y="4" width="32" height="32" fill="var(--purple)"/><circle cx="20" cy="17" r="8" fill="var(--gold)"/><path d="M20 25 l7 8 l-14 0 z" fill="var(--teal)"/></svg>
+          <div><div className="zh">{year} · {ZODIAC_TC[year]||''}年</div><div className="sub">TRAVEL JOURNAL</div></div>
+          <div className="yswitch">
+            <button className="arw" onClick={()=>goYear(year-1)}>‹</button>
+            <span className="cur en">{year}</span>
+            <button className="arw" onClick={()=>goYear(year+1)}>›</button>
+          </div>
+          <button className="gear" onClick={()=>setSettingsOpen(true)} aria-label="設定">⚙</button>
+        </div>
+
+        <Hero nextTrip={nextTrip} skin={skin} year={year}/>
+
+        <div className="sh"><span className="zh">年曆</span><span className="e">TAP OR DRAG TO CREATE</span><span className="r"/></div>
+        <div className="pad">
+          <Calendar start={calStart} trips={trips} onCreate={openCreate} onOpenTrip={openTrip} onShift={shiftCal}/>
+          <div className="caltip">
+            <Spark c="var(--gold-deep)" s={10}/> 點擊或滑動日期 → 填寫旅程詳情（圓點＝已排旅程）
+          </div>
+        </div>
+
+        <div className="sh"><span className="zh">年度回顧</span><span className="e">RECAP</span><span className="r"/></div>
+        <div className="pad" style={{paddingBottom:24}}>
+          <div className="panel">
+            <div className="recapteaser">
+              {(()=>{const yt=trips.filter(t=>overlapDays(t,`${year}-01-01`,`${year}-12-31`)>0);const days=yt.reduce((s,t)=>s+overlapDays(t,`${year}-01-01`,`${year}-12-31`),0);const places=yt.reduce((s,t)=>s+Object.values(t.dailyPlaces||{}).reduce((a,l)=>a+l.length,0),0);const cs=new Set(yt.map(t=>t.country||'其他'));return (<>
+                <div className="stat"><div className="n">{yt.length}</div><div className="l">旅程段數</div></div>
+                <div className="stat"><div className="n">{places}</div><div className="l">造訪地點</div></div>
+                <div className="stat"><div className="n">{days}</div><div className="l">在外天數</div></div>
+                <div className="stat"><div className="n">{cs.size}</div><div className="l">國家</div></div>
+              </>);})()}
+              <button className="genbtn" onClick={()=>setView('recap')}>🎬 {OWNER} 的 {year} Trips</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="sh"><span className="zh">貼紙收集冊</span><span className="e">STICKER ALBUM</span><span className="r"/></div>
+        <div className="pad" style={{paddingBottom:24}}>
+          <div className="panel stkteaser" onClick={()=>setView('album')}>
+            {stickers.length>0?(
+              <div className="stkstrip">{stickers.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,7).map(s=><img key={s.id} src={s.img} alt=""/>)}</div>
+            ):(
+              <div className="stkteaser-empty">還沒有貼紙 · 上傳旅遊照片 → 自動變成貼紙，收藏你的每一趟 ✦</div>
+            )}
+            <div className="stkteaser-foot">
+              <span className="cnt">{stickers.length} 張貼紙</span>
+              <button className="genbtn" style={{background:'var(--gold)',color:'var(--ink)'}} onClick={(e)=>{e.stopPropagation();setAddStk(true);}}>＋ 加入貼紙</button>
+              <span className="enter">進入收集冊 ›</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="foot"><div className="en">© {OWNER} LIN · {year}</div></div>
+
+        <button className="fab" onClick={()=>{const t=todayStr();setModal({mode:'edit-obj',initial:{startDate:t,endDate:t}});}}>＋ 新增旅程</button>
+      </>)}
+
+      {view==='detail'&&selTrip&&(
+        <Detail trip={selTrip} onBack={()=>{setView('home');setSelId(null);}} onEdit={()=>setModal({mode:'edit-obj',initial:selTrip})} onUpdate={updateTrip}/>
+      )}
+
+      {view==='recap'&&(
+        <Recap year={year} trips={trips} onBack={()=>setView('home')} onOpenTrip={openTrip}/>
+      )}
+
+      {view==='album'&&(
+        <StickerAlbum stickers={stickers} trips={trips} onBack={()=>setView('home')} onAdd={()=>setAddStk(true)} onDelete={deleteSticker} onView={setLightbox}/>
+      )}
+
+      {addStk&&<AddStickerModal trips={trips} onClose={()=>setAddStk(false)} onSave={addSticker}/>}
+      {lightbox&&<div className="lightbox" onClick={()=>setLightbox(null)}><img src={lightbox} alt=""/></div>}
+
+      {modal&&(
+        <TripModal initial={modal.initial} onClose={()=>setModal(null)} onSave={saveTrip} onDelete={deleteTrip}/>
+      )}
+
+      {settingsOpen&&(
+        <div className="scrim" onMouseDown={e=>{if(e.target===e.currentTarget)setSettingsOpen(false);}}>
+          <div className="modal" style={{width:360}}>
+            <div className="mbar"><span>設定 · 外觀皮膚</span><button className="x" onClick={()=>setSettingsOpen(false)}>✕</button></div>
+            <div className="mbody">
+              <div style={{fontSize:12,color:'var(--ink-soft)',marginBottom:12,fontWeight:600}}>選擇美術皮膚，可隨時替換</div>
+              {[['island','島嶼旅人','平面向量・現代明亮'],['journal','手繪日誌','舊版・手寫紙感']].map(([k,name,desc])=>(
+                <div key={k} className="skinopt" data-on={skin===k} onClick={()=>changeSkin(k)}>
+                  <div><div style={{fontWeight:800,fontSize:15}}>{name}</div><div style={{fontSize:12,color:'var(--ink-soft)',marginTop:2}}>{desc}</div></div>
+                  {skin===k&&<span style={{color:'var(--purple)',fontWeight:800,fontSize:13}}>✓ 使用中</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
