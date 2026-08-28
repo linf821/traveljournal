@@ -159,7 +159,7 @@
   .memobubble{position:fixed;z-index:55;transform:translate(-50%,-100%);background:var(--ink);color:var(--cream);padding:8px 12px;border-radius:9px;max-width:230px;font-size:12.5px;line-height:1.5;pointer-events:none;box-shadow:0 5px 16px rgba(40,36,50,.32)}
   .memobubble::after{content:'';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ink);border-bottom:0}
   .memobubble .mtitle{font-weight:800;font-size:13px;display:flex;align-items:center;gap:6px;font-family:'Noto Sans TC',sans-serif}
-  .memobubble .mdot{width:8px;height:8px;border-radius:50%;flex:none}
+  .memobubble .micon{font-size:14px;line-height:1}
   .memobubble .mdates{font-family:'Space Grotesk';font-size:10px;color:#C9C3D4;margin-top:2px;letter-spacing:.02em}
   .memobubble .mtext{white-space:pre-wrap;word-break:break-word;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.15)}
 
@@ -331,9 +331,9 @@ const OWNER='HSINGFEI';
 const SUPPORTED_YEARS=[2025,2026,2027];
 const ZODIAC_TC={2025:'蛇',2026:'馬',2027:'羊'};
 const PURPOSE={
-  business:{label:'出差',color:'#5A8494'},        // 藍
-  domesticLeisure:{label:'國內旅遊',color:'#8E9E77'}, // 綠
-  overseasLeisure:{label:'海外旅遊',color:'#C67B65'},  // 珊瑚
+  business:{label:'出差',color:'#5A8494',icon:'💼'},        // 藍
+  domesticLeisure:{label:'國內旅遊',color:'#8E9E77',icon:'🏝️'}, // 綠
+  overseasLeisure:{label:'海外旅遊',color:'#C67B65',icon:'🌏'},  // 珊瑚
 };
 const PURPOSE_ORDER=['overseasLeisure','domesticLeisure','business'];
 const migratePurpose=(p)=>p==='workTravel'?'business':p==='leisure'?'overseasLeisure':p;
@@ -651,7 +651,7 @@ function Calendar({start,trips,onCreate,onOpenTrip,onShift}){
           };
           const handleEnter=(e)=>{
             if(drag)setDrag(dr=>({...dr,cur:ds}));
-            if(tr){const r=e.currentTarget.getBoundingClientRect();setHoverMemo({memo:tr.memo||'',name:tr.location,color:tr.color,dates:fmtRange(tr.startDate,tr.endDate),x:r.left+r.width/2,y:r.top});}
+            if(tr){const r=e.currentTarget.getBoundingClientRect();setHoverMemo({memo:tr.memo||'',name:tr.location,purpose:migratePurpose(tr.purpose),dates:fmtRange(tr.startDate,tr.endDate),x:r.left+r.width/2,y:r.top});}
           };
           const handleLeave=()=>{if(tr)setHoverMemo(null);};
           cells.push(
@@ -673,8 +673,8 @@ function Calendar({start,trips,onCreate,onOpenTrip,onShift}){
     </div>
     {hoverMemo&&(
       <div className="memobubble" style={{left:hoverMemo.x,top:hoverMemo.y-8}}>
-        <div className="mtitle"><span className="mdot" style={{background:hoverMemo.color}}/>{hoverMemo.name}</div>
-        <div className="mdates">{hoverMemo.dates}</div>
+        <div className="mtitle"><span className="micon">{(PURPOSE[hoverMemo.purpose]||{}).icon||'📍'}</span>{hoverMemo.name}</div>
+        <div className="mdates">{(PURPOSE[hoverMemo.purpose]||{}).label} · {hoverMemo.dates}</div>
         {hoverMemo.memo&&<div className="mtext">✎ {hoverMemo.memo}</div>}
       </div>
     )}
@@ -701,9 +701,10 @@ function TripModal({initial,onClose,onSave,onDelete}){
   const [companion,setCompanion]=useState(initComp.startsWith('other:')?'other':initComp||'');
   const [companionOther,setCompanionOther]=useState(initComp.startsWith('other:')?initComp.slice(6):'');
   const [mood,setMood]=useState(initial.mood||'');
-  const [color,setColor]=useState(initial.color||PURPOSE[migratePurpose(initial.purpose)||'overseasLeisure'].color);
+  const _ip=migratePurpose(initial.purpose)||'overseasLeisure';
+  const [color,setColor]=useState(initial.colorCustom?(initial.color||PURPOSE[_ip].color):PURPOSE[_ip].color);
   const [memo,setMemo]=useState(initial.memo||'');
-  const colorAuto=useRef(!initial.color); // default color follows purpose until user picks one
+  const colorAuto=useRef(!initial.colorCustom); // 顏色跟類別走，除非使用者手動選色
   const pickPurpose=(k)=>{setPurpose(k);if(colorAuto.current)setColor(PURPOSE[k].color);};
   const [saving,setSaving]=useState(false);
 
@@ -719,6 +720,7 @@ function TripModal({initial,onClose,onSave,onDelete}){
       country:(geo&&geo.country)||country.trim()||CITY_COUNTRY[location.trim()]||'',
       startDate,endDate,color,purpose,
       transport:finalTransport,companion:finalCompanion,mood:mood||null,
+      colorCustom:!colorAuto.current,
       memo:memo.trim(),
       summary:initial.summary||'',dailyPlaces:initial.dailyPlaces||{},
       lat:geo?geo.lat:(initial.lat),lng:geo?geo.lng:(initial.lng),
@@ -1112,6 +1114,8 @@ function App(){
     for(const tr of t){
       if(!tr.country&&CITY_COUNTRY[tr.location]){tr.country=CITY_COUNTRY[tr.location];changed=true;}
       if(typeof tr.lat!=='number'&&LOCATION_COORDS[tr.location]){const c=LOCATION_COORDS[tr.location];tr.lat=c.lat;tr.lng=c.lng;changed=true;}
+      // 未手動改色的旅程 → 顏色一律照類別
+      if(!tr.colorCustom){const pc=PURPOSE[migratePurpose(tr.purpose)||'overseasLeisure'].color;if(tr.color!==pc){tr.color=pc;changed=true;}}
     }
     setTrips(t);setLoading(false);
     if(changed)saveTrips(t);
