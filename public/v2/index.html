@@ -6,7 +6,8 @@
 <title>旅行日誌 · Travel Journal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&family=Caveat:wght@500;600;700&family=Inter+Tight:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&family=Caveat:wght@500;600;700&family=Inter+Tight:wght@500;600;700&family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-webfont@1.7.0/style.css" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
@@ -100,22 +101,29 @@
   .album{padding:16px 20px 28px}
   .albumhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
   .addstk{border:none;background:var(--purple);color:var(--cream);padding:10px 18px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:7px}
-  .stkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
-  .stkcard{background:var(--parchment);padding:9px;position:relative}
-  .stkcard img{width:100%;display:block;border-radius:3px;cursor:pointer;aspect-ratio:16/10;object-fit:cover;background:var(--cream)}
-  .stkcard .cap{margin-top:8px;display:flex;align-items:center;gap:7px}
-  .stkcard .cdot{width:9px;height:9px;border-radius:50%;flex:none}
-  .stkcard .tname{font-weight:800;font-size:13px}
-  .stkcard .tdate{font-size:11px;color:var(--ink-soft);margin-left:auto}
-  .stkcard .del{position:absolute;top:5px;right:5px;background:rgba(30,26,36,.5);color:#fff;border:none;width:24px;height:24px;border-radius:50%;font-size:12px;cursor:pointer;line-height:1}
+  .stkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:22px;padding:6px 4px}
+  /* polaroid */
+  .stkcard{background:#FDFBF3;padding:10px 10px 36px;position:relative;box-shadow:0 5px 14px rgba(45,40,55,.18);transition:transform .16s,box-shadow .16s}
+  .stkcard:nth-child(odd){transform:rotate(-1.6deg)}
+  .stkcard:nth-child(even){transform:rotate(1.5deg)}
+  .stkcard:nth-child(3n){transform:rotate(.8deg)}
+  .stkcard:hover{transform:rotate(0) scale(1.04);z-index:3;box-shadow:0 10px 24px rgba(45,40,55,.28)}
+  .stkcard img{width:100%;display:block;aspect-ratio:1;object-fit:cover;background:#e8e4da;cursor:pointer;border-radius:0}
+  .stkcard .pcap{position:absolute;left:10px;right:10px;bottom:7px;height:26px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Caveat','LXGW WenKai TC','Klee One',cursive;font-size:18px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden}
+  .stkcard .pcap .cdot{width:8px;height:8px;border-radius:50%;flex:none}
+  .stkcard .pcap .nm{overflow:hidden;text-overflow:ellipsis}
+  .stkcard .del{position:absolute;top:4px;right:4px;background:rgba(30,26,36,.5);color:#fff;border:none;width:22px;height:22px;border-radius:50%;font-size:11px;cursor:pointer;line-height:1;z-index:2}
   .stkempty{text-align:center;color:var(--ink-soft);padding:46px 20px;font-size:14px;line-height:1.9}
   .uploadbox{border:2px dashed var(--line);background:var(--cream);padding:26px;text-align:center;color:var(--ink-soft);cursor:pointer;font-size:13px;font-weight:600;border-radius:4px}
   .uploadprev{width:100%;border-radius:6px;display:block;max-height:230px;object-fit:contain;background:var(--cream)}
   .lightbox{position:fixed;inset:0;background:rgba(30,26,36,.82);display:flex;align-items:center;justify-content:center;z-index:60;padding:20px;cursor:zoom-out}
   .lightbox img{max-width:96%;max-height:92vh;border-radius:6px}
   .stkteaser{cursor:pointer}
-  .stkstrip{display:flex;gap:10px;overflow:hidden;padding:2px 0}
-  .stkstrip img{height:80px;width:80px;object-fit:contain;flex:none}
+  .stkstrip{display:flex;gap:14px;overflow:hidden;padding:8px 2px 4px;align-items:flex-start}
+  .stkstrip .mini{background:#FDFBF3;padding:5px 5px 15px;box-shadow:0 2px 7px rgba(45,40,55,.16);flex:none;transform:rotate(-2.5deg)}
+  .stkstrip .mini:nth-child(even){transform:rotate(2.5deg)}
+  .stkstrip .mini:nth-child(3n){transform:rotate(.5deg)}
+  .stkstrip .mini img{width:64px;height:64px;object-fit:cover;display:block}
   .stkteaser-empty{color:var(--ink-soft);font-size:13px;padding:14px 2px;font-weight:600}
   .stkteaser-foot{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
   .stkteaser-foot .cnt{font-weight:700;font-size:13px}
@@ -148,6 +156,12 @@
   .d.today .ring{outline:1.5px solid var(--purple);outline-offset:0}
   .d.sel .ring{background:var(--gold)!important;color:var(--ink)!important;font-weight:700}
   .caltip{display:flex;align-items:center;justify-content:center;gap:8px;margin:11px 0 2px;font-size:11px;color:var(--ink-soft)}
+  .memobubble{position:fixed;z-index:55;transform:translate(-50%,-100%);background:var(--ink);color:var(--cream);padding:8px 12px;border-radius:9px;max-width:230px;font-size:12.5px;line-height:1.5;pointer-events:none;box-shadow:0 5px 16px rgba(40,36,50,.32)}
+  .memobubble::after{content:'';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ink);border-bottom:0}
+  .memobubble .mtitle{font-weight:800;font-size:13px;display:flex;align-items:center;gap:6px;font-family:'Noto Sans TC',sans-serif}
+  .memobubble .mdot{width:8px;height:8px;border-radius:50%;flex:none}
+  .memobubble .mdates{font-family:'Space Grotesk';font-size:10px;color:#C9C3D4;margin-top:2px;letter-spacing:.02em}
+  .memobubble .mtext{white-space:pre-wrap;word-break:break-word;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.15)}
 
   /* recap teaser */
   .panel{background:var(--parchment);padding:16px}
@@ -186,6 +200,22 @@
   .btn.gold{background:var(--gold);color:var(--ink)}
   .btn.warn{background:transparent;color:var(--red)}
   .btn:disabled{opacity:.5}
+
+  /* detail ticket header */
+  .ticket{position:relative;overflow:hidden;background:var(--sky-cream)}
+  .ticket .tkscene{height:clamp(140px,26vw,185px);overflow:hidden;line-height:0}
+  .ticket .tkscene svg{width:100%;height:100%;display:block}
+  .ticket .tkinfo{position:relative;padding:16px 20px 18px;background:var(--paper);border-top:2px dashed var(--line)}
+  .ticket .tkinfo::before,.ticket .tkinfo::after{content:'';position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--appbg)}
+  .ticket .tkinfo::before{left:-11px}
+  .ticket .tkinfo::after{right:-11px}
+  .ticket .tkbig{position:absolute;right:18px;top:14px;text-align:right;line-height:1}
+  .ticket .tkbig .n{font-family:var(--f-hand);font-size:clamp(28px,7vw,40px);font-weight:700;color:var(--rust)}
+  .ticket .tkbig .l{font-size:12px;color:var(--ink-soft);font-weight:700}
+  .ticket .tkcity{font-size:clamp(21px,5vw,27px);font-weight:900;line-height:1.1;padding-right:74px}
+  .ticket .tksub{font-family:var(--f-num);font-size:12px;color:var(--ink-soft);font-weight:600;margin-top:4px}
+  .ticket .tkpills{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
+  .ticket .pill{background:var(--cream);padding:5px 12px;font-size:12px;font-weight:700;display:flex;gap:6px;align-items:center;color:var(--ink)}
 
   /* detail */
   .metarow{display:flex;flex-wrap:wrap;align-items:center}
@@ -270,24 +300,17 @@ function compressImage(file,max=860,q=0.82){return new Promise((res,rej)=>{const
 function fileToDataURL(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});}
 function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 const clamp255=v=>v<0?0:v>255?255:v;
-/* client-side flat sticker: posterize + white die-cut border + soft shadow (transparent PNG) */
+/* client-side instant-film photo for a Polaroid: center-crop square + gentle posterize (Polaroid frame is CSS) */
 function makeSticker(srcDataURL){return new Promise((res,rej)=>{
   const img=new Image();
   img.onload=()=>{
-    const S=560, pad=24, size=S+pad*2, R=44;
-    const c=document.createElement('canvas');c.width=size;c.height=size;
-    const ctx=c.getContext('2d');
-    // white die-cut card with soft shadow
-    ctx.save();ctx.shadowColor='rgba(45,40,55,0.30)';ctx.shadowBlur=15;ctx.shadowOffsetY=7;
-    rrect(ctx,8,8,size-16,size-16,R);ctx.fillStyle='#FBF8EF';ctx.fill();ctx.restore();
-    // clip inner rounded, draw center-cropped square photo
-    ctx.save();rrect(ctx,pad,pad,S,S,R-12);ctx.clip();
+    const S=620;
+    const c=document.createElement('canvas');c.width=S;c.height=S;const ctx=c.getContext('2d');
     const m=Math.min(img.width,img.height),sx=(img.width-m)/2,sy=(img.height-m)/2;
-    ctx.drawImage(img,sx,sy,m,m,pad,pad,S,S);
-    // stylize: saturation boost + contrast + posterize
+    ctx.drawImage(img,sx,sy,m,m,0,0,S,S);
     try{
-      const idata=ctx.getImageData(pad,pad,S,S);const d=idata.data;
-      const levels=6,step=255/(levels-1),sat=1.32,con=1.10;
+      const idata=ctx.getImageData(0,0,S,S);const d=idata.data;
+      const levels=8,step=255/(levels-1),sat=1.16,con=1.06;
       for(let i=0;i<d.length;i+=4){
         let r=d[i],g=d[i+1],b=d[i+2];const gray=(r+g+b)/3;
         r=gray+(r-gray)*sat;g=gray+(g-gray)*sat;b=gray+(b-gray)*sat;
@@ -296,10 +319,9 @@ function makeSticker(srcDataURL){return new Promise((res,rej)=>{
         d[i+1]=Math.round(Math.round(clamp255(g)/step)*step);
         d[i+2]=Math.round(Math.round(clamp255(b)/step)*step);
       }
-      ctx.putImageData(idata,pad,pad);
+      ctx.putImageData(idata,0,0);
     }catch(e){}
-    ctx.restore();
-    res(c.toDataURL('image/png'));
+    res(c.toDataURL('image/jpeg',0.85));
   };
   img.onerror=rej;img.src=srcDataURL;
 });}
@@ -309,9 +331,9 @@ const OWNER='HSINGFEI';
 const SUPPORTED_YEARS=[2025,2026,2027];
 const ZODIAC_TC={2025:'蛇',2026:'馬',2027:'羊'};
 const PURPOSE={
-  business:{label:'出差',color:'var(--sea)'},
-  domesticLeisure:{label:'國內旅遊',color:'var(--sage)'},
-  overseasLeisure:{label:'海外旅遊',color:'var(--rust)'},
+  business:{label:'出差',color:'#5A8494'},        // 藍
+  domesticLeisure:{label:'國內旅遊',color:'#8E9E77'}, // 綠
+  overseasLeisure:{label:'海外旅遊',color:'#C67B65'},  // 珊瑚
 };
 const PURPOSE_ORDER=['overseasLeisure','domesticLeisure','business'];
 const migratePurpose=(p)=>p==='workTravel'?'business':p==='leisure'?'overseasLeisure':p;
@@ -319,6 +341,7 @@ const TRANSPORT={
   plane:{label:'飛機',emoji:'✈️'},
   cruise:{label:'郵輪',emoji:'🚢'},
   train:{label:'鐵路',emoji:'🚄'},
+  drive:{label:'自駕',emoji:'🚗'},
 };
 const PLACE_TYPES={
   sight:{label:'景點',color:'var(--sea)'},
@@ -452,7 +475,7 @@ function sceneSVG(t,country){
     const px=W*0.34,py=H*0.56;
     s+=`<g transform="translate(${px},${py}) rotate(-8)"><path d="M -110 0 Q -70 -22 84 -14 L 120 0 L 84 14 Q -70 22 -110 0 Z" fill="var(--cream)"/><path d="M -110 0 L 120 0" stroke="var(--red)" stroke-width="5"/><path d="M 18 -6 L 54 -58 L 30 -6 Z" fill="var(--rust)"/><path d="M 6 6 L 42 44 L 22 6 Z" fill="var(--red)"/><circle cx="-58" cy="0" r="5.5" fill="var(--sky-lav)"/><circle cx="-34" cy="0" r="5.5" fill="var(--sky-lav)"/><circle cx="-10" cy="0" r="5.5" fill="var(--sky-lav)"/></g>`;
     s+=cloud(W*0.5,H*0.5,120)+cloud(W*0.1,H*0.68,90);
-  }else{
+  }else if(t==='train'){
     const gY=H*0.66;s+=`<rect y="${gY}" width="${W}" height="${H-gY}" fill="var(--sage)"/>`;s+=island(W*0.80,gY,S,country);
     s+=`<rect y="${gY+H*0.11}" width="${W}" height="6" fill="var(--ink)"/>`;
     for(let i=0;i<18;i++)s+=`<rect x="${i*W/17}" y="${gY+H*0.085}" width="9" height="16" fill="var(--brown)"/>`;
@@ -460,6 +483,15 @@ function sceneSVG(t,country){
     const tx=W*0.26,ty=gY+H*0.10;
     s+=`<g transform="translate(${tx},${ty})"><path d="M 0 -60 L 260 -60 Q 310 -60 326 -28 L 326 0 L 0 0 Z" fill="var(--red)"/><rect x="0" y="-60" width="326" height="10" fill="var(--cream)"/><rect x="18" y="-44" width="46" height="26" fill="var(--sky-lav)"/><rect x="82" y="-44" width="46" height="26" fill="var(--sky-lav)"/><rect x="146" y="-44" width="46" height="26" fill="var(--sky-lav)"/><path d="M 248 -44 L 300 -44 L 314 -22 L 248 -22 Z" fill="var(--sky-lav)"/><circle cx="70" cy="2" r="13" fill="var(--ink)"/><circle cx="240" cy="2" r="13" fill="var(--ink)"/><circle cx="70" cy="2" r="5" fill="var(--cream)"/><circle cx="240" cy="2" r="5" fill="var(--cream)"/></g>`;
     s+=traveler(tx+40,ty-58,S*0.72);
+  }else{
+    // drive (car)
+    const gY=H*0.66;s+=`<rect y="${gY}" width="${W}" height="${H-gY}" fill="var(--sage)"/>`;s+=island(W*0.80,gY,S,country);
+    s+=`<rect y="${gY+H*0.05}" width="${W}" height="${H*0.19}" fill="#7C7A80"/>`;
+    s+=`<rect y="${gY+H*0.05}" width="${W}" height="4" fill="#6A6870"/>`;
+    for(let i=0;i<15;i++)s+=`<rect x="${i*W/14}" y="${gY+H*0.135}" width="26" height="5" fill="var(--cream)" opacity=".85"/>`;
+    s+=`<path d="M ${W*0.46} ${gY+8} Q ${W*0.6} ${gY-H*0.12} ${W*0.72} ${gY-8}" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="2 8" fill="none" stroke-linecap="round" opacity=".45"/>`;
+    const cx2=W*0.28,cy2=gY+H*0.14;
+    s+=`<g transform="translate(${cx2},${cy2})"><path d="M -96 -6 L -80 -46 Q -76 -54 -64 -54 L 38 -54 Q 50 -54 58 -44 L 84 -14 L 96 -8 L 96 6 L -96 6 Z" fill="var(--rust)"/><path d="M -70 -46 Q -66 -50 -58 -50 L 26 -50 Q 34 -50 40 -42 L 54 -20 L -70 -20 Z" fill="var(--sky-lav)"/><rect x="-72" y="-20" width="168" height="8" fill="var(--red)"/><circle cx="-52" cy="6" r="17" fill="var(--ink)"/><circle cx="56" cy="6" r="17" fill="var(--ink)"/><circle cx="-52" cy="6" r="7" fill="var(--cream)"/><circle cx="56" cy="6" r="7" fill="var(--cream)"/><rect x="90" y="-14" width="8" height="9" fill="var(--gold)"/></g>`;
   }
   s+=`</svg>`;return s;
 }
@@ -563,6 +595,7 @@ function Hero({nextTrip,skin,year}){
 /* ============ CALENDAR ============ */
 function Calendar({start,trips,onCreate,onOpenTrip,onShift}){
   const [drag,setDrag]=useState(null); // {start, cur}
+  const [hoverMemo,setHoverMemo]=useState(null); // {memo,name,color,x,y}
   const today=todayStr();
   // 6 months from the anchor (start)
   const months=[];
@@ -616,10 +649,14 @@ function Calendar({start,trips,onCreate,onOpenTrip,onShift}){
             if(tr){onOpenTrip(tr.id);return;}
             setDrag({start:ds,cur:ds});
           };
-          const handleEnter=()=>{if(drag)setDrag(dr=>({...dr,cur:ds}));};
+          const handleEnter=(e)=>{
+            if(drag)setDrag(dr=>({...dr,cur:ds}));
+            if(tr){const r=e.currentTarget.getBoundingClientRect();setHoverMemo({memo:tr.memo||'',name:tr.location,color:tr.color,dates:fmtRange(tr.startDate,tr.endDate),x:r.left+r.width/2,y:r.top});}
+          };
+          const handleLeave=()=>{if(tr)setHoverMemo(null);};
           cells.push(
             <div key={ds} className={cls}
-              onMouseDown={handleDown} onMouseEnter={handleEnter}
+              onMouseDown={handleDown} onMouseEnter={handleEnter} onMouseLeave={handleLeave}
               onTouchStart={handleDown}>
               <span className="ring" style={ring}>{d}</span>
             </div>
@@ -634,6 +671,13 @@ function Calendar({start,trips,onCreate,onOpenTrip,onShift}){
         );
       })}
     </div>
+    {hoverMemo&&(
+      <div className="memobubble" style={{left:hoverMemo.x,top:hoverMemo.y-8}}>
+        <div className="mtitle"><span className="mdot" style={{background:hoverMemo.color}}/>{hoverMemo.name}</div>
+        <div className="mdates">{hoverMemo.dates}</div>
+        {hoverMemo.memo&&<div className="mtext">✎ {hoverMemo.memo}</div>}
+      </div>
+    )}
     </div>
   );
 }
@@ -657,7 +701,10 @@ function TripModal({initial,onClose,onSave,onDelete}){
   const [companion,setCompanion]=useState(initComp.startsWith('other:')?'other':initComp||'');
   const [companionOther,setCompanionOther]=useState(initComp.startsWith('other:')?initComp.slice(6):'');
   const [mood,setMood]=useState(initial.mood||'');
-  const [color,setColor]=useState(initial.color||PALETTE[0]);
+  const [color,setColor]=useState(initial.color||PURPOSE[migratePurpose(initial.purpose)||'overseasLeisure'].color);
+  const [memo,setMemo]=useState(initial.memo||'');
+  const colorAuto=useRef(!initial.color); // default color follows purpose until user picks one
+  const pickPurpose=(k)=>{setPurpose(k);if(colorAuto.current)setColor(PURPOSE[k].color);};
   const [saving,setSaving]=useState(false);
 
   const save=async()=>{
@@ -672,6 +719,7 @@ function TripModal({initial,onClose,onSave,onDelete}){
       country:(geo&&geo.country)||country.trim()||CITY_COUNTRY[location.trim()]||'',
       startDate,endDate,color,purpose,
       transport:finalTransport,companion:finalCompanion,mood:mood||null,
+      memo:memo.trim(),
       summary:initial.summary||'',dailyPlaces:initial.dailyPlaces||{},
       lat:geo?geo.lat:(initial.lat),lng:geo?geo.lng:(initial.lng),
     };
@@ -692,7 +740,7 @@ function TripModal({initial,onClose,onSave,onDelete}){
             <div className="fld"><label>結束 END</label><input type="date" value={endDate} min={startDate} onChange={e=>setEndDate(e.target.value)}/></div>
           </div>
           <div className="fld"><label>旅行類別 CATEGORY</label>
-            <div className="seg-in">{PURPOSE_ORDER.map(k=><button key={k} className={'chipbtn'+(purpose===k?' on':'')} onClick={()=>setPurpose(k)}>{PURPOSE[k].label}</button>)}</div>
+            <div className="seg-in">{PURPOSE_ORDER.map(k=><button key={k} className={'chipbtn'+(purpose===k?' on':'')} onClick={()=>pickPurpose(k)}>{PURPOSE[k].label}</button>)}</div>
           </div>
           <div className="fld"><label>交通 TRANSPORT</label>
             <div className="seg-in">
@@ -714,7 +762,10 @@ function TripModal({initial,onClose,onSave,onDelete}){
             </div>
           </div>
           <div className="fld"><label>顏色 COLOR</label>
-            <div className="swatches">{PALETTE.map(c=><button key={c} className={'sw'+(color===c?' on':'')} style={{background:c}} onClick={()=>setColor(c)}/>)}</div>
+            <div className="swatches">{PALETTE.map(c=><button key={c} className={'sw'+(color===c?' on':'')} style={{background:c}} onClick={()=>{colorAuto.current=false;setColor(c);}}/>)}</div>
+          </div>
+          <div className="fld"><label>備忘 MEMO（滑鼠移到日曆上這段旅程會顯示）</label>
+            <textarea value={memo} onChange={e=>setMemo(e.target.value)} placeholder="例：訂了海景房、記得帶轉接頭…"/>
           </div>
           <div className="mbtns">
             <button className="btn" onClick={save} disabled={saving||!location.trim()}>{saving?'儲存中…':(isEdit?'儲存變更':'建立旅程')}</button>
@@ -758,27 +809,33 @@ function Detail({trip,onBack,onEdit,onUpdate}){
   const p=PURPOSE[migratePurpose(trip.purpose)];
   const tp=TRANSPORT[trip.transport];
   const compLabel=(()=>{const c=trip.companion||'';if(c.startsWith('other:'))return c.slice(6);const f=COMPANIONS.find(x=>x[0]===c);return f?f[1]:'';})();
+  const sceneTp=TRANSPORT[trip.transport]?trip.transport:'cruise';
+  const _du=daysUntil(trip.startDate);
+  const cd=_du>0?{n:_du,l:'天後'}:(trip.endDate>=todayStr()?{n:'進行中',l:''}:{n:tripLength(trip),l:'天'});
 
   return (
     <div>
       <div className="topbar">
         <button className="backbtn" onClick={onBack}>‹ 返回</button>
-        <div style={{marginLeft:6}}><div className="zh" style={{fontSize:19}}>{trip.location}{trip.country?` · ${trip.country}`:''}</div><div className="sub">{fmtRange(trip.startDate,trip.endDate)} · {tripLength(trip)} 天</div></div>
         <div style={{marginLeft:'auto',display:'flex',gap:9}}>
           <button className="btn gold" style={{padding:'8px 16px',flex:'none'}} onClick={onEdit}>編輯</button>
         </div>
       </div>
 
-      <div className="sh"><span className="zh">旅程資訊</span><span className="e">OVERVIEW</span><span className="r"/></div>
-      <div className="pad">
-        <div className="metarow">
-          <span className="mi">📅 {fmtRange(trip.startDate,trip.endDate)} · {tripLength(trip)} 天</span>
-          {p&&<span className="mi"><span className="cat" style={{color:p.color}}>{p.label}</span></span>}
-          <span className="mi">{tp?`${tp.emoji} ${tp.label}`:`🧭 ${trip.transport||'—'}`}</span>
-          {compLabel&&<span className="mi">👥 {compLabel}</span>}
-          {trip.mood&&<span className="mi" style={{fontSize:16}}>{trip.mood}</span>}
-          <span className="mi"><span className="dotc" style={{background:trip.color}}/>顏色</span>
-          <span className="mi"><a href={mapsUrl(trip.location,trip.country)} target="_blank" rel="noreferrer">📍 Google Maps</a></span>
+      <div className="ticket">
+        <div className="tkscene" dangerouslySetInnerHTML={{__html:sceneSVG(sceneTp,trip.country)}}/>
+        <div className="tkinfo">
+          <div className="tkbig"><span className="n">{cd.n}</span>{cd.l&&<span className="l"> {cd.l}</span>}</div>
+          <div className="tkcity">{trip.location}{trip.country?` · ${trip.country}`:''}</div>
+          <div className="tksub">{fmtRange(trip.startDate,trip.endDate)} · {tripLength(trip)} 天</div>
+          <div className="tkpills">
+            {p&&<span className="pill" style={{background:p.color,color:'var(--cream)'}}>{p.label}</span>}
+            <span className="pill">{tp?`${tp.emoji} ${tp.label}`:`🧭 ${trip.transport||'—'}`}</span>
+            {compLabel&&<span className="pill">👥 {compLabel}</span>}
+            {trip.mood&&<span className="pill">{trip.mood}</span>}
+            <span className="pill"><span className="dotc" style={{background:trip.color,width:11,height:11,borderRadius:'50%'}}/>顏色</span>
+            <a className="pill" href={mapsUrl(trip.location,trip.country)} target="_blank" rel="noreferrer" style={{color:'var(--purple)',textDecoration:'none'}}>📍 Maps</a>
+          </div>
         </div>
       </div>
 
@@ -977,10 +1034,9 @@ function StickerAlbum({stickers,trips,onBack,onAdd,onDelete,onView}){
               <div className="stkcard" key={s.id}>
                 <button className="del" onClick={()=>{if(confirm('刪除這張貼紙？'))onDelete(s.id);}}>✕</button>
                 <img src={s.img} alt={s.title||''} onClick={()=>onView(s.img)}/>
-                <div className="cap">
+                <div className="pcap">
                   <span className="cdot" style={{background:t?t.color:'var(--line)'}}/>
-                  <span className="tname">{t?t.location:(s.title||'未標示')}</span>
-                  <span className="tdate">{t?fmtRange(t.startDate,t.endDate):''}</span>
+                  <span className="nm">{s.title||(t?t.location:'旅行')}{t?` · ${fmtLabel(t.startDate)}`:''}</span>
                 </div>
               </div>
             );})}
@@ -1134,7 +1190,7 @@ function App(){
         <div className="pad" style={{paddingBottom:24}}>
           <div className="panel stkteaser" onClick={()=>setView('album')}>
             {stickers.length>0?(
-              <div className="stkstrip">{stickers.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,7).map(s=><img key={s.id} src={s.img} alt=""/>)}</div>
+              <div className="stkstrip">{stickers.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,7).map(s=><div className="mini" key={s.id}><img src={s.img} alt=""/></div>)}</div>
             ):(
               <div className="stkteaser-empty">還沒有貼紙 · 上傳旅遊照片 → 自動變成貼紙，收藏你的每一趟 ✦</div>
             )}
