@@ -101,15 +101,12 @@
   .album{padding:16px 20px 28px}
   .albumhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
   .addstk{border:none;background:var(--purple);color:var(--cream);padding:10px 18px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:7px}
-  .stkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:22px;padding:6px 4px}
-  /* polaroid */
-  .stkcard{background:#FDFBF3;padding:10px 10px 36px;position:relative;box-shadow:0 5px 14px rgba(45,40,55,.18);transition:transform .16s,box-shadow .16s}
-  .stkcard:nth-child(odd){transform:rotate(-1.6deg)}
-  .stkcard:nth-child(even){transform:rotate(1.5deg)}
-  .stkcard:nth-child(3n){transform:rotate(.8deg)}
-  .stkcard:hover{transform:rotate(0) scale(1.04);z-index:3;box-shadow:0 10px 24px rgba(45,40,55,.28)}
-  .stkcard img{width:100%;display:block;aspect-ratio:1;object-fit:cover;background:#e8e4da;cursor:pointer;border-radius:0}
-  .stkcard .pcap{position:absolute;left:10px;right:10px;bottom:7px;height:26px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Caveat','LXGW WenKai TC','Klee One',cursive;font-size:18px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden}
+  .stkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;padding:4px}
+  /* clean postcard card */
+  .stkcard{background:var(--paper);padding:8px 8px 0;position:relative;box-shadow:0 3px 12px rgba(45,40,55,.14);transition:transform .14s,box-shadow .14s}
+  .stkcard:hover{transform:translateY(-3px);box-shadow:0 9px 20px rgba(45,40,55,.22)}
+  .stkcard img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;background:#e8e4da;cursor:pointer}
+  .stkcard .pcap{padding:8px 4px 10px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Caveat','LXGW WenKai TC','Klee One',cursive;font-size:17px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden}
   .stkcard .pcap .cdot{width:8px;height:8px;border-radius:50%;flex:none}
   .stkcard .pcap .nm{overflow:hidden;text-overflow:ellipsis}
   .stkcard .del{position:absolute;top:4px;right:4px;background:rgba(30,26,36,.5);color:#fff;border:none;width:22px;height:22px;border-radius:50%;font-size:11px;cursor:pointer;line-height:1;z-index:2}
@@ -119,11 +116,9 @@
   .lightbox{position:fixed;inset:0;background:rgba(30,26,36,.82);display:flex;align-items:center;justify-content:center;z-index:60;padding:20px;cursor:zoom-out}
   .lightbox img{max-width:96%;max-height:92vh;border-radius:6px}
   .stkteaser{cursor:pointer}
-  .stkstrip{display:flex;gap:14px;overflow:hidden;padding:8px 2px 4px;align-items:flex-start}
-  .stkstrip .mini{background:#FDFBF3;padding:5px 5px 15px;box-shadow:0 2px 7px rgba(45,40,55,.16);flex:none;transform:rotate(-2.5deg)}
-  .stkstrip .mini:nth-child(even){transform:rotate(2.5deg)}
-  .stkstrip .mini:nth-child(3n){transform:rotate(.5deg)}
-  .stkstrip .mini img{width:64px;height:64px;object-fit:cover;display:block}
+  .stkstrip{display:flex;gap:12px;overflow:hidden;padding:6px 2px 4px;align-items:flex-start}
+  .stkstrip .mini{background:var(--paper);padding:4px 4px 6px;box-shadow:0 2px 7px rgba(45,40,55,.14);flex:none}
+  .stkstrip .mini img{width:104px;height:78px;object-fit:cover;display:block}
   .stkteaser-empty{color:var(--ink-soft);font-size:13px;padding:14px 2px;font-weight:600}
   .stkteaser-foot{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
   .stkteaser-foot .cnt{font-weight:700;font-size:13px}
@@ -203,7 +198,7 @@
 
   /* detail ticket header */
   .ticket{position:relative;overflow:hidden;background:var(--sky-cream)}
-  .ticket .tkscene{height:clamp(140px,26vw,185px);overflow:hidden;line-height:0}
+  .ticket .tkscene{height:clamp(150px,30vw,220px);overflow:hidden;line-height:0}
   .ticket .tkscene svg{width:100%;height:100%;display:block}
   .ticket .tkinfo{position:relative;padding:16px 20px 18px;background:var(--paper);border-top:2px dashed var(--line)}
   .ticket .tkinfo::before,.ticket .tkinfo::after{content:'';position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--appbg)}
@@ -298,6 +293,23 @@ async function loadStickers(){const r=await storage.get('stickers').catch(()=>nu
 const saveStickers=(s)=>storage.set('stickers',JSON.stringify(s)).catch(e=>console.error(e));
 function compressImage(file,max=860,q=0.82){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max;}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max;}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',q));};img.onerror=rej;img.src=e.target.result;};r.onerror=rej;r.readAsDataURL(file);});}
 function fileToDataURL(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});}
+function shrinkDataURL(dataURL,max=1280,q=0.85){return new Promise((res)=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max;}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max;}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',q));};img.onerror=()=>res(dataURL);img.src=dataURL;});}
+/* call Google Gemini image model (nano banana) directly from browser: photo + prompt -> postcard image */
+const GEMINI_MODEL='gemini-2.5-flash-image';
+async function geminiPostcard(dataURL,apiKey){
+  const m=dataURL.match(/^data:(image\/\w+);base64,(.+)$/);
+  const mime=m?m[1]:'image/jpeg', b64=m?m[2]:dataURL.replace(/^data:image\/\w+;base64,/,'');
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const body={contents:[{role:'user',parts:[{text:POSTCARD_PROMPT},{inline_data:{mime_type:mime,data:b64}}]}],generationConfig:{responseModalities:['IMAGE']}};
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const msg=(j&&j.error&&j.error.message)||('HTTP '+r.status);throw new Error(msg);}
+  const parts=(j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[];
+  const ip=parts.find(p=>p.inlineData||p.inline_data);
+  if(!ip){const fb=parts.find(p=>p.text);throw new Error(fb?('模型只回了文字，未產圖：'+fb.text.slice(0,120)):'未取得圖片');}
+  const d=ip.inlineData||ip.inline_data;
+  return `data:${d.mimeType||d.mime_type||'image/png'};base64,${d.data}`;
+}
 function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 const clamp255=v=>v<0?0:v>255?255:v;
 /* client-side instant-film photo for a Polaroid: center-crop square + gentle posterize (Polaroid frame is CSS) */
@@ -354,6 +366,45 @@ const PLACE_ORDER=['sight','food','shopping','stay','other'];
 const PALETTE=['#C67B65','#5A8494','#8E9E77','#B98BA0','#C7A24E','#8A7A9C','#5B968A','#514A5A'];
 const MOODS=['🤩','😊','😌','😎','🥹','😅'];
 const COMPANIONS=[['solo','獨自'],['couple','情侶'],['friends','朋友'],['family','家人'],['colleague','同事']];
+const POSTCARD_PROMPT=`Please create a separate "Rubber Stamp Travel Field Notes Poster" for each photo I upload, outputting each photo individually without collage or multi-image combinations.
+
+Overall, use a 4:3 landscape composition, dividing the frame into left and right regions, but without drawing an obvious dividing line.
+
+The left side takes up about 58% of the frame, faithfully preserving the original photo. Accurately maintain the main subject identity, terrain, architecture, plants, people, spatial relationships, natural lighting and shadows, authentic textures, and the original color atmosphere; apply only restrained art publication-level photo color grading, and add extremely subtle, fine-grained film noise. For layout adaptation, natural cropping is allowed, but do not stretch, distort, shift, replace, or redraw the main subject.
+
+The right side takes up about 42% of the frame, using a warm off-white aged paper as the background. The paper features subtle fibers, natural grain, light usage marks, and a matte texture, while preserving large areas of unprinted paper whitespace, making the blank space an essential part of the layout.
+
+Analyze the original photo and extract the most location-distinctive subject outlines, architectural structures, terrain contours, plant forms, roads, shorelines, or other key visual relationships, compressing them into a small multi-color rubber stamp image.
+
+Do not replicate every single element from the photo item by item. Retain only the minimal information necessary to instantly recognize the original location, subject, and scene relationships. Remove crowds, vehicles, dense windows, repetitive buildings, fragmented vegetation, decorative elements, and irrelevant backgrounds.
+
+The stamp is positioned in the lower-middle of the right-side paper area, occupying only about 30%-38% of the right region's height, with ample whitespace preserved around it. The stamp must not be enlarged into a standard illustration, full landscape painting, or brand logo.
+
+Determine the stamp's organization based on the original photo's composition:
+- Iconic architecture: Retain the most distinctive outer contours, roofs, domes, arches, towers, or main structures.
+- Mountain settlements: Compress buildings into a few terraced color blocks aligned along the terrain.
+- Coastal scenery: Retain mountain contours, settlement layers, shorelines, and sparse intermittent water ripples.
+- City panoramas: Retain the main skyline, one iconic building, and one or two layers of distant mountains.
+- Natural landscapes: Retain primary mountain forms, trees, shorelines, or road orientations.
+- Foreground occlusions: If narratively important in the original photo, retain as foreground stamp outlines.
+
+Extract 2-4 spot inks from the original photo. Prioritize desaturated colors like carbon black, deep green, brick red, ochre yellow, slate blue, or taupe brown, but do not force a fixed palette. Preserve the most distinctive color character from the original photo, allowing only a small area of color for visual emphasis.
+
+Render each color as a separately hand-stamped effect: Authentic rubber stamp carving texture, hand-engraved marks, uneven line widths, contour notches, fractured edges, dry ink shortages, paper show-through, granular ink, uneven pressure, partial ghosting, and about 1-2 mm of subtle misregistration.
+
+Allow natural misalignment between color layers; edges must not be digitally smoothed. The print should resemble a real carved stamp pressed onto aged paper, not a filtered photo, smooth vector illustration, or line-art logo.
+
+Generate text based on the photo's location, theme, and visual imagery:
+Location English name
+No. Number
+Three short English keywords
+Gregorian calendar year
+
+Place the text below or adjacent to the stamp in the whitespace, using a small, restrained, slightly mechanically imperfect typewriter font. The typography should evoke a traveler's field record, not an ad headline. Ensure all text is spelled accurately, without adding irrelevant slogans, brands, or decorative copy.
+
+The overall vibe is like field notes kept by an architect, travel writer, or natural observer: quiet, restrained, tactilely real, regionally specific, with handmade imperfections and a collectible feel. The photo handles the on-site record; the stamp captures the most recognizable fragments of memory.
+
+Avoid: Obvious central dividing lines, circular seals, Chinese red stamps, postage stamp perforations, wax seals, sticker collages, tourist souvenir templates, smooth vector logos, generic city icons, full replication of all architecture, dense detailing, childlike craftiness, cartoon style, 3D rendering, plastic textures, glossy digital gradients, oversaturation, excessive text, decorative clutter, and redrawing or altering the left-side original photo.`;
 
 /* ============ date utils ============ */
 const pad=n=>String(n).padStart(2,'0');
@@ -454,9 +505,9 @@ function island(cx,base,S,country){
   </g>`;
 }
 const cloud=(x,y,w)=>`<rect x="${x}" y="${y}" width="${w}" height="${w*0.32}" rx="${w*0.16}" fill="var(--cream)"/>`;
-function sceneSVG(t,country){
+function sceneSVG(t,country,par){
   const W=920,H=360;
-  let s=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">`;
+  let s=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="${par||'xMidYMid slice'}" xmlns="http://www.w3.org/2000/svg">`;
   s+=`<rect width="${W}" height="${H}" fill="var(--sky-cream)"/><rect width="${W}" height="${H*0.34}" fill="var(--sky-lav)"/><rect width="${W}" height="${H*0.17}" fill="var(--sky-top)"/>`;
   s+=`<circle cx="${W*0.86}" cy="${H*0.16}" r="${H*0.08}" fill="var(--gold)"/>`;
   s+=cloud(W*0.56,H*0.12,104)+cloud(W*0.78,H*0.30,78)+cloud(W*0.66,H*0.33,60);
@@ -471,10 +522,10 @@ function sceneSVG(t,country){
     s+=traveler(bx-8,by-46,S*1.05);
   }else if(t==='plane'){
     const gY=H*0.80;s+=`<rect y="${gY}" width="${W}" height="${H-gY}" fill="var(--sage)"/>`;s+=island(W*0.80,gY,S*0.9,country);
-    s+=`<path d="M ${W*0.42} ${H*0.56} Q ${W*0.58} ${H*0.44} ${W*0.72} ${gY-H*0.10}" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="2 8" fill="none" stroke-linecap="round" opacity=".5"/>`;
-    const px=W*0.34,py=H*0.56;
+    s+=`<path d="M ${W*0.42} ${H*0.66} Q ${W*0.58} ${H*0.58} ${W*0.72} ${gY-H*0.06}" stroke="var(--ink)" stroke-width="2.4" stroke-dasharray="2 8" fill="none" stroke-linecap="round" opacity=".5"/>`;
+    const px=W*0.32,py=H*0.68;
     s+=`<g transform="translate(${px},${py}) rotate(-8)"><path d="M -110 0 Q -70 -22 84 -14 L 120 0 L 84 14 Q -70 22 -110 0 Z" fill="var(--cream)"/><path d="M -110 0 L 120 0" stroke="var(--red)" stroke-width="5"/><path d="M 18 -6 L 54 -58 L 30 -6 Z" fill="var(--rust)"/><path d="M 6 6 L 42 44 L 22 6 Z" fill="var(--red)"/><circle cx="-58" cy="0" r="5.5" fill="var(--sky-lav)"/><circle cx="-34" cy="0" r="5.5" fill="var(--sky-lav)"/><circle cx="-10" cy="0" r="5.5" fill="var(--sky-lav)"/></g>`;
-    s+=cloud(W*0.5,H*0.5,120)+cloud(W*0.1,H*0.68,90);
+    s+=cloud(W*0.52,H*0.28,120)+cloud(W*0.12,H*0.40,90);
   }else if(t==='train'){
     const gY=H*0.66;s+=`<rect y="${gY}" width="${W}" height="${H-gY}" fill="var(--sage)"/>`;s+=island(W*0.80,gY,S,country);
     s+=`<rect y="${gY+H*0.11}" width="${W}" height="6" fill="var(--ink)"/>`;
@@ -790,6 +841,8 @@ function Detail({trip,onBack,onEdit,onUpdate}){
   const [nameInput,setNameInput]=useState('');
   const [gmapsFor,setGmapsFor]=useState(null);
   const [gmapsVal,setGmapsVal]=useState('');
+  const placeCount=Object.values(trip.dailyPlaces||{}).reduce((a,l)=>a+l.length,0);
+  const [itinOpen,setItinOpen]=useState(placeCount>0);
 
   const commitSummary=()=>{setEditingSum(false);if(summary!==trip.summary)onUpdate({...trip,summary});};
   const addPlace=(date,type,name,gmapsUrl)=>{
@@ -819,13 +872,14 @@ function Detail({trip,onBack,onEdit,onUpdate}){
     <div>
       <div className="topbar">
         <button className="backbtn" onClick={onBack}>‹ 返回</button>
-        <div style={{marginLeft:'auto',display:'flex',gap:9}}>
+        <div style={{marginLeft:'auto',display:'flex',gap:9,alignItems:'center'}}>
+          <a className="backbtn" href={mapsUrl(trip.location,trip.country)} target="_blank" rel="noreferrer" style={{textDecoration:'none'}}>📍 Maps</a>
           <button className="btn gold" style={{padding:'8px 16px',flex:'none'}} onClick={onEdit}>編輯</button>
         </div>
       </div>
 
       <div className="ticket">
-        <div className="tkscene" dangerouslySetInnerHTML={{__html:sceneSVG(sceneTp,trip.country)}}/>
+        <div className="tkscene" dangerouslySetInnerHTML={{__html:sceneSVG(sceneTp,trip.country,'xMidYMax slice')}}/>
         <div className="tkinfo">
           <div className="tkbig"><span className="n">{cd.n}</span>{cd.l&&<span className="l"> {cd.l}</span>}</div>
           <div className="tkcity">{trip.location}{trip.country?` · ${trip.country}`:''}</div>
@@ -835,8 +889,6 @@ function Detail({trip,onBack,onEdit,onUpdate}){
             <span className="pill">{tp?`${tp.emoji} ${tp.label}`:`🧭 ${trip.transport||'—'}`}</span>
             {compLabel&&<span className="pill">👥 {compLabel}</span>}
             {trip.mood&&<span className="pill">{trip.mood}</span>}
-            <span className="pill"><span className="dotc" style={{background:trip.color,width:11,height:11,borderRadius:'50%'}}/>顏色</span>
-            <a className="pill" href={mapsUrl(trip.location,trip.country)} target="_blank" rel="noreferrer" style={{color:'var(--purple)',textDecoration:'none'}}>📍 Maps</a>
           </div>
         </div>
       </div>
@@ -850,8 +902,11 @@ function Detail({trip,onBack,onEdit,onUpdate}){
         )}
       </div>
 
-      <div className="sh"><span className="zh">每日行程</span><span className="e">DAILY PLACES</span><span className="r"/></div>
-      <div className="pad" style={{paddingBottom:16}}>
+      <div className="sh" style={{cursor:'pointer',userSelect:'none'}} onClick={()=>setItinOpen(o=>!o)}>
+        <span className="zh">每日行程</span><span className="e">DAILY · 選填</span><span className="r"/>
+        <span style={{fontSize:12,fontWeight:700,color:'var(--purple)'}}>{itinOpen?'收合 ▾':(placeCount>0?`${placeCount} 個地點 ▸`:'展開安排 ▸')}</span>
+      </div>
+      {itinOpen&&<div className="pad" style={{paddingBottom:16}}>
         {days.map((ds,i)=>{
           const list=dp[ds]||[];
           const sorted=[...list].sort((a,b)=>PLACE_ORDER.indexOf(a.type)-PLACE_ORDER.indexOf(b.type));
@@ -893,7 +948,7 @@ function Detail({trip,onBack,onEdit,onUpdate}){
             </div>
           );
         })}
-      </div>
+      </div>}
     </div>
   );
 }
@@ -1024,17 +1079,17 @@ function StickerAlbum({stickers,trips,onBack,onAdd,onDelete,onView}){
     <div>
       <div className="topbar">
         <button className="backbtn" onClick={onBack}>‹ 返回</button>
-        <div style={{marginLeft:6}}><div className="zh" style={{fontSize:19}}>貼紙收集冊</div><div className="sub">STICKER ALBUM</div></div>
-        <button className="addstk" style={{marginLeft:'auto'}} onClick={onAdd}>＋ 加入貼紙</button>
+        <div style={{marginLeft:6}}><div className="zh" style={{fontSize:19}}>明信片收集冊</div><div className="sub">POSTCARD ALBUM</div></div>
+        <button className="addstk" style={{marginLeft:'auto'}} onClick={onAdd}>＋ 加入明信片</button>
       </div>
       <div className="album">
         {stickers.length===0?(
-          <div className="stkempty">還沒有貼紙　✦<br/>點右上「＋ 加入貼紙」上傳旅遊照片，<br/>自動變成貼紙並標示旅程</div>
+          <div className="stkempty">還沒有明信片　✦<br/>在 Claude 用明信片 prompt 產出後，<br/>點右上「＋ 加入明信片」上傳並標示旅程</div>
         ):(
           <div className="stkgrid">
             {stickers.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).map(s=>{const t=tripById[s.tripId];return (
               <div className="stkcard" key={s.id}>
-                <button className="del" onClick={()=>{if(confirm('刪除這張貼紙？'))onDelete(s.id);}}>✕</button>
+                <button className="del" onClick={()=>{if(confirm('刪除這張明信片？'))onDelete(s.id);}}>✕</button>
                 <img src={s.img} alt={s.title||''} onClick={()=>onView(s.img)}/>
                 <div className="pcap">
                   <span className="cdot" style={{background:t?t.color:'var(--line)'}}/>
@@ -1048,28 +1103,46 @@ function StickerAlbum({stickers,trips,onBack,onAdd,onDelete,onView}){
     </div>
   );
 }
-function AddStickerModal({trips,onClose,onSave}){
-  const [img,setImg]=useState(null);
+function AddStickerModal({trips,onClose,onSave,geminiKey,onNeedKey}){
+  const [rawImg,setRawImg]=useState(null); // 上傳的原始照片
+  const [card,setCard]=useState(null);     // 產出的明信片
   const [tripId,setTripId]=useState('');
   const [title,setTitle]=useState('');
   const [busy,setBusy]=useState(false);
+  const [gen,setGen]=useState(false);
+  const [err,setErr]=useState('');
+  const [copied,setCopied]=useState(false);
   const fileRef=useRef(null);
-  const pick=async(e)=>{const f=e.target.files&&e.target.files[0];if(!f)return;setBusy(true);try{const src=await fileToDataURL(f);const stk=await makeSticker(src);setImg(stk);}catch(err){}setBusy(false);};
+  const pick=async(e)=>{const f=e.target.files&&e.target.files[0];if(!f)return;setBusy(true);setErr('');setCard(null);try{const d=await compressImage(f,1200,0.86);setRawImg(d);}catch(err){}setBusy(false);};
+  const generate=async()=>{if(!rawImg)return;if(!geminiKey){onNeedKey();return;}setGen(true);setErr('');try{const out=await geminiPostcard(rawImg,geminiKey);const small=await shrinkDataURL(out,1280,0.86);setCard(small);}catch(e){setErr(String(e.message||e));}setGen(false);};
+  const copyPrompt=()=>{try{navigator.clipboard.writeText(POSTCARD_PROMPT);setCopied(true);setTimeout(()=>setCopied(false),1800);}catch(e){}};
   const sortedTrips=[...trips].sort((a,b)=>b.startDate.localeCompare(a.startDate));
-  const save=()=>{if(!img)return;onSave({id:'stk-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),img,tripId:tripId||null,title:title.trim(),ts:Date.now()});};
+  const finalImg=card||rawImg;
+  const save=()=>{if(!finalImg)return;onSave({id:'stk-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),img:finalImg,tripId:tripId||null,title:title.trim(),ts:Date.now()});};
   return (
     <div className="scrim" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
-      <div className="modal" style={{width:400}}>
-        <div className="mbar"><span>加入貼紙</span><button className="x" onClick={onClose}>✕</button></div>
+      <div className="modal" style={{width:420}}>
+        <div className="mbar"><span>加入明信片</span><button className="x" onClick={onClose}>✕</button></div>
         <div className="mbody">
           <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={pick}/>
-          {img?(
-            <div style={{marginBottom:14,textAlign:'center'}}>
-              <img className="uploadprev" src={img} onClick={()=>fileRef.current.click()} style={{cursor:'pointer'}}/>
-              <div style={{fontSize:11,color:'var(--ink-soft)',marginTop:6}}>點圖可重新選照片</div>
+          {!rawImg&&(
+            <div className="uploadbox" style={{marginBottom:12}} onClick={()=>fileRef.current.click()}>{busy?'處理中…':'📷 上傳旅遊照片'}</div>
+          )}
+          {rawImg&&(
+            <div style={{marginBottom:12,textAlign:'center'}}>
+              <img className="uploadprev" src={card||rawImg} onClick={()=>fileRef.current.click()} style={{cursor:'pointer'}}/>
+              <div style={{fontSize:11,color:'var(--ink-soft)',marginTop:6}}>{card?'✓ 明信片已產生 · 點圖可重選照片':'原始照片 · 點圖可重選'}</div>
             </div>
-          ):(
-            <div className="uploadbox" style={{marginBottom:14}} onClick={()=>fileRef.current.click()}>{busy?'生成貼紙中…':'📷 上傳旅遊照片 → 自動變成貼紙'}</div>
+          )}
+          {rawImg&&(
+            <div style={{marginBottom:12}}>
+              <button className="btn" style={{width:'100%'}} onClick={generate} disabled={gen}>{gen?'🪄 產生中…（約10-30秒）':(card?'🔄 重新產生明信片':'🪄 產生明信片（Gemini）')}</button>
+              {err&&<div style={{fontSize:11,color:'var(--red)',marginTop:7,lineHeight:1.6}}>⚠ {err}</div>}
+              <div style={{fontSize:11,color:'var(--ink-soft)',marginTop:8,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                <span>沒金鑰？可自行在 Claude 產出，複製此 prompt →</span>
+                <button className="chipbtn" style={{padding:'3px 9px',fontSize:11}} onClick={copyPrompt}>{copied?'✓ 已複製':'📋 複製 Prompt'}</button>
+              </div>
+            </div>
           )}
           <div className="fld"><label>標示旅程 TRIP</label>
             <select value={tripId} onChange={e=>setTripId(e.target.value)}>
@@ -1078,7 +1151,7 @@ function AddStickerModal({trips,onClose,onSave}){
             </select>
           </div>
           <div className="fld"><label>備註 NOTE（選填）</label><input type="text" value={title} onChange={e=>setTitle(e.target.value)} placeholder="例：晴空塔的夕陽"/></div>
-          <div className="mbtns"><button className="btn" onClick={save} disabled={!img}>加入收集冊</button><button className="btn ghost" onClick={onClose}>取消</button></div>
+          <div className="mbtns"><button className="btn" onClick={save} disabled={!finalImg}>加入收集冊{card?'':'（原圖）'}</button><button className="btn ghost" onClick={onClose}>取消</button></div>
         </div>
       </div>
     </div>
@@ -1100,6 +1173,8 @@ function App(){
   const [stickers,setStickers]=useState([]);
   const [addStk,setAddStk]=useState(false);
   const [lightbox,setLightbox]=useState(null);
+  const [geminiKey,setGeminiKey]=useState(()=>{try{return localStorage.getItem('gemini_key')||'';}catch(e){return '';}});
+  const saveGeminiKey=(k)=>{setGeminiKey(k);try{k?localStorage.setItem('gemini_key',k):localStorage.removeItem('gemini_key');}catch(e){}};
   const addSticker=(s)=>{const next=[...stickers,s];setStickers(next);saveStickers(next);setAddStk(false);};
   const deleteSticker=(id)=>{const next=stickers.filter(s=>s.id!==id);setStickers(next);saveStickers(next);};
   const shiftCal=(delta)=>{const tot=calStart.y*12+calStart.m+delta;const y=Math.floor(tot/12),m=((tot%12)+12)%12;setCalStart({y,m});setYear(y);};
@@ -1190,17 +1265,17 @@ function App(){
           </div>
         </div>
 
-        <div className="sh"><span className="zh">貼紙收集冊</span><span className="e">STICKER ALBUM</span><span className="r"/></div>
+        <div className="sh"><span className="zh">明信片收集冊</span><span className="e">POSTCARD ALBUM</span><span className="r"/></div>
         <div className="pad" style={{paddingBottom:24}}>
           <div className="panel stkteaser" onClick={()=>setView('album')}>
             {stickers.length>0?(
               <div className="stkstrip">{stickers.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,7).map(s=><div className="mini" key={s.id}><img src={s.img} alt=""/></div>)}</div>
             ):(
-              <div className="stkteaser-empty">還沒有貼紙 · 上傳旅遊照片 → 自動變成貼紙，收藏你的每一趟 ✦</div>
+              <div className="stkteaser-empty">還沒有明信片 · 用明信片 prompt 產出後上傳，收藏你的每一趟 ✦</div>
             )}
             <div className="stkteaser-foot">
-              <span className="cnt">{stickers.length} 張貼紙</span>
-              <button className="genbtn" style={{background:'var(--gold)',color:'var(--ink)'}} onClick={(e)=>{e.stopPropagation();setAddStk(true);}}>＋ 加入貼紙</button>
+              <span className="cnt">{stickers.length} 張明信片</span>
+              <button className="genbtn" style={{background:'var(--gold)',color:'var(--ink)'}} onClick={(e)=>{e.stopPropagation();setAddStk(true);}}>＋ 加入明信片</button>
               <span className="enter">進入收集冊 ›</span>
             </div>
           </div>
@@ -1223,7 +1298,7 @@ function App(){
         <StickerAlbum stickers={stickers} trips={trips} onBack={()=>setView('home')} onAdd={()=>setAddStk(true)} onDelete={deleteSticker} onView={setLightbox}/>
       )}
 
-      {addStk&&<AddStickerModal trips={trips} onClose={()=>setAddStk(false)} onSave={addSticker}/>}
+      {addStk&&<AddStickerModal trips={trips} onClose={()=>setAddStk(false)} onSave={addSticker} geminiKey={geminiKey} onNeedKey={()=>{setAddStk(false);setSettingsOpen(true);}}/>}
       {lightbox&&<div className="lightbox" onClick={()=>setLightbox(null)}><img src={lightbox} alt=""/></div>}
 
       {modal&&(
@@ -1233,15 +1308,23 @@ function App(){
       {settingsOpen&&(
         <div className="scrim" onMouseDown={e=>{if(e.target===e.currentTarget)setSettingsOpen(false);}}>
           <div className="modal" style={{width:360}}>
-            <div className="mbar"><span>設定 · 外觀皮膚</span><button className="x" onClick={()=>setSettingsOpen(false)}>✕</button></div>
+            <div className="mbar"><span>設定</span><button className="x" onClick={()=>setSettingsOpen(false)}>✕</button></div>
             <div className="mbody">
-              <div style={{fontSize:12,color:'var(--ink-soft)',marginBottom:12,fontWeight:600}}>選擇美術皮膚，可隨時替換</div>
+              <div style={{fontSize:12,color:'var(--ink-soft)',marginBottom:10,fontWeight:600}}>外觀皮膚（可隨時替換）</div>
               {[['island','島嶼旅人','平面向量・現代明亮'],['journal','手繪日誌','舊版・手寫紙感']].map(([k,name,desc])=>(
                 <div key={k} className="skinopt" data-on={skin===k} onClick={()=>changeSkin(k)}>
                   <div><div style={{fontWeight:800,fontSize:15}}>{name}</div><div style={{fontSize:12,color:'var(--ink-soft)',marginTop:2}}>{desc}</div></div>
                   {skin===k&&<span style={{color:'var(--purple)',fontWeight:800,fontSize:13}}>✓ 使用中</span>}
                 </div>
               ))}
+              <div style={{fontSize:12,color:'var(--ink-soft)',margin:'16px 0 8px',fontWeight:600,borderTop:'1px solid var(--line)',paddingTop:14}}>Gemini API 金鑰（用於網頁端直接產明信片）</div>
+              <div className="fld"><input type="password" value={geminiKey} onChange={e=>saveGeminiKey(e.target.value.trim())} placeholder="貼上你的 Google Gemini API 金鑰"/></div>
+              <div style={{fontSize:11,color:'var(--ink-soft)',lineHeight:1.7}}>
+                {geminiKey?'✓ 已設定（只存在此瀏覽器）':'未設定 · 到 '}
+                {!geminiKey&&<a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{color:'var(--purple)',fontWeight:700}}>Google AI Studio</a>}
+                {!geminiKey&&' 免費申請'}
+                {geminiKey&&<button className="chipbtn" style={{marginLeft:8,padding:'3px 10px',fontSize:11}} onClick={()=>saveGeminiKey('')}>清除</button>}
+              </div>
             </div>
           </div>
         </div>
