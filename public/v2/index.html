@@ -1113,9 +1113,15 @@ function AddStickerModal({trips,onClose,onSave,geminiKey,onNeedKey}){
   const [err,setErr]=useState('');
   const [copied,setCopied]=useState(false);
   const fileRef=useRef(null);
-  const pick=async(e)=>{const f=e.target.files&&e.target.files[0];if(!f)return;setBusy(true);setErr('');setCard(null);try{const d=await compressImage(f,1200,0.86);setRawImg(d);}catch(err){}setBusy(false);};
+  const pick=(e)=>{const f=e.target.files&&e.target.files[0];useImageFile(f);};
   const generate=async()=>{if(!rawImg)return;if(!geminiKey){onNeedKey();return;}setGen(true);setErr('');try{const out=await geminiPostcard(rawImg,geminiKey);const small=await shrinkDataURL(out,1280,0.86);setCard(small);}catch(e){setErr(String(e.message||e));}setGen(false);};
   const copyPrompt=()=>{try{navigator.clipboard.writeText(POSTCARD_PROMPT);setCopied(true);setTimeout(()=>setCopied(false),1800);}catch(e){}};
+  const useImageFile=async(f)=>{if(!f)return;setBusy(true);setErr('');setCard(null);try{const d=await compressImage(f,1400,0.88);setRawImg(d);}catch(err){}setBusy(false);};
+  useEffect(()=>{
+    const onPaste=(e)=>{const items=e.clipboardData&&e.clipboardData.items;if(!items)return;for(let i=0;i<items.length;i++){const it=items[i];if(it.type&&it.type.indexOf('image')===0){const f=it.getAsFile();if(f){e.preventDefault();useImageFile(f);}return;}}};
+    window.addEventListener('paste',onPaste);
+    return ()=>window.removeEventListener('paste',onPaste);
+  },[]);
   const sortedTrips=[...trips].sort((a,b)=>b.startDate.localeCompare(a.startDate));
   const finalImg=card||rawImg;
   const save=()=>{if(!finalImg)return;onSave({id:'stk-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),img:finalImg,tripId:tripId||null,title:title.trim(),ts:Date.now()});};
@@ -1124,25 +1130,26 @@ function AddStickerModal({trips,onClose,onSave,geminiKey,onNeedKey}){
       <div className="modal" style={{width:420}}>
         <div className="mbar"><span>加入明信片</span><button className="x" onClick={onClose}>✕</button></div>
         <div className="mbody">
+          <div style={{background:'var(--cream)',padding:'9px 11px',marginBottom:12,fontSize:11.5,color:'var(--ink-soft)',lineHeight:1.75}}>
+            在 <b style={{color:'var(--purple)'}}>ChatGPT／Claude</b> 上傳照片＋明信片 prompt 產出後，回這裡 <b style={{color:'var(--purple)'}}>直接貼上 Ctrl+V</b> 或上傳。
+            <button className="chipbtn" style={{marginTop:8,display:'block',padding:'4px 11px',fontSize:11}} onClick={copyPrompt}>{copied?'✓ 已複製':'📋 複製明信片 Prompt'}</button>
+          </div>
           <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={pick}/>
           {!rawImg&&(
-            <div className="uploadbox" style={{marginBottom:12}} onClick={()=>fileRef.current.click()}>{busy?'處理中…':'📷 上傳旅遊照片'}</div>
+            <div className="uploadbox" style={{marginBottom:12}} onClick={()=>fileRef.current.click()}>{busy?'處理中…':'📮 上傳圖片，或直接 Ctrl+V 貼上'}</div>
           )}
           {rawImg&&(
             <div style={{marginBottom:12,textAlign:'center'}}>
               <img className="uploadprev" src={card||rawImg} onClick={()=>fileRef.current.click()} style={{cursor:'pointer'}}/>
-              <div style={{fontSize:11,color:'var(--ink-soft)',marginTop:6}}>{card?'✓ 明信片已產生 · 點圖可重選照片':'原始照片 · 點圖可重選'}</div>
+              <div style={{fontSize:11,color:'var(--ink-soft)',marginTop:6}}>點圖可重選 · 或再貼上一張覆蓋</div>
             </div>
           )}
-          {rawImg&&(
+          {rawImg&&geminiKey&&(
             <div style={{marginBottom:12}}>
-              <button className="btn" style={{width:'100%'}} onClick={generate} disabled={gen}>{gen?'🪄 產生中…（約10-30秒）':(card?'🔄 重新產生明信片':'🪄 產生明信片（Gemini）')}</button>
+              <button className="btn ghost" style={{width:'100%'}} onClick={generate} disabled={gen}>{gen?'🪄 產生中…':(card?'🔄 用 Gemini 重生成':'🪄 改用 Gemini 生成（備用）')}</button>
               {err&&<div style={{fontSize:11,color:'var(--red)',marginTop:7,lineHeight:1.6}}>⚠ {err}</div>}
-              <div style={{fontSize:11,color:'var(--ink-soft)',marginTop:8,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
-                <span>沒金鑰？可自行在 Claude 產出，複製此 prompt →</span>
-                <button className="chipbtn" style={{padding:'3px 9px',fontSize:11}} onClick={copyPrompt}>{copied?'✓ 已複製':'📋 複製 Prompt'}</button>
-              </div>
             </div>
+          )}
           )}
           <div className="fld"><label>標示旅程 TRIP</label>
             <select value={tripId} onChange={e=>setTripId(e.target.value)}>
@@ -1151,7 +1158,7 @@ function AddStickerModal({trips,onClose,onSave,geminiKey,onNeedKey}){
             </select>
           </div>
           <div className="fld"><label>備註 NOTE（選填）</label><input type="text" value={title} onChange={e=>setTitle(e.target.value)} placeholder="例：晴空塔的夕陽"/></div>
-          <div className="mbtns"><button className="btn" onClick={save} disabled={!finalImg}>加入收集冊{card?'':'（原圖）'}</button><button className="btn ghost" onClick={onClose}>取消</button></div>
+          <div className="mbtns"><button className="btn" onClick={save} disabled={!finalImg}>加入收集冊</button><button className="btn ghost" onClick={onClose}>取消</button></div>
         </div>
       </div>
     </div>
