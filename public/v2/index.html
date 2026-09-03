@@ -666,8 +666,8 @@ function Calendar({start,trips,onCreate,onOpenTrip,onShift}){
   useEffect(()=>{
     if(!drag)return;
     const up=()=>endDrag();
-    window.addEventListener('mouseup',up);window.addEventListener('touchend',up);
-    return()=>{window.removeEventListener('mouseup',up);window.removeEventListener('touchend',up);};
+    window.addEventListener('mouseup',up);
+    return()=>{window.removeEventListener('mouseup',up);};
   });
 
   const inSel=(ds)=>{if(!drag)return false;const[a,b]=drag.start<=drag.cur?[drag.start,drag.cur]:[drag.cur,drag.start];return ds>=a&&ds<=b;};
@@ -707,8 +707,7 @@ function Calendar({start,trips,onCreate,onOpenTrip,onShift}){
           const handleLeave=()=>{if(tr)setHoverMemo(null);};
           cells.push(
             <div key={ds} className={cls}
-              onMouseDown={handleDown} onMouseEnter={handleEnter} onMouseLeave={handleLeave}
-              onTouchStart={handleDown}>
+              onMouseDown={handleDown} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
               <span className="ring" style={ring}>{d}</span>
             </div>
           );
