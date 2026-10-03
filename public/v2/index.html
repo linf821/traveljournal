@@ -503,6 +503,294 @@
   .app[data-skin="journal"] .yswitch .cur{font-size:25px;min-width:60px}
   @media(max-width:520px){.app[data-skin="journal"] .yswitch .cur{min-width:58px;font-size:23px}}
 
+  /* ================================================================
+     PREVIEW SKINS : 航空信 (airmail) / 車站看板 (transit)
+     ================================================================ */
+
+  /* ---------------- AIRMAIL ---------------- */
+  body:has(.app[data-skin="airmail"]){--desk:#C5CFD6;--desk-line:rgba(255,255,255,.28)}
+  .app[data-skin="airmail"]{
+    --paper:#FAF9F5; --pane:rgba(255,255,255,.75); --ticket:#FFFFFF; --dot:transparent; --line:#CBD3DF; --hl:rgba(44,90,160,.16);
+    --ink:#1B2A4A; --ink-soft:#5A6784; --stamp:#243B73;
+    --parchment:#EEF1F5; --parchment-lo:#DCE3EC; --appbg:#FAF9F5; --cream:#FFFFFF; --ivory:#FFFFFF;
+    --gold:#E9B949; --gold-deep:#B88A1E;
+    --purple:#2C5AA0; --purple-deep:#1F4380;
+    --teal:#2C5AA0; --teal-deep:#1F4380;
+    --lavender:#D5DCE8; --dusty:#9FB0CC; --dusty-deep:#6F83A6;
+    --sage:#8FA58A; --sage-deep:#6D866A;
+    --sky-cream:#EEF3F8; --sky-lav:#D7E4F2; --sky-top:#BCD3EA;
+    --sea:#2C5AA0; --sea-lo:#5F8BC8; --brown:#7C6349; --brown-lo:#96795C;
+    --rust:#D23A32; --rust-lo:#E2635C; --red:#C0322B;
+    --f-zh:'LXGW WenKai TC','Noto Sans TC',sans-serif; --f-num:'Special Elite'; --f-en:'Special Elite'; --f-hand:'Caveat';
+    background-image:none;padding-top:14px;
+  }
+  .app[data-skin="airmail"]::before,.app[data-skin="airmail"]::after{content:'';position:absolute;left:0;right:0;width:auto;height:14px;pointer-events:none;opacity:1;
+    background:repeating-linear-gradient(-45deg,#D23A32 0 16px,#fff 16px 28px,#2C5AA0 28px 44px,#fff 44px 56px)}
+  .app[data-skin="airmail"]::before{top:0;bottom:auto}
+  .app[data-skin="airmail"]::after{bottom:0;top:auto}
+  @media(min-width:1000px){.app[data-skin="airmail"]{padding-left:0}}
+  .app[data-skin="airmail"] .topbar{top:14px}
+  .app[data-skin="airmail"] .sh .zh{background:none;border-bottom:4px double var(--purple);padding:0 2px 1px;margin-left:0}
+  .app[data-skin="airmail"] .m{border-top:0;border:1.5px solid #D3DAE6;border-radius:2px}
+  .app[data-skin="airmail"] .m h4 .mon b{color:var(--purple-deep)}
+  .app[data-skin="airmail"] .panel{border-radius:2px;border-color:#D3DAE6}
+  .app[data-skin="airmail"] .stub{border:9px solid transparent;border-image:repeating-linear-gradient(-45deg,#D23A32 0 14px,#fff 14px 24px,#2C5AA0 24px 38px,#fff 38px 48px) 9;border-radius:0;
+    -webkit-mask:none;mask:none;background-color:#fff;background-clip:border-box}
+  .app[data-skin="airmail"] .stub-main{padding:14px 90px 14px 18px}
+  .app[data-skin="airmail"] .stub-lead::before{background:var(--rust)}
+  .app[data-skin="airmail"] .stub-side{border-left:0;padding:10px 14px 10px 30px}
+  .app[data-skin="airmail"] .stub-meta span{background:rgba(44,90,160,.12)}
+  .app[data-skin="airmail"] .stub-photo{transform:rotate(1.8deg);padding:10px;background:#fff;box-shadow:none;
+    -webkit-mask:linear-gradient(#000,#000) 5px 5px/calc(100% - 10px) calc(100% - 10px) no-repeat,
+      radial-gradient(circle at 6px 0,#0000 3.6px,#000 4px) 0 0/12px 5px repeat-x,
+      radial-gradient(circle at 6px 5px,#0000 3.6px,#000 4px) 0 100%/12px 5px repeat-x,
+      radial-gradient(circle at 0 6px,#0000 3.6px,#000 4px) 0 0/5px 12px repeat-y,
+      radial-gradient(circle at 5px 6px,#0000 3.6px,#000 4px) 100% 0/5px 12px repeat-y;
+    mask:linear-gradient(#000,#000) 5px 5px/calc(100% - 10px) calc(100% - 10px) no-repeat,
+      radial-gradient(circle at 6px 0,#0000 3.6px,#000 4px) 0 0/12px 5px repeat-x,
+      radial-gradient(circle at 6px 5px,#0000 3.6px,#000 4px) 0 100%/12px 5px repeat-x,
+      radial-gradient(circle at 0 6px,#0000 3.6px,#000 4px) 0 0/5px 12px repeat-y,
+      radial-gradient(circle at 5px 6px,#0000 3.6px,#000 4px) 100% 0/5px 12px repeat-y}
+  .app[data-skin="airmail"] .stub-photo{filter:drop-shadow(0 2px 2px rgba(27,42,74,.3))}
+  .app[data-skin="airmail"] .stub-photo::before{display:none}
+  .app[data-skin="airmail"] .stub-photo{outline:1px solid #E6E9EF;outline-offset:-1px;background:#fff}
+  .app[data-skin="airmail"] .stampy::after{content:'';position:absolute;left:96%;top:50%;width:100px;height:30px;margin-top:-15px;pointer-events:none;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='30' viewBox='0 0 100 30'%3E%3Cg fill='none' stroke='%23243B73' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M0 5 q7.5 -7 15 0 t15 0 t15 0 t15 0 t15 0 t15 0 t15 0'/%3E%3Cpath d='M0 15 q7.5 -7 15 0 t15 0 t15 0 t15 0 t15 0 t15 0 t15 0'/%3E%3Cpath d='M0 25 q7.5 -7 15 0 t15 0 t15 0 t15 0 t15 0 t15 0 t15 0'/%3E%3C/g%3E%3C/svg%3E") no-repeat}
+  .app[data-skin="airmail"] .stampy.sm::after{display:none}
+  .app[data-skin="airmail"] .ticketwrap{margin:0 20px}
+  .app[data-skin="airmail"] .ticket{border-radius:0;-webkit-mask:none;mask:none;border:9px solid transparent;border-image:repeating-linear-gradient(-45deg,#D23A32 0 14px,#fff 14px 24px,#2C5AA0 24px 38px,#fff 38px 48px) 9;background:#fff}
+  .app[data-skin="airmail"] .ticket .tkscene{border-top:0}
+  .app[data-skin="airmail"] .ticket .tkinfo .stampy{top:-52px}
+  .app[data-skin="airmail"] .ta-view,.app[data-skin="airmail"] .ta-edit{background:repeating-linear-gradient(transparent 0 29px,#D9E0EA 29px 30px);background-attachment:local}
+  .app[data-skin="airmail"] .modal{background-image:none;background-color:#FFFFFF}
+  .app[data-skin="airmail"] .modal .mbar{border-bottom:4px double var(--purple)}
+  .app[data-skin="airmail"] .fab{background:var(--rust);color:#fff}
+  .app[data-skin="airmail"] .genbar{background:var(--purple-deep)}
+  .app[data-skin="airmail"] .genbar .go{background:#fff;color:var(--purple-deep)}
+  .app[data-skin="airmail"] .stkcard::before{display:none}
+  .app[data-skin="airmail"] .stkcard{transform:none;padding:10px;outline:1px solid #E1E6EE}
+
+  /* ---------------- TRANSIT : station signage ---------------- */
+  body:has(.app[data-skin="transit"]){--desk:#0E1621;--desk-line:transparent}
+  .app[data-skin="transit"]{
+    --paper:#FFFFFF; --pane:#F2F5F9; --ticket:#FFFFFF; --dot:transparent; --line:#C6CED9; --hl:#FFD400;
+    --ink:#0E1621; --ink-soft:#56627A; --stamp:#0B2E6B;
+    --parchment:#E8ECF2; --parchment-lo:#D3DAE5; --appbg:#FFFFFF; --cream:#FFFFFF; --ivory:#FFFFFF;
+    --gold:#FFD400; --gold-deep:#B89B00;
+    --purple:#0B2E6B; --purple-deep:#082252;
+    --teal:#0B2E6B; --teal-deep:#082252;
+    --lavender:#D3DAE5; --dusty:#9AA7BD; --dusty-deep:#6D7B94;
+    --sage:#86A48C; --sage-deep:#5F8467;
+    --sky-cream:#E9EEF5; --sky-lav:#C5D6E8; --sky-top:#A9C2DD;
+    --sea:#0B2E6B; --sea-lo:#3F6AAE; --brown:#7C6349; --brown-lo:#96795C;
+    --rust:#E4572E; --rust-lo:#EE7A57; --red:#D6361F;
+    --f-zh:'Noto Sans TC','PingFang TC','LXGW WenKai TC',sans-serif; --f-num:'Space Grotesk'; --f-en:'Space Grotesk'; --f-hand:'Space Grotesk';
+    background-image:none;
+  }
+  .app[data-skin="transit"]::before{display:none}
+  @media(min-width:1000px){.app[data-skin="transit"]{margin:0 auto;min-height:100vh;border-radius:0;box-shadow:none;padding-left:0}}
+  .app[data-skin="transit"] .topbar{background:#0B2E6B;color:#fff;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .app[data-skin="transit"] .topbar .zh{font-weight:900;color:#fff}
+  .app[data-skin="transit"] .topbar .sub{color:#B7C6E2}
+  .app[data-skin="transit"] .logom g{filter:none}
+  .app[data-skin="transit"] .logom circle{stroke:#FFD400}
+  .app[data-skin="transit"] .logom path{fill:#FFD400}
+  .app[data-skin="transit"] .yswitch .arw,.app[data-skin="transit"] .gear{border-color:#fff;color:#fff;border-radius:6px}
+  .app[data-skin="transit"] .yswitch .cur{color:#FFD400;font-weight:700}
+  @media(hover:hover){.app[data-skin="transit"] .yswitch .arw:hover,.app[data-skin="transit"] .gear:hover{background:#FFD400;color:#0E1621;border-color:#FFD400}}
+  .app[data-skin="transit"] .backbtn{border-color:#fff;color:#fff;border-radius:6px}
+  @media(hover:hover){.app[data-skin="transit"] .backbtn:hover{background:#FFD400;color:#0E1621;border-color:#FFD400}}
+  .app[data-skin="transit"] .btn.gold{background:#FFD400;color:#0E1621;border-color:#FFD400;border-radius:6px}
+  .app[data-skin="transit"] .sh{align-items:center}
+  .app[data-skin="transit"] .sh .zh{background:#0E1621;color:#fff;padding:3px 14px;margin:0;font-weight:900;font-size:16px;border-radius:2px 16px 16px 2px}
+  .app[data-skin="transit"] .sh .r{display:block;height:4px;background:#0E1621;flex:1;border-radius:2px}
+  .app[data-skin="transit"] .sh .e{color:var(--ink-soft)}
+  /* departure board */
+  .board{display:grid;grid-template-columns:1fr auto;gap:8px 24px;align-items:end;background:#0B2E6B;color:#fff;padding:20px 24px 22px;border-radius:8px;border-bottom:10px solid var(--tc,#FFD400)}
+  .board-head{grid-column:1/-1;font-weight:700;color:#FFD400;font-size:15px}
+  .board-dest{font-size:clamp(36px,7vw,62px);font-weight:900;line-height:1.05;word-break:keep-all}
+  .board-dest small{display:block;font-size:clamp(14px,2.4vw,18px);font-weight:500;opacity:.85;margin-top:6px}
+  .board-meta{grid-column:1/-1;font-weight:700;font-size:15px;display:flex;gap:10px;flex-wrap:wrap}
+  .board-meta span{background:rgba(255,255,255,.15);padding:2px 12px;border-radius:3px}
+  .flap{display:flex;gap:6px;align-items:flex-end}
+  .flap i{font-style:normal;min-width:clamp(46px,8vw,66px);height:clamp(66px,11vw,94px);display:flex;align-items:center;justify-content:center;padding:0 6px;
+    background:#111;color:#FFD400;border-radius:7px;font-family:var(--f-num);font-weight:700;font-size:clamp(46px,8vw,74px);position:relative;box-shadow:inset 0 -3px 0 rgba(255,255,255,.07)}
+  .flap i::after{content:'';position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:#000;box-shadow:0 1px 0 rgba(255,255,255,.14)}
+  .flap small{font-weight:900;font-size:clamp(16px,3vw,22px);margin-left:6px;padding-bottom:8px}
+  @media(max-width:640px){.board{grid-template-columns:1fr}.flap{margin-top:4px}.board-dest{font-size:44px}}
+  /* calendar : numbered platform squares */
+  .app[data-skin="transit"] .calnav button{background:#0E1621;color:#fff;border:0;border-radius:6px}
+  @media(hover:hover){.app[data-skin="transit"] .calnav button:hover{background:#FFD400;color:#0E1621}}
+  .app[data-skin="transit"] .m{background:#fff;border:2px solid #0E1621;border-top:2px solid #0E1621;border-radius:0;padding:0 0 6px}
+  .app[data-skin="transit"] .m h4{background:#0E1621;color:#fff;margin:0 0 6px;padding:6px 10px}
+  .app[data-skin="transit"] .m h4 .mon b{font-family:'Space Grotesk';font-weight:700;color:#FFD400}
+  .app[data-skin="transit"] .m h4 .mo{color:#9FB0C8}
+  .app[data-skin="transit"] .dow{color:#0E1621;font-weight:700}
+  .app[data-skin="transit"] .d{font-family:'Space Grotesk';font-weight:500}
+  .app[data-skin="transit"] .d.trip::before,.app[data-skin="transit"] .d.trip.bs::before,.app[data-skin="transit"] .d.trip.be::before,.app[data-skin="transit"] .d.trip.bs.be::before{
+    left:2px;right:2px;top:2px;bottom:2px;border-radius:4px;opacity:1;mix-blend-mode:normal;filter:none}
+  .app[data-skin="transit"] .d.trip .ring{color:#fff}
+  .app[data-skin="transit"] .d.sel::before{background:#FFD400;opacity:1;border-radius:4px;left:2px;right:2px;filter:none;mix-blend-mode:normal}
+  .app[data-skin="transit"] .d.today .ring{border:0;border-radius:4px;box-shadow:0 0 0 2.5px #FFD400,0 0 0 4px #0E1621;width:22px;height:22px}
+  .app[data-skin="transit"] .d.today.plain .ring{background:#FFD400;box-shadow:none;color:#0E1621}
+  .app[data-skin="transit"] .memobubble{background:#0E1621;color:#fff;transform:translate(-50%,-100%);border-radius:6px}
+  .app[data-skin="transit"] .memobubble::before{display:none}
+  .app[data-skin="transit"] .memobubble .mtitle{color:#FFD400}
+  .app[data-skin="transit"] .memobubble .mdates{color:#B7C6E2}
+  .app[data-skin="transit"] .memobubble .mtext{border-top:1px solid rgba(255,255,255,.2)}
+  /* panels, buttons */
+  .app[data-skin="transit"] .panel{background:#fff;border:2px solid #0E1621;border-radius:0}
+  .app[data-skin="transit"] .recapteaser .stat .n,.app[data-skin="transit"] .rstat .n{display:inline-block;background:#111;color:#FFD400;border-radius:7px;padding:2px 14px;font-weight:700;font-size:30px}
+  .app[data-skin="transit"] .rstat{border:2px solid #0E1621;border-radius:0;background:#fff}
+  .app[data-skin="transit"] .genbtn,.app[data-skin="transit"] .btn,.app[data-skin="transit"] .addstk{background:#0E1621;color:#fff;border-color:#0E1621;border-radius:6px}
+  @media(hover:hover){.app[data-skin="transit"] .genbtn:hover,.app[data-skin="transit"] .btn:hover,.app[data-skin="transit"] .addstk:hover{background:#FFD400;color:#0E1621}}
+  .app[data-skin="transit"] .btn.ghost{background:transparent;color:#0E1621}
+  .app[data-skin="transit"] .btn.warn{background:transparent;color:var(--red);border-color:transparent}
+  .app[data-skin="transit"] .fab{background:#FFD400;color:#0E1621;border-radius:6px;box-shadow:0 0 0 3px #0E1621,0 10px 16px -4px rgba(0,0,0,.45)}
+  .app[data-skin="transit"] .chipbtn{border-radius:6px;border-color:#0E1621}
+  .app[data-skin="transit"] .chipbtn.on{background:#0B2E6B;border-color:#0B2E6B;color:#fff}
+  .app[data-skin="transit"] .seg{border-radius:6px}
+  .app[data-skin="transit"] .seg button.on{background:#0B2E6B;color:#fff}
+  .app[data-skin="transit"] .genbar{background:#0B2E6B;border-radius:8px}
+  .app[data-skin="transit"] .genbar .go{background:#FFD400;color:#0E1621;border-radius:6px}
+  .app[data-skin="transit"] .modal{background-image:none;background-color:#fff;border-radius:8px}
+  .app[data-skin="transit"] .modal .mbar{background:#0B2E6B;color:#fff;border-bottom:0;backdrop-filter:none}
+  .app[data-skin="transit"] .modal .mbar .x{color:#FFD400}
+  .app[data-skin="transit"] .skinopt[data-on="true"]{background:#FFF3B0;border-color:#0E1621}
+  .app[data-skin="transit"] .clist .c{border:2px solid #0E1621;border-left:10px solid var(--rust);border-radius:0}
+  .app[data-skin="transit"] .citytag{background:#E8ECF2;border-radius:3px}
+  .app[data-skin="transit"] .addchip{border:1.5px solid #0E1621;border-radius:6px;background:transparent}
+  @media(hover:hover){.app[data-skin="transit"] .addchip:hover{background:#FFD400}}
+  .app[data-skin="transit"] .day .dh{border-bottom:3px solid #0E1621}
+  .app[data-skin="transit"] .ta-view,.app[data-skin="transit"] .ta-edit{background:none;line-height:1.9}
+  .app[data-skin="transit"] .ticketwrap{margin:0 20px;filter:none}
+  .app[data-skin="transit"] .ticket{border-radius:0;-webkit-mask:none;mask:none;border-bottom:10px solid var(--tc,#FFD400);background:#fff}
+  .app[data-skin="transit"] .ticket .tkscene{border-top:0;border-bottom:0}
+  .app[data-skin="transit"] .ticket .tkinfo{border-top:0}
+  .app[data-skin="transit"] .ticket .pill{border:2px solid #0E1621;border-radius:6px}
+  .app[data-skin="transit"] .ticket .tkcity{font-weight:900}
+  .app[data-skin="transit"] .ticket .tkinfo .stampy{top:14px}
+  .app[data-skin="transit"] .stampy{border:0;filter:none;mix-blend-mode:normal;animation:none;transform:none;background:#111;color:#FFD400;border-radius:8px;width:auto;height:auto;min-width:64px;padding:8px 14px;display:flex;align-items:baseline;gap:6px}
+  .app[data-skin="transit"] .stampy::before{display:none}
+  .app[data-skin="transit"] .stampy b{font-size:38px;font-weight:700;-webkit-text-stroke:0;font-family:'Space Grotesk'}
+  .app[data-skin="transit"] .stampy small{color:#fff;font-size:13px;-webkit-text-stroke:0;margin:0}
+  .app[data-skin="transit"] .stampy[data-long="true"] b{font-size:20px;font-family:var(--f-zh)}
+  .app[data-skin="transit"] .stkcard,.app[data-skin="transit"] .stkstrip .mini{transform:none;box-shadow:none;border:2px solid #0E1621;padding:0}
+  .app[data-skin="transit"] .stkcard .pcap{padding:8px 6px 10px}
+  .app[data-skin="transit"] .stkcard::before,.app[data-skin="transit"] .stkstrip .mini::before{display:none}
+  .app[data-skin="transit"] .stkstrip .mini:nth-child(even){transform:none}
+  .app[data-skin="transit"] .stkstrip .mini{padding:0}
+  .app[data-skin="transit"] .stkcard .del{top:8px;right:8px}
+
+  /* ================================================================
+     手帳版頭：飛機＝登機證／船＝乘船券／火車＝乘車券（三種不同版型）
+     ================================================================ */
+  .stub.tk{--hc:color-mix(in srgb,var(--tc,var(--rust)) 78%,#1d2b3a);border-top:0;min-height:0;font-family:var(--f-zh);
+    -webkit-mask:none;mask:none;display:grid}
+  .tk small{display:block;font-size:12px;color:var(--ink-soft);line-height:1.2}
+  .barcode{height:28px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 3px,var(--ink) 3px 4px,transparent 4px 7px,var(--ink) 7px 10px,transparent 10px 11px,var(--ink) 11px 12px,transparent 12px 15px);opacity:.85}
+  .tk svg.ic{width:20px;height:20px;fill:currentColor;vertical-align:-4px;margin-right:6px}
+
+  /* ---------- 登機證 ---------- */
+  .tk-plane{--sideW:210px;grid-template-columns:minmax(0,1fr) var(--sideW);
+    -webkit-mask:radial-gradient(circle 12px at calc(100% - var(--sideW)) 0,#0000 97%,#000),radial-gradient(circle 12px at calc(100% - var(--sideW)) 100%,#0000 97%,#000);-webkit-mask-composite:source-in;
+    mask:radial-gradient(circle 12px at calc(100% - var(--sideW)) 0,#0000 97%,#000),radial-gradient(circle 12px at calc(100% - var(--sideW)) 100%,#0000 97%,#000);mask-composite:intersect}
+  .pl-main{display:flex;flex-direction:column;min-width:0}
+  .pl-band{display:flex;justify-content:space-between;align-items:center;padding:9px 22px;background:var(--hc);color:#fff;font-weight:700;font-size:15px}
+  .pl-band em{font-style:normal;font-family:var(--f-en);font-weight:400;font-size:13px;letter-spacing:.16em;opacity:.9}
+  .pl-body{padding:14px 22px 12px;flex:1;display:flex;flex-direction:column;gap:14px}
+  .pl-dest{font-size:clamp(34px,5.4vw,50px);font-weight:700;line-height:1.1;word-break:keep-all;margin-top:2px}
+  .pl-ctry{font-size:16px;color:var(--ink-soft)}
+  .pl-grid{display:grid;grid-template-columns:repeat(4,1fr);border:1.5px solid var(--line);border-radius:3px}
+  .pl-grid>div{padding:7px 12px;border-left:1.5px solid var(--line);min-width:0}
+  .pl-grid>div:first-child{border-left:0}
+  .pl-grid b{display:block;font-family:var(--f-num);font-weight:400;font-size:19px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pl-bar{margin:0 22px 16px}
+  .pl-stub{border-left:2px dashed var(--line);padding:16px 18px;display:flex;flex-direction:column;gap:8px;background:color-mix(in srgb,var(--hc) 7%,transparent)}
+  .pl-stub .pl-d{font-size:24px;font-weight:700;line-height:1.15;word-break:keep-all}
+  .pl-stub .pl-r{font-family:var(--f-num);font-size:16px}
+  .pl-stub .barcode{margin-top:auto}
+  .tk-plane .stampy{right:calc(var(--sideW) + 22px);top:52px;margin:0;width:100px;height:100px;border-width:3px}
+  .tk-plane .stampy b{font-size:40px}
+  .tk-plane .stampy[data-long="true"] b{font-size:20px}
+
+  /* ---------- 乘船券 ---------- */
+  .tk-cruise{--sepia:color-mix(in srgb,var(--ticket) 62%,#E3CF9C);background:var(--sepia);border-radius:0;padding:12px;
+    -webkit-mask:radial-gradient(circle 7px at 7px 7px,#0000 97%,#000) -7px -7px/14px 14px;mask:radial-gradient(circle 7px at 7px 7px,#0000 97%,#000) -7px -7px/14px 14px;
+    -webkit-mask-composite:source-over;mask-composite:add}
+  .tk-cruise{-webkit-mask:none;mask:none;clip-path:polygon(0 8px,8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px))}
+  .sh-frame{position:relative;border:2px solid var(--hc);outline:1px solid var(--hc);outline-offset:-7px;padding:22px 150px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;
+    background:repeating-linear-gradient(45deg,transparent 0 6px,color-mix(in srgb,var(--hc) 5%,transparent) 6px 7px)}
+  .sh-frame::before,.sh-frame::after{content:'❖';position:absolute;top:8px;color:var(--hc);font-size:14px}
+  .sh-frame::before{left:12px}.sh-frame::after{right:12px}
+  .sh-title{font-size:26px;font-weight:700;letter-spacing:.5em;padding-left:.5em;color:var(--hc);display:flex;align-items:center;gap:14px}
+  .sh-title svg{width:24px;height:24px;fill:var(--hc)}
+  .sh-sub{font-family:var(--f-en);font-size:12px;letter-spacing:.32em;color:var(--ink-soft)}
+  .sh-dest{font-size:clamp(34px,5.4vw,50px);font-weight:700;line-height:1.1;margin-top:8px;word-break:keep-all}
+  .sh-ctry{font-size:16px;color:var(--ink-soft)}
+  .sh-rule{width:70%;display:flex;align-items:center;gap:10px;color:var(--hc);margin:8px 0 4px}
+  .sh-rule::before,.sh-rule::after{content:'';flex:1;border-top:1.5px solid var(--hc);border-bottom:1.5px solid var(--hc);height:4px}
+  .sh-cols{display:flex;gap:26px;align-items:center}
+  .sh-cols b{display:block;font-family:var(--f-num);font-weight:400;font-size:24px}
+  .sh-cols .mid{font-size:14px;color:var(--ink-soft);border:1.5px solid var(--hc);border-radius:50%;width:54px;height:54px;display:grid;place-content:center;line-height:1.1}
+  .sh-foot{font-size:14px;margin-top:8px;color:var(--ink-soft)}
+  .sh-port{position:absolute;left:24px;top:50%;margin-top:-58px;width:116px;height:116px;border-radius:50%;overflow:hidden;line-height:0;border:7px solid #B8975A;box-shadow:inset 0 0 0 2px #8C6E36,0 2px 3px rgba(0,0,0,.25);background:#fff}
+  .sh-port>div,.sh-port svg{display:block;width:100%;height:100%}
+  .tk-cruise .stampy{right:24px;top:50%;margin-top:-52px;width:104px;height:104px;border-width:3px}
+  .tk-cruise .stampy b{font-size:40px}
+  .tk-cruise .stampy[data-long="true"] b{font-size:20px}
+
+  /* ---------- 乘車券 ---------- */
+  .tk-train{grid-template-columns:44px minmax(0,1fr) 190px;min-height:170px;background:color-mix(in srgb,var(--ticket) 66%,#F2C9C2);
+    clip-path:polygon(24px 0,100% 0,100% 100%,0 100%,0 24px);
+    -webkit-mask:radial-gradient(circle 9px at 22px calc(100% - 26px),#0000 97%,#000);mask:radial-gradient(circle 9px at 22px calc(100% - 26px),#0000 97%,#000);
+    background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.035) 0 1px,transparent 1px 3px)}
+  .tr-stripe{background:#2C5AA0;color:#fff;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;letter-spacing:.4em;font-weight:700;font-size:15px;padding:30px 0 10px}
+  .tr-main{padding:14px 20px 16px;display:flex;flex-direction:column;gap:10px;min-width:0;font-family:var(--f-num)}
+  .tr-top{display:flex;gap:10px;font-family:var(--f-zh);font-size:13px;color:var(--ink-soft);border-bottom:1.5px solid color-mix(in srgb,var(--ink) 55%,transparent);padding-bottom:6px}
+  .tr-top span+span::before{content:'|';margin-right:10px;opacity:.5}
+  .tr-to{display:flex;align-items:baseline;gap:12px}
+  .tr-to i{font-style:normal;font-family:var(--f-zh);font-size:20px;color:var(--ink-soft)}
+  .tr-to b{font-family:var(--f-zh);font-size:clamp(32px,5vw,44px);font-weight:700;line-height:1.1;word-break:keep-all}
+  .tr-to span{font-family:var(--f-zh);font-size:15px;color:var(--ink-soft)}
+  .tr-info{display:flex;flex-wrap:wrap;gap:6px 26px;font-size:20px}
+  .tr-info small{font-family:var(--f-zh)}
+  .tr-side{border-left:2px dotted color-mix(in srgb,var(--ink) 40%,transparent);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;padding:14px;position:relative}
+  .tr-win{width:136px;height:84px;border-radius:12px;overflow:hidden;line-height:0;border:5px solid color-mix(in srgb,var(--ink) 20%,var(--ticket));background:#fff}
+  .tr-win>div,.tr-win svg{display:block;width:100%;height:100%}
+  .tk-train .stampy{position:relative!important;right:auto;top:auto;margin:0;border-radius:4px;width:auto;height:auto;min-width:110px;padding:6px 12px;display:flex;align-items:baseline;justify-content:center;gap:6px;border-width:3px;transform:rotate(-4deg)}
+  .tk-train .stampy::before{display:none}
+  .tk-train .stampy b{font-size:32px}
+  .tk-train .stampy small{font-size:14px;margin:0;color:inherit}
+  .tk-train .stampy[data-long="true"] b{font-size:19px}
+
+  @media(max-width:700px){
+    .tk-plane{grid-template-columns:1fr;--sideH:110px;
+      -webkit-mask:radial-gradient(circle 12px at 0 calc(100% - var(--sideH)),#0000 97%,#000),radial-gradient(circle 12px at 100% calc(100% - var(--sideH)),#0000 97%,#000);-webkit-mask-composite:source-in;
+      mask:radial-gradient(circle 12px at 0 calc(100% - var(--sideH)),#0000 97%,#000),radial-gradient(circle 12px at 100% calc(100% - var(--sideH)),#0000 97%,#000);mask-composite:intersect}
+    .pl-body{padding:12px 18px 8px}
+    .pl-grid{grid-template-columns:repeat(2,1fr)}
+    .pl-grid>div:nth-child(3){border-left:0}
+    .pl-grid>div:nth-child(n+3){border-top:1.5px solid var(--line)}
+    .pl-bar,.pl-stub .pl-r+.pl-r{display:none}
+    .pl-stub{height:var(--sideH);border-left:0;border-top:2px dashed var(--line);flex-direction:row;align-items:center;justify-content:space-between;padding:12px 18px}
+    .pl-stub .barcode{margin:0;width:42%;height:52px}
+    .tk-plane .stampy{right:16px;top:44px;width:84px;height:84px}
+    .tk-plane .stampy b{font-size:32px}
+    .sh-frame{padding:20px 14px 18px}
+    .sh-port{position:relative;left:auto;top:auto;margin:0 0 6px;width:84px;height:84px}
+    .tk-cruise .stampy{position:relative!important;right:auto;top:auto;bottom:auto;margin:10px 0 0;width:90px;height:90px}
+    .sh-cols{gap:16px}
+    .sh-frame::before,.sh-frame::after{display:none}
+    .tk-train{grid-template-columns:34px minmax(0,1fr);min-height:0}
+    .tr-side{grid-column:2;border-left:0;border-top:2px dotted color-mix(in srgb,var(--ink) 40%,transparent);flex-direction:row;justify-content:space-between;padding:10px 16px}
+    .tr-stripe{grid-row:1/3}
+    .tr-win{width:108px;height:68px}
+    .tk-train .stampy{bottom:auto!important;right:auto!important;margin:0!important}
+    .tk-train{-webkit-mask:none;mask:none}
+  }
+  @media(max-width:700px){.app[data-skin="airmail"] .stampy::after{display:none}}
+
 </style>
 </head>
 <body>
@@ -884,6 +1172,74 @@ function Hero({nextTrip,year,skin}){
     );
     if(skin==='island')return <div className="ihero"><div className="scene" dangerouslySetInnerHTML={{__html:svg}}/>{hcard}</div>;
     return <div className="pad"><div className="jhero"><div className="jart"><ZodiacIllustration year={year}/></div>{hcard}</div></div>;
+  }
+  const md=x=>`${+x.slice(5,7)}/${+x.slice(8,10)}`;
+  const nDays=t?daysBetween(t.startDate,t.endDate).length:0;
+  const compLabel=(()=>{if(!t)return '';const c=t.companion||'';if(c.startsWith('other:'))return c.slice(6);const f=COMPANIONS.find(x=>x[0]===c);return f?f[1]:'';})();
+  if(skin==='transit'){
+    if(!t)return <div className="pad"><section className="board"><div className="board-head">下一趟</div><div className="board-dest" style={{fontSize:28}}>目前沒有即將到來的旅程<small>在下方年曆點選日期，開始計畫下一趟旅行</small></div></section></div>;
+    return (
+      <div className="pad"><section className="board" style={{'--tc':t.color}}>
+        <div className="board-head">下一趟</div>
+        <div className="board-dest">{t.location}{t.country&&<small>{t.country}</small>}</div>
+        <div className="flap">{cd===0?<i style={{fontSize:'clamp(22px,4vw,30px)'}}>進行中</i>:<>{String(cd).split('').map((d,i)=><i key={i}>{d}</i>)}<small>天後</small></>}</div>
+        <div className="board-meta"><span>{fmtRange(t.startDate,t.endDate)}</span>{tl&&<span>{tl}</span>}</div>
+      </section></div>
+    );
+  }
+  if(t&&(skin==='day'||skin==='night')&&(transport==='plane'||transport==='cruise'||transport==='train')){
+    const stamp=<div className="stampy" data-long={cd===0}>{cd===0?<b>進行中</b>:<><b>{cd}</b><small>天後</small></>}</div>;
+    const planeI=<svg className="ic" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>;
+    const anchorI=<svg viewBox="0 0 24 24"><path d="M12 2a2.5 2.5 0 0 0-1 4.8V9H8v2h3v8.9A7 7 0 0 1 5.1 14H7l-3-4-3 4h2.1A9 9 0 0 0 11 21.9V22h2v-.1A9 9 0 0 0 20.9 14H23l-3-4-3 4h1.9A7 7 0 0 1 13 19.9V11h3V9h-3V6.8A2.5 2.5 0 0 0 12 2zm0 1.8a.7.7 0 1 1 0 1.4.7.7 0 0 1 0-1.4z"/></svg>;
+    const sty={'--tc':t.color};
+    if(transport==='plane')return (
+      <div className="pad"><div className="stubwrap"><section className="stub tk tk-plane" style={sty}>
+        <div className="pl-main">
+          <div className="pl-band"><span>{planeI}登機證</span><em>BOARDING PASS</em></div>
+          <div className="pl-body">
+            <div><small>往</small><div className="pl-dest">{t.location}</div>{t.country&&<div className="pl-ctry">{t.country}</div>}</div>
+            <div className="pl-grid">
+              <div><small>乘客</small><b>{OWNER}</b></div>
+              <div><small>出發</small><b>{md(t.startDate)}</b></div>
+              <div><small>回程</small><b>{md(t.endDate)}</b></div>
+              <div><small>同行</small><b style={{fontFamily:'var(--f-zh)',fontSize:17}}>{compLabel||'—'}</b></div>
+            </div>
+          </div>
+          <div className="barcode pl-bar"/>
+        </div>
+        <div className="pl-stub">
+          <div><small>往</small><div className="pl-d">{t.location}</div><div className="pl-r">{md(t.startDate)} - {md(t.endDate)}</div><div className="pl-r" style={{marginTop:10}}><small>乘客</small>{OWNER}</div><div className="pl-r" style={{marginTop:6}}><small>天數</small>{nDays} 天</div></div>
+          <div className="barcode"/>
+        </div>
+        {stamp}
+      </section></div></div>
+    );
+    if(transport==='cruise')return (
+      <div className="pad"><div className="stubwrap"><section className="stub tk tk-cruise" style={sty}>
+        <div className="sh-frame">
+          <div className="sh-port"><div dangerouslySetInnerHTML={{__html:svg}}/></div>
+          <div className="sh-title">{anchorI}乘船券{anchorI}</div>
+          <div className="sh-sub">PASSAGE TICKET</div>
+          <div className="sh-dest">{t.location}</div>
+          {t.country&&<div className="sh-ctry">{t.country}</div>}
+          <div className="sh-rule">◆</div>
+          <div className="sh-cols"><div><small>登船</small><b>{md(t.startDate)}</b></div><div className="mid">{nDays}<span style={{fontSize:11}}>天</span></div><div><small>下船</small><b>{md(t.endDate)}</b></div></div>
+          <div className="sh-foot">乘客 {OWNER}{compLabel?`　同行 ${compLabel}`:''}</div>
+          {stamp}
+        </div>
+      </section></div></div>
+    );
+    return (
+      <div className="pad"><div className="stubwrap"><section className="stub tk tk-train" style={sty}>
+        <div className="tr-stripe">乘車券</div>
+        <div className="tr-main">
+          <div className="tr-top"><span>鐵路</span><span>{t.startDate.slice(0,4)}</span><span>{OWNER}</span></div>
+          <div className="tr-to"><i>至</i><b>{t.location}</b>{t.country&&<span>{t.country}</span>}</div>
+          <div className="tr-info"><div><small>乘車日</small>{md(t.startDate)}</div><div><small>回程日</small>{md(t.endDate)}</div><div><small>天數</small>{nDays}天</div>{compLabel&&<div><small>同行</small><span style={{fontFamily:'var(--f-zh)',fontSize:18}}>{compLabel}</span></div>}</div>
+        </div>
+        <div className="tr-side"><div className="tr-win"><div dangerouslySetInnerHTML={{__html:svg}}/></div>{stamp}</div>
+      </section></div></div>
+    );
   }
   if(!t)return (
     <div className="pad"><div className="stubwrap"><section className="stub">
@@ -1456,7 +1812,7 @@ function App(){
   const goYear=(ny)=>{setYear(ny);setCalStart({y:ny,m:0});};
 
   useEffect(()=>{(async()=>{
-    const sk=await storage.get('skin').catch(()=>null);if(sk&&sk.value)setSkin(['day','night','island','journal'].includes(sk.value)?sk.value:'day');
+    const sk=await storage.get('skin').catch(()=>null);if(sk&&sk.value)setSkin(['day','night','airmail','transit','island','journal'].includes(sk.value)?sk.value:'day');
     loadStickers().then(setStickers).catch(()=>{});
     const t=await loadTrips();
     // backfill country / coords from the built-in dictionary (instant)
@@ -1587,7 +1943,7 @@ function App(){
             <div className="mbar"><span>設定</span><button className="x" onClick={()=>setSettingsOpen(false)}>✕</button></div>
             <div className="mbody">
               <div style={{fontSize:12,color:'var(--ink-soft)',marginBottom:10,fontWeight:600}}>外觀（可隨時替換）</div>
-              {[['day','方格紙','方格手帳紙、橡皮印章、螢光筆'],['night','夜讀','方格紙的深色版，晚上翻看不刺眼'],['island','島嶼旅人','平面插畫、明亮配色'],['journal','手繪日誌','白紙黑墨、手寫感、生肖手繪']].map(([k,name,desc])=>(
+              {[['day','方格紙','方格手帳紙、橡皮印章、螢光筆'],['night','夜讀','方格紙的深色版，晚上翻看不刺眼'],['airmail','航空信','紅藍斜紋信封、郵戳、郵票齒孔'],['transit','車站看板','深藍底黃字、翻牌倒數、站名牌'],['island','島嶼旅人','平面插畫、明亮配色'],['journal','手繪日誌','白紙黑墨、手寫感、生肖手繪']].map(([k,name,desc])=>(
                 <div key={k} className="skinopt" data-on={skin===k} onClick={()=>changeSkin(k)}>
                   <div><div style={{fontWeight:800,fontSize:15}}>{name}</div><div style={{fontSize:12,color:'var(--ink-soft)',marginTop:2}}>{desc}</div></div>
                   {skin===k&&<span style={{color:'var(--purple)',fontWeight:800,fontSize:13}}>✓ 使用中</span>}
