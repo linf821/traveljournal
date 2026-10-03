@@ -6,260 +6,503 @@
 <title>旅行日誌 · Travel Journal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&family=Caveat:wght@500;600;700&family=Inter+Tight:wght@500;600;700&family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@500;600;700&family=Space+Grotesk:wght@500;700&family=Inter+Tight:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-webfont@1.7.0/style.css" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
 <style>
+  /* ============ TOKENS : 方格手帳 (grid notebook on a cutting mat) ============ */
   :root{
-    --parchment:#EAE4D6; --parchment-lo:#DAD2C1; --paper:#F5F2EB; --appbg:#E6E1D4;
+    --desk:#34483F; --desk-line:rgba(255,255,255,.055);
+    --paper:#F4F5F0; --pane:rgba(255,255,255,.62); --ticket:#FCFCF8;
+    --dot:#C8CFC0; --line:#CBD2C6; --hl:rgba(224,178,76,.42);
+    --ink:#1D2B3A; --ink-soft:#5B6872; --stamp:#B4503A;
+    /* legacy names used by illustrations & inline styles, remapped */
+    --parchment:#E7EADF; --parchment-lo:#DADFD0; --appbg:#F4F5F0; --cream:#FBFBF7; --ivory:#FBFBF7;
+    --gold:#D6A84E; --gold-deep:#9C7426;
+    --purple:#3F5A7A; --purple-deep:#2F4766;
+    --teal:#4F8579; --teal-deep:#3A6A60;
+    --lavender:#C9CFD6; --dusty:#A3ADB8; --dusty-deep:#7C8794;
+    --sage:#8E9E77; --sage-deep:#66764E;
+    --sky-cream:#E6EAE0; --sky-lav:#CFDCDD; --sky-top:#B7CCD0;
+    --sea:#5A8494; --sea-lo:#78A0AE;
+    --brown:#7C6349; --brown-lo:#96795C;
+    --rust:#C67B65; --rust-lo:#D3927E; --red:#B4503A;
+    --f-en:'Special Elite'; --f-hand:'Caveat'; --f-num:'Special Elite';
+    --f-zh:'LXGW WenKai TC','Noto Sans TC','PingFang TC',sans-serif;
+  }
+  .app[data-skin="night"]{
+    --paper:#1F2A2D; --pane:rgba(255,255,255,.045); --ticket:#273337;
+    --dot:#34434A; --line:#3A4B50; --hl:rgba(224,178,76,.30);
+    --ink:#E8EEE6; --ink-soft:#9DB0B0; --stamp:#E58F76;
+    --parchment:#2B393D; --parchment-lo:#34454A; --appbg:#1F2A2D; --cream:#DDE4D8; --ivory:#273337;
+    --gold:#E8D9A8; --gold-deep:#E0B24C;
+    --purple:#8FB0D6; --purple-deep:#B3CCE8;
+    --teal:#6FB0A2; --teal-deep:#8ACBBC;
+    --sky-cream:#33444A; --sky-lav:#2B3B42; --sky-top:#223138;
+    --sea:#4B7482; --sea-lo:#5F8B99;
+    --lavender:#4A5A66; --dusty:#586976;
+    --sage:#6C7F5A; --sage-deep:#566848;
+    --red:#E58F76;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background-color:var(--desk);
+    background-image:linear-gradient(var(--desk-line) 1px,transparent 1px),linear-gradient(90deg,var(--desk-line) 1px,transparent 1px);
+    background-size:28px 28px;
+    color:var(--ink);font-family:var(--f-zh);font-size:15px;-webkit-font-smoothing:antialiased;line-height:1.55
+  }
+  body:has(.app[data-skin="night"]){--desk:#10181A}
+  button{font-family:inherit;cursor:pointer;color:inherit}
+  input,select,textarea{font-family:inherit;color:inherit}
+  a{color:inherit}
+  ::-webkit-scrollbar{height:8px;width:8px}
+  ::-webkit-scrollbar-thumb{background:var(--parchment-lo);border-radius:4px}
+  :focus-visible{outline:2px solid var(--purple);outline-offset:2px;border-radius:3px}
+  .en{font-family:var(--f-en),var(--f-zh)}
+
+  /* the notebook page */
+  .app{
+    max-width:920px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:110px;
+    color:var(--ink);
+    background-color:var(--paper);
+    background-image:radial-gradient(circle,var(--dot) 1.1px,transparent 1.7px);
+    background-size:22px 22px;background-position:11px 11px;
+  }
+  @media(min-width:1000px){
+    .app{margin:28px auto;min-height:calc(100vh - 56px);border-radius:3px;box-shadow:0 2px 0 rgba(0,0,0,.2),0 24px 50px -10px rgba(0,0,0,.45);padding-left:30px}
+    /* binding holes */
+    .app::before{content:'';position:absolute;left:14px;top:0;bottom:0;width:16px;pointer-events:none;
+      background:radial-gradient(circle at 8px 8px,var(--desk) 5.5px,transparent 6.5px) 0 14px/16px 46px repeat-y;opacity:.9}
+  }
+
+  /* ============ TOP BAR ============ */
+  .topbar{display:flex;align-items:center;gap:12px;padding:16px 20px 12px;position:sticky;top:0;z-index:20;
+    background:color-mix(in srgb,var(--paper) 90%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+  .logom{width:38px;height:38px;flex:none}
+  .topbar .zh{font-size:22px;font-weight:700;line-height:1.15}
+  .topbar .sub{font-size:12.5px;color:var(--ink-soft);margin-top:1px}
+  .yswitch{margin-left:auto;display:flex;align-items:center;gap:6px}
+  .yswitch .arw,.gear{width:36px;height:36px;border:1.5px solid var(--ink);background:transparent;border-radius:50%;font-size:17px;line-height:1;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+  .yswitch .cur{font-family:var(--f-num);font-size:22px;min-width:62px;text-align:center}
+  .gear{margin-left:4px}
+  .topbar>div:not(.yswitch){min-width:0}
+  .topbar .zh{white-space:nowrap}
+  @media(max-width:520px){.topbar{gap:8px;padding:14px 16px 10px}.topbar .zh{font-size:19px}.topbar .sub{display:none}.logom{width:32px;height:32px}.yswitch .cur{min-width:50px;font-size:20px}.yswitch .arw,.gear{width:34px;height:34px}.yswitch{gap:2px}.pad{padding:0 16px}.sh{margin-left:16px;margin-right:16px}}
+  .gear svg{width:18px;height:18px}
+  @media(hover:hover){.yswitch .arw:hover,.gear:hover{background:var(--ink);color:var(--paper)}}
+  .backbtn{background:transparent;color:var(--ink);border:1.5px solid var(--ink);border-radius:20px;padding:6px 15px;font-weight:700;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+  @media(hover:hover){.backbtn:hover{background:var(--ink);color:var(--paper)}}
+
+  /* section head : highlighter-marked title */
+  .sh{display:flex;align-items:baseline;gap:10px;margin:34px 20px 14px}
+  .sh .zh{font-weight:700;font-size:21px;line-height:1.3;padding:0 4px;margin-left:-4px;background:linear-gradient(transparent 58%,var(--hl) 58%,var(--hl) 92%,transparent 92%)}
+  .sh .e{font-size:13px;color:var(--ink-soft)}
+  .sh .r{display:none}
+  .pad{padding:0 20px}
+
+  /* ============ HERO : the next-trip ticket stub ============ */
+  .stubwrap{filter:drop-shadow(0 10px 10px rgba(29,43,58,.16)) drop-shadow(0 1px 0 rgba(29,43,58,.12));margin:6px 0 0}
+  .stub{--sideW:340px;--sideH:150px;position:relative;display:flex;min-height:200px;background:var(--ticket);border-top:6px solid var(--tc,var(--rust));border-radius:4px;
+    -webkit-mask:radial-gradient(circle 12px at calc(100% - var(--sideW)) 0,#0000 97%,#000),radial-gradient(circle 12px at calc(100% - var(--sideW)) 100%,#0000 97%,#000);
+    -webkit-mask-composite:source-in;
+    mask:radial-gradient(circle 12px at calc(100% - var(--sideW)) 0,#0000 97%,#000),radial-gradient(circle 12px at calc(100% - var(--sideW)) 100%,#0000 97%,#000);
+    mask-composite:intersect}
+  .stub-main{flex:1;min-width:0;padding:22px 74px 22px 26px;display:flex;flex-direction:column;justify-content:center}
+  .stub-lead{font-size:14px;color:var(--ink-soft);display:flex;align-items:center;gap:8px}
+  .stub-lead::before{content:'';width:22px;height:2px;background:var(--tc,var(--rust));border-radius:2px}
+  .stub-dest{font-size:clamp(34px,6vw,48px);font-weight:700;line-height:1.1;margin-top:8px;word-break:keep-all}
+  .stub-country{font-size:17px;color:var(--ink-soft);margin-top:2px}
+  .stub-meta{margin-top:14px;font-size:14.5px;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+  .stub-meta span{background:var(--hl);padding:1px 8px;border-radius:2px}
+  .stub-empty{font-size:17px;line-height:1.9;margin-top:10px}
+  .stub-side{position:relative;width:var(--sideW);flex:none;padding:18px 18px 18px 22px;display:flex;align-items:center;justify-content:center;border-left:2px dashed var(--line)}
+  .stub-photo{position:relative;width:100%;aspect-ratio:2.2/1;background:#fff;padding:5px;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:rotate(1.6deg)}
+  .stub-photo>div,.stub-photo svg{display:block;width:100%;height:100%}
+  .stub-photo>div{overflow:hidden;line-height:0}
+  .stub-photo::before{content:'';position:absolute;top:-11px;left:50%;width:70px;height:22px;margin-left:-35px;background:rgba(214,168,78,.62);transform:rotate(-3deg);box-shadow:0 1px 1px rgba(0,0,0,.08)}
+  .zodiac{width:100%;height:150px}
+  .zodiac svg{width:100%;height:100%}
+  .app[data-skin="night"] .zodiac svg{filter:invert(.9) hue-rotate(180deg)}
+  .stub .stampy{position:absolute;right:calc(var(--sideW) - 56px);top:50%;margin-top:-56px;z-index:2}
+
+  /* the rubber stamp */
+  .stampy{display:grid;place-content:center;justify-items:center;width:112px;height:112px;border-radius:50%;border:4px solid var(--stamp);color:var(--stamp);
+    position:relative;transform:rotate(-9deg);filter:url(#inkrough);mix-blend-mode:multiply;line-height:1;text-align:center;
+    animation:thunk .55s cubic-bezier(.2,.9,.3,1.1) .3s both}
+  .app[data-skin="night"] .stampy{mix-blend-mode:normal}
+  .stampy::before{content:'';position:absolute;inset:5px;border-radius:50%;border:2px solid var(--stamp)}
+  .stampy b{font-family:var(--f-num);font-size:48px;font-weight:400;line-height:1;-webkit-text-stroke:1.1px currentColor}
+  .stampy small{font-size:16px;font-weight:700;margin-top:3px;-webkit-text-stroke:.5px currentColor}
+  .stampy[data-long="true"] b{font-family:var(--f-zh);font-weight:700;font-size:23px}
+  .stampy.sm{width:86px;height:86px;border-width:3px;animation:none}
+  .stampy.sm b{font-size:34px}
+  .stampy.sm[data-long="true"] b{font-size:18px}
+  .stampy.sm small{font-size:12px}
+  @keyframes thunk{0%{transform:rotate(-9deg) scale(1.7);opacity:0}55%{transform:rotate(-9deg) scale(.95);opacity:1}100%{transform:rotate(-9deg) scale(1);opacity:1}}
+
+  @media(max-width:700px){
+    .stub{flex-direction:column;--sideH:170px;
+      -webkit-mask:radial-gradient(circle 12px at 0 calc(100% - var(--sideH)),#0000 97%,#000),radial-gradient(circle 12px at 100% calc(100% - var(--sideH)),#0000 97%,#000);
+      -webkit-mask-composite:source-in;
+      mask:radial-gradient(circle 12px at 0 calc(100% - var(--sideH)),#0000 97%,#000),radial-gradient(circle 12px at 100% calc(100% - var(--sideH)),#0000 97%,#000);
+      mask-composite:intersect}
+    .stub-main{padding:20px 22px 40px}
+    .stub-side{width:100%;height:var(--sideH);border-left:0;border-top:2px dashed var(--line);padding:16px 22px}
+    .stub-photo{width:auto;height:100%;aspect-ratio:2.2/1;max-width:100%}
+    .stub .stampy{right:18px;top:auto;margin-top:0;bottom:calc(var(--sideH) - 56px);width:96px;height:96px}
+    .stub .stampy b{font-size:38px}
+    .zodiac{height:100%}
+  }
+
+  /* ============ CALENDAR : highlighter bands ============ */
+  .calnav{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 14px}
+  .calnav button{width:34px;height:34px;background:transparent;color:var(--ink);border:1.5px solid var(--ink);font-size:16px;border-radius:50%;line-height:1}
+  @media(hover:hover){.calnav button:hover{background:var(--ink);color:var(--paper)}}
+  .calnav .rg{font-family:var(--f-num);font-size:17px;min-width:170px;text-align:center}
+  .months{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:700px){.months{grid-template-columns:repeat(2,1fr);gap:10px}}
+  @media(max-width:340px){.months{grid-template-columns:1fr}}
+  .m{background:var(--pane);padding:10px 8px 8px;user-select:none;-webkit-user-select:none;border-radius:3px;border-top:2px solid var(--ink)}
+  .m h4{display:flex;justify-content:space-between;align-items:baseline;margin:0 4px 6px}
+  .m h4 .mon{display:flex;align-items:baseline;gap:3px;font-size:13px;font-weight:700}
+  .m h4 .mon b{font-family:var(--f-num);font-size:26px;font-weight:400;line-height:1}
+  .m h4 .mo{font-family:var(--f-num);color:var(--ink-soft);font-size:12px}
+  .dow{display:grid;grid-template-columns:repeat(7,1fr);font-size:11px;color:var(--ink-soft);text-align:center;margin-bottom:2px}
+  .dg{display:grid;grid-template-columns:repeat(7,1fr)}
+  .d{position:relative;height:32px;display:flex;align-items:center;justify-content:center;font-family:var(--f-num);font-size:13px;cursor:pointer;touch-action:manipulation}
+  .d.blank{visibility:hidden;cursor:default}
+  @media(max-width:700px){.d{height:30px;font-size:12px}.d .ring{width:24px}}
+  .m{min-width:0}
+  .d{min-width:0}
+  .d .ring{position:relative;z-index:1;width:26px;max-width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center}
+  .d.trip::before,.d.sel::before{content:'';position:absolute;left:0;right:0;top:4px;bottom:4px;background:var(--c,var(--gold));opacity:.5;mix-blend-mode:multiply;filter:url(#inkedge)}
+  .app[data-skin="night"] .d.trip::before,.app[data-skin="night"] .d.sel::before{mix-blend-mode:normal;opacity:.6}
+  .d.trip.bs::before{left:2px;border-radius:14px 3px 3px 14px}
+  .d.trip.be::before{right:2px;border-radius:3px 14px 14px 3px}
+  .d.trip.bs.be::before{border-radius:14px}
+  .d.trip{font-weight:700}
+  .d.sel::before{--c:var(--gold);opacity:.75;left:1px;right:1px;border-radius:6px}
+  .d.today .ring,.d.today.plain .ring{border:1.6px solid var(--ink);border-radius:52% 48% 50% 50%/48% 52% 48% 52%}
+  .d.today.plain{font-weight:700}
+  .caltip{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0 2px;font-size:13px;color:var(--ink-soft);text-align:center}
+  .memobubble{position:fixed;z-index:55;transform:translate(-50%,-100%) rotate(-1.5deg);background:#F6E9A8;color:#2A2A20;padding:10px 14px 11px;max-width:240px;font-size:14px;line-height:1.55;pointer-events:none;box-shadow:0 8px 14px -4px rgba(0,0,0,.35);border-radius:1px 1px 3px 1px}
+  .memobubble::before{content:'';position:absolute;top:-7px;left:50%;width:46px;height:14px;margin-left:-23px;background:rgba(198,123,101,.6);transform:rotate(2deg)}
+  .memobubble .mtitle{font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px}
+  .memobubble .micon{font-size:14px;line-height:1}
+  .memobubble .mdates{font-size:12.5px;color:#6b6a52;margin-top:1px}
+  .memobubble .mtext{white-space:pre-wrap;word-break:break-word;margin-top:7px;padding-top:7px;border-top:1px dashed rgba(0,0,0,.25)}
+
+  /* ============ PANELS / RECAP TEASER ============ */
+  .panel{background:var(--pane);padding:18px;border:1px solid var(--line);border-radius:3px}
+  .recapteaser{display:flex;align-items:center;gap:14px 10px;flex-wrap:wrap}
+  .recapteaser .stat{flex:1;min-width:58px;text-align:center}
+  .recapteaser .stat .n{font-family:var(--f-num);font-size:36px;line-height:1.1}
+  .recapteaser .stat .l{font-size:13px;color:var(--ink-soft);margin-top:2px}
+  .genbtn{border:none;background:var(--ink);color:var(--paper);padding:11px 18px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;border-radius:3px}
+  @media(max-width:700px){.recapteaser{gap:14px 6px}.recapteaser .stat .n{font-size:30px}.recapteaser .genbtn{width:100%;justify-content:center}}
+
+  /* fab */
+  .fab{position:fixed;right:calc(50% - 460px + 22px);bottom:24px;background:var(--rust);color:#fff;border:none;padding:14px 22px;font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;box-shadow:0 10px 18px -6px rgba(29,43,58,.5);z-index:15;border-radius:30px}
+  .app[data-skin="night"] .fab{color:#1F2A2D;background:var(--stamp)}
+  @media(max-width:1010px){.fab{right:18px;bottom:18px}}
+  @media(hover:hover){.fab:hover{filter:brightness(1.06)}}
+
+  /* ============ MODALS (bottom sheet on phones) ============ */
+  .scrim{position:fixed;inset:0;background:rgba(18,26,30,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:16px}
+  .modal{width:420px;max-width:100%;max-height:92vh;overflow:auto;position:relative;color:var(--ink);
+    background-color:var(--paper);background-image:radial-gradient(circle,var(--dot) 1.1px,transparent 1.7px);background-size:22px 22px;
+    border-radius:4px;box-shadow:0 24px 50px -10px rgba(0,0,0,.5)}
+  .modal .mbar{background:color-mix(in srgb,var(--paper) 94%,transparent);backdrop-filter:blur(6px);color:var(--ink);font-weight:700;font-size:18px;padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2;border-bottom:1.5px solid var(--ink)}
+  .modal .mbar .x{cursor:pointer;font-size:18px;background:none;border:none;color:var(--ink);width:32px;height:32px}
+  .modal .mbody{padding:18px 20px 22px}
+  @media(max-width:560px){
+    .scrim{align-items:flex-end;padding:0}
+    .modal{width:100%!important;max-height:90vh;border-radius:16px 16px 0 0}
+  }
+  .fld{margin-bottom:18px}
+  .fld>label{font-size:13.5px;color:var(--ink-soft);display:block;margin-bottom:4px;font-weight:700}
+  .fld input[type=text],.fld input[type=date],.fld input[type=password],.fld select{width:100%;background:transparent;border:none;border-bottom:1.5px solid var(--ink);padding:6px 1px;font-size:16px;outline:none;border-radius:0}
+  .fld input:focus,.fld select:focus,.fld textarea:focus{border-bottom-color:var(--rust);box-shadow:0 2px 0 var(--rust)}
+  .fld textarea{width:100%;background:transparent;border:none;border-bottom:1.5px solid var(--ink);padding:6px 1px;font-size:16px;outline:none;min-height:56px;resize:vertical;line-height:1.7}
+  .f2{display:flex;gap:16px}.f2>.fld{flex:1;min-width:0}
+  .seg-in{display:flex;flex-wrap:wrap;gap:8px}
+  .chipbtn{background:transparent;border:1.5px solid var(--ink);border-radius:18px;padding:5px 14px;font-size:14px;font-weight:700;color:var(--ink)}
+  .chipbtn.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .swatches{display:flex;gap:10px;flex-wrap:wrap}
+  .sw{width:26px;height:26px;border:none;border-radius:50%;cursor:pointer;position:relative}
+  .sw.on{outline:2px solid var(--ink);outline-offset:3px}
+  .sw.on::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800}
+  .mbtns{display:flex;gap:10px;margin-top:8px}
+  .btn{border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);padding:11px 18px;font-weight:700;font-size:15px;flex:1;border-radius:3px}
+  .btn.ghost{background:transparent;color:var(--ink);flex:0 0 auto}
+  .btn.gold{background:var(--hl);color:var(--ink);border-color:var(--ink)}
+  .btn.warn{background:transparent;color:var(--red);border-color:transparent;flex:0 0 auto}
+  .btn:disabled{opacity:.45}
+  .skinopt{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;margin-bottom:10px;background:var(--pane);border:1.5px solid var(--line);text-align:left;cursor:pointer;border-radius:3px}
+  .skinopt[data-on="true"]{border-color:var(--ink);background:var(--hl)}
+
+  /* ============ DETAIL : the ticket ============ */
+  .ticketwrap{margin:4px 20px 0;filter:drop-shadow(0 10px 10px rgba(29,43,58,.16)) drop-shadow(0 1px 0 rgba(29,43,58,.12))}
+  .ticket{--sceneH:clamp(150px,28vw,230px);position:relative;overflow:hidden;background:var(--ticket);border-radius:4px;
+    -webkit-mask:radial-gradient(circle 12px at 0 var(--sceneH),#0000 97%,#000),radial-gradient(circle 12px at 100% var(--sceneH),#0000 97%,#000);-webkit-mask-composite:source-in;
+    mask:radial-gradient(circle 12px at 0 var(--sceneH),#0000 97%,#000),radial-gradient(circle 12px at 100% var(--sceneH),#0000 97%,#000);mask-composite:intersect}
+  .ticket .tkscene{height:var(--sceneH);overflow:hidden;line-height:0;border-bottom:2px dashed var(--line);border-top:6px solid var(--tc,var(--rust))}
+  .ticket .tkscene svg{width:100%;height:100%;display:block}
+  .ticket .tkinfo{position:relative;padding:18px 22px 22px}
+  .ticket .tkinfo .stampy{position:absolute;right:20px;top:-46px;z-index:2}
+  .ticket .tkcity{font-size:clamp(28px,6vw,38px);font-weight:700;line-height:1.15;padding-right:96px}
+  .ticket .tksub{font-size:15px;color:var(--ink-soft);margin-top:6px}
+  .ticket .tkpills{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .ticket .pill{border:1.5px solid var(--ink);padding:3px 12px;font-size:14px;font-weight:700;display:flex;gap:6px;align-items:center;color:var(--ink);border-radius:16px}
+
+  .metarow{display:flex;flex-wrap:wrap;align-items:center}
+  .ta-view,.ta-edit{font-size:16px;color:var(--ink);line-height:30px;white-space:pre-wrap;padding:0 4px;
+    background:repeating-linear-gradient(transparent 0 29px,var(--dot) 29px 30px);background-attachment:local}
+  .ta-edit{width:100%;border:none;min-height:90px;resize:vertical;outline:none;border-bottom:1.5px solid var(--ink)}
+  .day{margin-bottom:20px}
+  .day .dh{padding:0 0 6px;font-weight:700;font-size:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--ink);margin-bottom:12px}
+  .day .dc{display:flex;gap:8px 12px;flex-wrap:wrap;align-items:center}
+  .chip{padding:3px 2px;font-size:15px;font-weight:700;display:flex;gap:7px;align-items:center}
+  .chip .dotc{width:10px;height:10px;border-radius:50%;flex:none}
+  .chip .del{color:var(--ink-soft);font-size:12px;background:none;border:none;padding:4px 2px 4px 4px}
+  .chip a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+  .addchip{color:var(--ink);padding:4px 11px;font-size:13px;font-weight:700;background:transparent;border:1.5px dashed var(--ink-soft);border-radius:14px}
+  @media(hover:hover){.addchip:hover{border-style:solid;background:var(--hl)}}
+  .gmapsbox{margin-top:10px;display:flex;gap:8px}
+  .gmapsbox input{flex:1;background:var(--pane);border:none;border-bottom:1.5px solid var(--ink);padding:8px 10px;font-size:14px;outline:none}
+
+  /* ============ RECAP PAGE ============ */
+  .seg{display:flex;border:1.5px solid var(--ink);border-radius:18px;overflow:hidden;flex-wrap:wrap}
+  .seg button{border:0;background:transparent;padding:5px 13px;font-size:13.5px;font-weight:700}
+  .seg button.on{background:var(--ink);color:var(--paper)}
+  .rgrid{display:grid;grid-template-columns:290px 1fr;gap:18px}
+  @media(max-width:720px){.rgrid{grid-template-columns:1fr}}
+  .stat3{display:flex;gap:10px;margin-bottom:16px}
+  .rstat{flex:1;border:1.5px solid var(--ink);padding:12px 6px 10px;text-align:center;border-radius:3px;background:var(--pane)}
+  .rstat .n{font-family:var(--f-num);font-size:32px;line-height:1.1}
+  .rstat .l{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+  .clist .c{background:var(--ticket);padding:10px 12px;margin-bottom:8px;cursor:pointer;border:1px solid var(--line);border-left:4px solid var(--rust);border-radius:2px}
+  .clist .c .top{display:flex;justify-content:space-between;align-items:center}
+  .clist .c .nm{font-size:16px;font-weight:700}
+  .clist .c .ct{font-family:var(--f-num);font-size:14px;color:var(--ink-soft);display:flex;align-items:center;gap:4px}
+  .cdot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .clist .cities{margin-top:9px;display:flex;flex-wrap:wrap;gap:6px}
+  .citytag{font-size:13.5px;background:var(--hl);padding:2px 10px;display:flex;gap:5px;align-items:center;border:none;border-radius:2px}
+  .worldwrap{background:var(--sky-lav);padding:6px;border-radius:3px}
+  .genbar{margin:22px 20px 8px;background:var(--ink);color:var(--paper);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-radius:4px}
+  .genbar .t{font-weight:700;font-size:17px}
+  .genbar .s{font-size:13.5px;opacity:.75;margin-top:2px}
+  .genbar .go{border:none;background:var(--rust);color:#fff;padding:10px 20px;font-weight:700;font-size:15px;border-radius:20px}
+  .foot{padding:26px 20px 10px;text-align:center}
+  .foot .en{font-size:13px;color:var(--ink-soft)}
+  .loading{display:flex;align-items:center;justify-content:center;height:100vh;font-family:var(--f-num);color:#fff;opacity:.8;font-size:18px}
+  .miss{margin-top:12px;padding-top:12px;border-top:1.5px dashed var(--line)}
+  .miss .lbl{font-size:13px;color:var(--ink-soft);margin-bottom:6px}
+  .miss .tags{display:flex;flex-wrap:wrap;gap:6px}
+
+  /* ============ POSTCARDS ============ */
+  .album{padding:16px 20px 28px}
+  .albumhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+  .addstk{border:none;background:var(--ink);color:var(--paper);padding:9px 16px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:7px;border-radius:20px}
+  .stkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:30px 24px;padding:14px 4px}
+  .stkcard{background:#fff;padding:9px 9px 0;position:relative;box-shadow:0 1px 2px rgba(0,0,0,.2),0 10px 16px -8px rgba(29,43,58,.35);transition:transform .18s}
+  .stkcard:nth-child(3n+1){transform:rotate(-1.4deg)}
+  .stkcard:nth-child(3n+2){transform:rotate(1deg)}
+  .stkcard:nth-child(3n){transform:rotate(-.4deg)}
+  .stkcard::before{content:'';position:absolute;top:-10px;left:50%;width:64px;height:20px;margin-left:-32px;background:rgba(198,123,101,.6);transform:rotate(-3deg);z-index:1}
+  .stkcard:nth-child(3n+2)::before{background:rgba(90,132,148,.55);transform:rotate(2deg)}
+  .stkcard:nth-child(3n)::before{background:rgba(214,168,78,.6)}
+  @media(hover:hover){.stkcard:hover{transform:rotate(0) translateY(-4px)}}
+  .stkcard img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;background:#e8e4da;cursor:pointer}
+  .stkcard .pcap{padding:10px 4px 12px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:15px;font-weight:700;color:#1D2B3A;white-space:nowrap;overflow:hidden}
+  .stkcard .pcap .cdot{width:9px;height:9px;border-radius:50%;flex:none}
+  .stkcard .pcap .nm{overflow:hidden;text-overflow:ellipsis}
+  .stkcard .del{position:absolute;top:14px;right:14px;background:rgba(29,43,58,.6);color:#fff;border:none;width:26px;height:26px;border-radius:50%;font-size:12px;line-height:1;z-index:2}
+  .stkempty{text-align:center;color:var(--ink-soft);padding:56px 20px;font-size:16px;line-height:2}
+  .uploadbox{border:2px dashed var(--ink-soft);background:var(--pane);padding:30px;text-align:center;cursor:pointer;font-size:15px;font-weight:700;border-radius:3px}
+  .uploadprev{width:100%;border-radius:2px;display:block;max-height:230px;object-fit:contain;background:var(--pane)}
+  .lightbox{position:fixed;inset:0;background:rgba(14,20,24,.88);display:flex;align-items:center;justify-content:center;z-index:60;padding:20px;cursor:zoom-out}
+  .lightbox img{max-width:96%;max-height:92vh;border-radius:3px}
+  .stkteaser{cursor:pointer}
+  .stkstrip{display:flex;gap:6px;padding:16px 8px 12px;align-items:flex-start;overflow:hidden}
+  .stkstrip .mini{background:#fff;padding:5px 5px 7px;box-shadow:0 1px 2px rgba(0,0,0,.2),0 6px 10px -5px rgba(29,43,58,.4);flex:none;position:relative}
+  .stkstrip .mini:nth-child(odd){transform:rotate(-3deg)}
+  .stkstrip .mini:nth-child(even){transform:rotate(2.2deg) translateY(6px)}
+  .stkstrip .mini::before{content:'';position:absolute;top:-8px;left:50%;width:34px;height:14px;margin-left:-17px;background:rgba(198,123,101,.6);transform:rotate(-4deg)}
+  .stkstrip .mini:nth-child(3n+2)::before{background:rgba(90,132,148,.55)}
+  .stkstrip .mini:nth-child(3n)::before{background:rgba(214,168,78,.6)}
+  .stkstrip .mini img{width:104px;height:78px;object-fit:cover;display:block}
+  .stkteaser-empty{color:var(--ink-soft);font-size:15px;padding:14px 2px}
+  .stkteaser-foot{display:flex;align-items:center;gap:14px;margin-top:12px;flex-wrap:wrap}
+  .stkteaser-foot .cnt{font-weight:700;font-size:15px}
+  .stkteaser-foot .enter{margin-left:auto;font-weight:700;color:var(--purple);font-size:15px}
+
+  @media(prefers-reduced-motion:reduce){.stampy{animation:none!important}.stkcard{transition:none}}
+
+  /* ================================================================
+     SKINS 3 & 4 : 島嶼旅人 (island) / 手繪日誌 (journal)
+     Same markup as the default skin; only tokens + a few overrides.
+     ================================================================ */
+  .app{font-family:var(--f-zh)}
+
+  /* hero text card shared by island + journal */
+  .hcard .lead{font-size:clamp(11px,2.3vw,13px);color:var(--purple-deep);font-weight:700;display:flex;align-items:center;gap:5px}
+  .hcard .dest{font-weight:900;font-size:clamp(20px,4vw,28px);margin-top:6px;line-height:1.14}
+  .hcard .big{margin-top:3px;line-height:1;display:flex;align-items:baseline;gap:6px}
+  .hcard .big b{font-family:var(--f-num);font-weight:700;font-size:clamp(46px,9vw,72px);color:var(--rust)}
+  .hcard .big small{font-size:clamp(13px,2.7vw,18px);font-weight:700}
+  .hcard .big .ongoing{font-weight:900;font-size:clamp(26px,5.4vw,40px);color:var(--teal-deep)}
+  .hcard .meta{font-size:clamp(11px,2.3vw,14px);margin-top:8px;font-weight:700}
+  .hcard .empty{font-size:clamp(13px,2.8vw,16px);font-weight:700;line-height:1.75}
+
+  /* ---------------- ISLAND : flat, bright, vector ---------------- */
+  body:has(.app[data-skin="island"]){--desk:#E6E1D4;--desk-line:transparent}
+  .app[data-skin="island"]{
+    --paper:#F5F2EB; --pane:rgba(255,255,255,.55); --ticket:#FBF8F0; --dot:transparent; --line:#DED5C1; --hl:rgba(203,183,129,.5);
+    --ink:#3B3745; --ink-soft:#7A7382; --stamp:#C67B65;
+    --parchment:#EAE4D6; --parchment-lo:#DAD2C1; --appbg:#E6E1D4; --cream:#F5F2EB; --ivory:#FCF8EC;
     --gold:#CBB781; --gold-deep:#AC9A63;
     --purple:#8A7A9C; --purple-deep:#6C5C80;
     --teal:#5B968A; --teal-deep:#457C71;
     --lavender:#C6BDCE; --dusty:#A69CAF; --dusty-deep:#82778E;
     --sage:#8E9E77; --sage-deep:#6C7B54;
     --sky-cream:#E8E3D4; --sky-lav:#C4D4D9; --sky-top:#B1C6CE;
-    --sea:#5A8494; --sea-lo:#6E97A6;
-    --brown:#7C6349; --brown-lo:#96795C;
+    --sea:#5A8494; --sea-lo:#6E97A6; --brown:#7C6349; --brown-lo:#96795C;
     --rust:#C67B65; --rust-lo:#D3927E; --red:#BE6754;
-    --ink:#3B3745; --ink-soft:#7A7382; --cream:#F5F2EB;
-    --line:#DED5C1; --ivory:#FCF8EC;
-    --f-en:'Space Grotesk'; --f-hand:'Space Grotesk'; --f-num:'Space Grotesk';
+    --f-zh:'Noto Sans TC','PingFang TC','LXGW WenKai TC',sans-serif; --f-num:'Space Grotesk'; --f-en:'Space Grotesk'; --f-hand:'Space Grotesk';
+    background-image:none;
   }
-  /* ===== JOURNAL SKIN (old hand-drawn paper look) ===== */
+  .app[data-skin="island"]::before{display:none}
+  @media(min-width:1000px){.app[data-skin="island"]{margin:0 auto;min-height:100vh;border-radius:0;box-shadow:none;padding-left:0}}
+  .app[data-skin="island"] .topbar{background:var(--parchment);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .app[data-skin="island"] .topbar .zh{font-weight:900}
+  .app[data-skin="island"] .yswitch .arw,.app[data-skin="island"] .gear{background:var(--gold);border:none;border-radius:0;color:var(--ink)}
+  .app[data-skin="island"] .gear{background:var(--parchment-lo)}
+  @media(hover:hover){.app[data-skin="island"] .yswitch .arw:hover,.app[data-skin="island"] .gear:hover{background:var(--gold-deep);color:var(--cream)}}
+  .app[data-skin="island"] .yswitch .cur{font-weight:700}
+  .app[data-skin="island"] .backbtn{background:var(--parchment-lo);border:none;border-radius:0}
+  @media(hover:hover){.app[data-skin="island"] .backbtn:hover{background:var(--gold);color:var(--ink)}}
+  .app[data-skin="island"] .sh{align-items:center}
+  .app[data-skin="island"] .sh .zh{background:none;font-weight:900;font-size:17px;padding:0;margin:0}
+  .app[data-skin="island"] .sh .r{display:block;height:2px;background:var(--line);flex:1}
+  /* island hero : full-bleed scene, text fades in from the left */
+  .ihero{position:relative;overflow:hidden;background:var(--sky-cream);height:clamp(230px,32vw,320px)}
+  .ihero .scene{position:absolute;inset:0;font-size:0;line-height:0}
+  .ihero .scene svg{display:block;width:100%;height:100%}
+  .ihero::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#E8E3D4 0%,#E8E3D4 14%,rgba(232,227,212,0) 52%)}
+  .ihero .hcard{position:absolute;left:0;top:0;z-index:2;padding:clamp(16px,3vw,26px) clamp(18px,3.4vw,32px);max-width:64%}
+  /* calendar : plain round dots */
+  .app[data-skin="island"] .m{border-top:0;border-radius:5px}
+  .app[data-skin="island"] .m h4 .mon{color:var(--purple-deep)}
+  .app[data-skin="island"] .m h4 .mon b{font-weight:700;font-size:20px}
+  .app[data-skin="island"] .calnav button{background:var(--parchment-lo);border:none;border-radius:4px}
+  @media(hover:hover){.app[data-skin="island"] .calnav button:hover{background:var(--gold);color:var(--ink)}}
+  .app[data-skin="island"] .d.trip::before,.app[data-skin="journal"] .d.trip::before,.app[data-skin="island"] .d.sel::before,.app[data-skin="journal"] .d.sel::before{
+    left:50%;right:auto;top:50%;bottom:auto;width:25px;height:25px;margin:-12.5px 0 0 -12.5px;border-radius:50%;opacity:1;mix-blend-mode:normal}
+  .app[data-skin="island"] .d.trip::before,.app[data-skin="island"] .d.sel::before{filter:none}
+  .app[data-skin="island"] .d.trip .ring,.app[data-skin="journal"] .d.trip .ring{color:#fff}
+  .app[data-skin="island"] .d.sel .ring,.app[data-skin="journal"] .d.sel .ring{color:var(--ink)}
+  .app[data-skin="island"] .d.today .ring,.app[data-skin="island"] .d.today.plain .ring{border-color:var(--purple);border-radius:50%}
+  .app[data-skin="island"] .memobubble{background:var(--ink);color:var(--cream);transform:translate(-50%,-100%);border-radius:9px}
+  .app[data-skin="island"] .memobubble::before{display:none}
+  .app[data-skin="island"] .memobubble::after{content:'';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ink);border-bottom:0}
+  .app[data-skin="island"] .memobubble .mdates{color:#C9C3D4}
+  .app[data-skin="island"] .memobubble .mtext{border-top:1px solid rgba(255,255,255,.18)}
+  /* panels & buttons : flat blocks */
+  .app[data-skin="island"] .panel{background:var(--parchment);border:0;border-radius:0}
+  .app[data-skin="island"] .genbtn{background:var(--teal);color:#fff;border-radius:0}
+  .app[data-skin="island"] .fab{border-radius:2px;color:#fff}
+  .app[data-skin="island"] .btn{background:var(--purple);border-color:var(--purple);color:#fff;border-radius:0}
+  .app[data-skin="island"] .btn.ghost{background:var(--parchment-lo);border-color:var(--parchment-lo);color:var(--ink)}
+  .app[data-skin="island"] .btn.gold{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+  .app[data-skin="island"] .btn.warn{background:transparent;border-color:transparent;color:var(--red)}
+  .app[data-skin="island"] .chipbtn{border-color:var(--line);color:var(--ink-soft)}
+  .app[data-skin="island"] .chipbtn.on{background:var(--purple);border-color:var(--purple);color:#fff}
+  .app[data-skin="island"] .addstk{background:var(--purple);border-radius:0;color:#fff}
+  .app[data-skin="island"] .modal{background-image:none;background-color:var(--ivory)}
+  .app[data-skin="island"] .modal .mbar{background:var(--purple);color:var(--cream);border-bottom:0;backdrop-filter:none}
+  .app[data-skin="island"] .modal .mbar .x{color:var(--cream)}
+  .app[data-skin="island"] .skinopt[data-on="true"]{border-color:var(--purple);background:var(--parchment-lo)}
+  .app[data-skin="island"] .rstat{background:var(--cream);border:0;border-radius:0}
+  .app[data-skin="island"] .seg{border:0;background:var(--cream);border-radius:0}
+  .app[data-skin="island"] .seg button.on{background:var(--gold);color:var(--ink)}
+  .app[data-skin="island"] .genbar{background:var(--teal-deep);border-radius:0}
+  .app[data-skin="island"] .genbar .go{background:var(--gold);color:var(--ink);border-radius:0}
+  .app[data-skin="island"] .citytag{background:var(--parchment)}
+  .app[data-skin="island"] .clist .c{border-radius:0}
+  .app[data-skin="island"] .addchip{border-style:solid;border-color:transparent;background:var(--parchment-lo);color:var(--gold-deep)}
+  .app[data-skin="island"] .ticketwrap{margin:0;filter:none}
+  .app[data-skin="island"] .ticket{border-radius:0;-webkit-mask:none;mask:none;background:var(--paper)}
+  .app[data-skin="island"] .ticket .tkscene{border-top:0;border-bottom:0}
+  .app[data-skin="island"] .ticket .tkinfo{border-top:2px dashed var(--line)}
+  .app[data-skin="island"] .ticket .pill{border:0;background:var(--cream);border-radius:0}
+  .app[data-skin="island"] .ticket .tkinfo .stampy{top:16px}
+  .app[data-skin="island"] .stampy{border:none;filter:none;mix-blend-mode:normal;animation:none;transform:none;width:auto;height:auto;color:var(--rust);display:block;text-align:right}
+  .app[data-skin="island"] .stampy::before{display:none}
+  .app[data-skin="island"] .stampy b{font-size:40px;font-weight:700;-webkit-text-stroke:0}
+  .app[data-skin="island"] .stampy small{margin-left:4px;color:var(--ink-soft);-webkit-text-stroke:0;font-size:13px}
+  .app[data-skin="island"] .stampy[data-long="true"] b{font-size:22px}
+  .app[data-skin="island"] .ta-view,.app[data-skin="island"] .ta-edit{background:none;line-height:1.9}
+  .app[data-skin="island"] .day .dh{border-bottom:1px solid var(--line)}
+  .app[data-skin="island"] .stkcard,.app[data-skin="island"] .stkstrip .mini{transform:none}
+  .app[data-skin="island"] .stkcard::before,.app[data-skin="island"] .stkstrip .mini::before{display:none}
+  .app[data-skin="island"] .stkstrip .mini:nth-child(even){transform:none}
+  .app[data-skin="island"] .stkcard .del{top:12px;right:12px}
+  .app[data-skin="island"] .scrim{background:rgba(40,36,50,.42)}
+
+  /* ---------------- JOURNAL : white paper, black ink, hand-drawn ---------------- */
+  body:has(.app[data-skin="journal"]){--desk:#EAE9E4;--desk-line:transparent}
   .app[data-skin="journal"]{
-    --parchment:#FAFAF7; --parchment-lo:#F0EFE9; --paper:#FFFFFF; --appbg:#FFFFFF;
+    --paper:#FFFFFF; --pane:#FAFAF7; --ticket:#FFFFFF; --dot:transparent; --line:#C4C4BE; --hl:rgba(90,127,176,.22);
+    --ink:#1F1A14; --ink-soft:#5C5247; --stamp:#C44536;
+    --parchment:#F0EFE9; --parchment-lo:#E4E3DB; --appbg:#FFFFFF; --cream:#FFFFFF; --ivory:#FEFEFC;
     --gold:#5A7FB0; --gold-deep:#48688F;
     --purple:#6B5B7A; --purple-deep:#544665;
     --teal:#4F6E5B; --teal-deep:#3D5748;
     --sage:#6B7A3F; --sage-deep:#556030;
     --rust:#C44536; --rust-lo:#D25A4A; --red:#C44536;
-    --ink:#1F1A14; --ink-soft:#5C5247; --cream:#FFFFFF;
-    --line:#D4D4D4; --ivory:#FEFEFC;
-    --f-en:'Caveat'; --f-hand:'Caveat'; --f-num:'Inter Tight';
+    --f-zh:'LXGW WenKai TC','Noto Sans TC',sans-serif; --f-num:'Caveat'; --f-en:'Caveat'; --f-hand:'Caveat';
+    background-image:none;
   }
-  /* dates & counts stay clean (legible) */
-  .app[data-skin="journal"] .calnav .rg,.app[data-skin="journal"] .m h4,.app[data-skin="journal"] .dow,.app[data-skin="journal"] .d,.app[data-skin="journal"] .clist .c .ct{font-family:'Inter Tight','Noto Sans TC',sans-serif}
-  /* all english + numeric titles → handwriting */
-  .app[data-skin="journal"] .yswitch .cur,.app[data-skin="journal"] .recapteaser .stat .n,.app[data-skin="journal"] .rstat .n{font-family:'Caveat',cursive;font-weight:700}
-  .app[data-skin="journal"] .fld>label,.app[data-skin="journal"] .miss .lbl,.app[data-skin="journal"] .loading{font-family:'Caveat',cursive;font-style:italic}
-  .app[data-skin="journal"] .hero{background:#FBFBF8}
-  .app[data-skin="journal"] .hero::after{display:none}
-  .app[data-skin="journal"] .sh .r,.app[data-skin="journal"] .calnav .rg{}
-  .app[data-skin="journal"] .sh .r{background:none;border-top:1.5px dashed var(--line);height:0}
-  .app[data-skin="journal"] .m{background:#FAFAF7;border:1px dashed #E2E2DC}
-  .app[data-skin="journal"] .foot{border-top:1px dashed var(--line)}
-  .app[data-skin="journal"] .hcard .lead,.app[data-skin="journal"] .topbar .sub,.app[data-skin="journal"] .sh .e{font-style:italic}
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{background:var(--appbg);color:var(--ink);font-family:'Noto Sans TC','PingFang TC',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
-  .en{font-family:var(--f-en),sans-serif}
-  button{font-family:inherit;cursor:pointer}
-  input,select,textarea{font-family:inherit}
-  ::-webkit-scrollbar{height:8px;width:8px}
-  ::-webkit-scrollbar-thumb{background:var(--parchment-lo);border-radius:4px}
+  .app[data-skin="journal"]::before{display:none}
+  @media(min-width:1000px){.app[data-skin="journal"]{padding-left:0}}
+  .app[data-skin="journal"] .topbar{border-bottom:1.5px dashed var(--line)}
+  .app[data-skin="journal"] .yswitch .cur{font-size:28px;font-weight:700}
+  .app[data-skin="journal"] .topbar .sub{font-family:'Caveat',var(--f-zh);font-size:15px;font-style:italic}
+  .app[data-skin="journal"] .sh .r{display:block;height:0;border-top:1.5px dashed var(--line);flex:1}
+  .app[data-skin="journal"] .sh .e{font-family:'Caveat',var(--f-zh);font-style:italic;font-size:16px}
+  .app[data-skin="journal"] :is(.backbtn,.btn,.genbtn,.chipbtn,.addchip,.addstk,.fab,.genbar .go,.ticket .pill){border-radius:255px 14px 225px 14px/14px 225px 14px 255px}
+  .app[data-skin="journal"] .btn.warn{border-color:transparent}
+  .app[data-skin="journal"] .m{border:1.5px dashed #CFCFC8;border-radius:6px}
+  .app[data-skin="journal"] :is(.d,.calnav .rg,.m h4 .mo,.dow){font-family:'Inter Tight','LXGW WenKai TC',sans-serif}
+  .app[data-skin="journal"] .m h4 .mon b{font-family:'Caveat',cursive;font-size:32px;font-weight:700}
+  .app[data-skin="journal"] .calnav .rg{font-size:15px;font-weight:600}
+  .app[data-skin="journal"] .d.trip::before{filter:url(#inkedge);opacity:.95}
+  .app[data-skin="journal"] .panel{border:1.5px dashed var(--line);background:#FBFBF8}
+  .app[data-skin="journal"] .recapteaser .stat .n,.app[data-skin="journal"] .rstat .n{font-size:44px;font-weight:700}
+  .app[data-skin="journal"] .rstat{border:1.5px dashed var(--ink);background:#FBFBF8}
+  .app[data-skin="journal"] .stampy b{font-family:'Caveat',cursive;font-weight:700;font-size:56px;-webkit-text-stroke:0}
+  .app[data-skin="journal"] .stampy.sm b{font-size:42px}
+  .app[data-skin="journal"] .stampy[data-long="true"] b{font-family:var(--f-zh);font-size:22px}
+  .app[data-skin="journal"] .stampy.sm[data-long="true"] b{font-size:17px}
+  .app[data-skin="journal"] .day .dh{border-bottom:1.5px dashed var(--ink-soft)}
+  .app[data-skin="journal"] .clist .c{border:1.5px dashed var(--line);border-left:4px solid var(--rust)}
+  .app[data-skin="journal"] .foot{border-top:1.5px dashed var(--line)}
+  .app[data-skin="journal"] .modal{background-image:none;background-color:#FEFEFC}
+  .app[data-skin="journal"] .genbar{border-radius:8px}
+  .app[data-skin="journal"] .hcard .lead{font-family:'Caveat',var(--f-zh);font-style:italic;font-size:clamp(14px,2.6vw,17px)}
+  .jhero{position:relative;overflow:hidden;min-height:clamp(210px,28vw,270px);border:1.5px dashed var(--line);background:#FBFBF8;border-radius:6px}
+  .jhero .jart{position:absolute;right:1%;top:0;bottom:0;width:54%;display:flex;align-items:center;justify-content:center}
+  .jhero .jart svg{width:100%;height:92%}
+  .jhero .hcard{position:relative;z-index:2;padding:clamp(18px,3vw,28px) clamp(18px,3.4vw,32px);max-width:62%}
+  @media(max-width:520px){.jhero .jart{width:62%;opacity:.55}.jhero .hcard{max-width:78%}}
+  .app[data-skin="journal"] .yswitch .cur{font-size:25px;min-width:60px}
+  @media(max-width:520px){.app[data-skin="journal"] .yswitch .cur{min-width:58px;font-size:23px}}
 
-  .app{max-width:960px;margin:0 auto;min-height:100vh;background:var(--paper);position:relative;padding-bottom:40px}
-
-  /* topbar */
-  .topbar{display:flex;align-items:center;gap:12px;padding:16px 20px;background:var(--parchment);position:sticky;top:0;z-index:20}
-  .logom{width:34px;height:34px;flex:none}
-  .topbar .zh{font-size:21px;font-weight:900;letter-spacing:-.01em}
-  .topbar .sub{font-family:var(--f-en);font-size:11px;color:var(--ink-soft);font-weight:600;letter-spacing:.08em}
-  .yswitch{margin-left:auto;display:flex;align-items:center;gap:8px}
-  .yswitch .arw{width:34px;height:34px;background:var(--gold);font-size:17px;font-weight:700;color:var(--ink);border:none;display:flex;align-items:center;justify-content:center}
-  .yswitch .arw:hover{background:var(--gold-deep);color:var(--cream)}
-  .yswitch .cur{font-family:'Space Grotesk';font-size:19px;font-weight:700;min-width:56px;text-align:center}
-  .backbtn{background:var(--parchment-lo);color:var(--ink);border:none;padding:7px 14px;font-weight:700;font-size:13px}
-
-  /* section head */
-  .sh{display:flex;align-items:center;gap:9px;margin:22px 20px 12px}
-  .sh .zh{font-weight:900;font-size:16px}
-  .sh .e{font-family:var(--f-en);font-size:10px;letter-spacing:.16em;color:var(--ink-soft);font-weight:600}
-  .sh .r{height:2px;background:var(--line);flex:1}
-  .pad{padding:0 20px}
-
-  /* hero : text integrated into the full-bleed illustration */
-  .hero{position:relative;overflow:hidden;background:var(--sky-cream);height:clamp(220px,30vw,300px)}
-  .hero .scene{position:absolute;inset:0;font-size:0;line-height:0}
-  .hero .scene svg{display:block;width:100%;height:100%}
-  /* fade the left of the illustration into the background so text stays readable */
-  .hero::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#E8E3D4 0%,#E8E3D4 14%,rgba(232,227,212,0) 52%)}
-  .hcard{position:absolute;left:0;top:0;z-index:2;padding:clamp(16px,3vw,26px) clamp(18px,3.4vw,32px);max-width:64%}
-  .hcard .lead{font-family:var(--f-en);font-weight:700;font-size:clamp(9px,2.1vw,11px);letter-spacing:.12em;color:var(--purple-deep);display:flex;align-items:center;gap:5px}
-  .hcard .dest{font-weight:900;font-size:clamp(16px,3.6vw,25px);margin-top:6px;color:var(--ink);line-height:1.14;text-shadow:0 1px 0 rgba(255,255,255,.35)}
-  .hcard .big{margin-top:3px;line-height:1;display:flex;align-items:baseline;gap:5px;color:var(--ink)}
-  .hcard .big b{font-family:var(--f-hand);font-weight:700;font-size:clamp(38px,9vw,66px);color:var(--rust);text-shadow:0 1px 0 rgba(255,255,255,.35)}
-  .hero .jart{position:absolute;right:2%;top:0;bottom:0;width:54%;display:flex;align-items:center;justify-content:center;z-index:1}
-  .hero .jart svg{width:100%;height:92%}
-  .skinopt{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;margin-bottom:9px;background:var(--cream);border:2px solid var(--line);text-align:left;cursor:pointer}
-  .skinopt[data-on="true"]{border-color:var(--purple);background:var(--parchment-lo)}
-  .gear{width:34px;height:34px;background:var(--parchment-lo);border:none;font-size:16px;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
-  .gear:hover{background:var(--gold)}
-  /* sticker album */
-  .album{padding:16px 20px 28px}
-  .albumhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
-  .addstk{border:none;background:var(--purple);color:var(--cream);padding:10px 18px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:7px}
-  .stkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;padding:4px}
-  /* clean postcard card */
-  .stkcard{background:var(--paper);padding:8px 8px 0;position:relative;box-shadow:0 3px 12px rgba(45,40,55,.14);transition:transform .14s,box-shadow .14s}
-  .stkcard:hover{transform:translateY(-3px);box-shadow:0 9px 20px rgba(45,40,55,.22)}
-  .stkcard img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;background:#e8e4da;cursor:pointer}
-  .stkcard .pcap{padding:8px 4px 10px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Caveat','LXGW WenKai TC','Klee One',cursive;font-size:17px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden}
-  .stkcard .pcap .cdot{width:8px;height:8px;border-radius:50%;flex:none}
-  .stkcard .pcap .nm{overflow:hidden;text-overflow:ellipsis}
-  .stkcard .del{position:absolute;top:4px;right:4px;background:rgba(30,26,36,.5);color:#fff;border:none;width:22px;height:22px;border-radius:50%;font-size:11px;cursor:pointer;line-height:1;z-index:2}
-  .stkempty{text-align:center;color:var(--ink-soft);padding:46px 20px;font-size:14px;line-height:1.9}
-  .uploadbox{border:2px dashed var(--line);background:var(--cream);padding:26px;text-align:center;color:var(--ink-soft);cursor:pointer;font-size:13px;font-weight:600;border-radius:4px}
-  .uploadprev{width:100%;border-radius:6px;display:block;max-height:230px;object-fit:contain;background:var(--cream)}
-  .lightbox{position:fixed;inset:0;background:rgba(30,26,36,.82);display:flex;align-items:center;justify-content:center;z-index:60;padding:20px;cursor:zoom-out}
-  .lightbox img{max-width:96%;max-height:92vh;border-radius:6px}
-  .stkteaser{cursor:pointer}
-  .stkstrip{display:flex;gap:12px;overflow:hidden;padding:6px 2px 4px;align-items:flex-start}
-  .stkstrip .mini{background:var(--paper);padding:4px 4px 6px;box-shadow:0 2px 7px rgba(45,40,55,.14);flex:none}
-  .stkstrip .mini img{width:104px;height:78px;object-fit:cover;display:block}
-  .stkteaser-empty{color:var(--ink-soft);font-size:13px;padding:14px 2px;font-weight:600}
-  .stkteaser-foot{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
-  .stkteaser-foot .cnt{font-weight:700;font-size:13px}
-  .stkteaser-foot .enter{margin-left:auto;font-weight:700;color:var(--purple);font-size:13px}
-  .hcard .big small{font-family:'Noto Sans TC';font-size:clamp(12px,2.7vw,17px);font-weight:700;color:var(--ink)}
-  .hcard .big .ongoing{font-family:'Noto Sans TC';font-weight:900;font-size:clamp(24px,5.4vw,40px);color:var(--teal-deep)}
-  .hcard .meta{font-size:clamp(10px,2.3vw,13px);color:var(--ink);margin-top:7px;font-weight:700}
-  .hcard .empty{font-size:clamp(12px,2.8vw,15px);color:var(--ink);font-weight:700;line-height:1.6}
-
-  /* calendar (compact, per-month tint) */
-  .calnav{display:flex;align-items:center;justify-content:center;gap:14px;max-width:640px;margin:0 auto 10px}
-  .calnav button{width:30px;height:30px;background:var(--parchment-lo);color:var(--ink);border:none;font-size:15px;font-weight:700;border-radius:4px}
-  .calnav button:hover{background:var(--gold)}
-  .calnav .rg{font-family:'Space Grotesk';font-size:13px;font-weight:700;color:var(--ink);letter-spacing:.03em;min-width:150px;text-align:center}
-  .months{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:640px;margin:0 auto}
-  @media(max-width:640px){.months{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:400px){.months{grid-template-columns:1fr}}
-  .m{background:rgba(255,255,255,.5);padding:7px 7px 8px;user-select:none;border-radius:5px}
-  .m h4{font-family:'Space Grotesk';display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
-  .m h4 .mon{color:var(--purple-deep);font-weight:900;font-size:11px;letter-spacing:.02em;display:flex;align-items:baseline;gap:2px}
-  .m h4 .mon b{font-size:14px;font-weight:900}
-  .m h4 .mo{color:var(--ink-soft);font-size:9px;font-weight:600}
-  .dow{display:grid;grid-template-columns:repeat(7,1fr);font-family:'Space Grotesk';font-size:7px;color:var(--ink-soft);font-weight:600;text-align:center;margin-bottom:2px}
-  .dg{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
-  .d{position:relative;height:18px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-size:9px;font-weight:500;color:var(--ink);cursor:pointer}
-  .d.blank{visibility:hidden;cursor:default}
-  .d .ring{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-  .d.trip .ring{color:var(--cream);font-weight:700}
-  .d.today.plain{color:var(--purple);font-weight:800}
-  .d.today .ring{outline:1.5px solid var(--purple);outline-offset:0}
-  .d.sel .ring{background:var(--gold)!important;color:var(--ink)!important;font-weight:700}
-  .caltip{display:flex;align-items:center;justify-content:center;gap:8px;margin:11px 0 2px;font-size:11px;color:var(--ink-soft)}
-  .memobubble{position:fixed;z-index:55;transform:translate(-50%,-100%);background:var(--ink);color:var(--cream);padding:8px 12px;border-radius:9px;max-width:230px;font-size:12.5px;line-height:1.5;pointer-events:none;box-shadow:0 5px 16px rgba(40,36,50,.32)}
-  .memobubble::after{content:'';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ink);border-bottom:0}
-  .memobubble .mtitle{font-weight:800;font-size:13px;display:flex;align-items:center;gap:6px;font-family:'Noto Sans TC',sans-serif}
-  .memobubble .micon{font-size:14px;line-height:1}
-  .memobubble .mdates{font-family:'Space Grotesk';font-size:10px;color:#C9C3D4;margin-top:2px;letter-spacing:.02em}
-  .memobubble .mtext{white-space:pre-wrap;word-break:break-word;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.15)}
-
-  /* recap teaser */
-  .panel{background:var(--parchment);padding:16px}
-  .recapteaser{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-  .recapteaser .stat{flex:1;min-width:74px;text-align:center}
-  .recapteaser .stat .n{font-family:'Space Grotesk';font-size:26px;font-weight:700}
-  .recapteaser .stat .l{font-size:11px;color:var(--ink-soft);margin-top:2px}
-  .genbtn{border:none;background:var(--teal);color:var(--cream);padding:11px 16px;font-weight:800;font-size:13px;display:flex;align-items:center;gap:8px}
-
-  /* fab */
-  .fab{position:fixed;right:calc(50% - 480px + 24px);bottom:26px;background:var(--rust);color:var(--cream);border:none;padding:13px 20px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(59,55,69,.25);z-index:15;border-radius:2px}
-  @media(max-width:1010px){.fab{right:24px}}
-
-  /* modal */
-  .scrim{position:fixed;inset:0;background:rgba(40,36,50,.42);display:flex;align-items:center;justify-content:center;z-index:40;padding:16px}
-  .modal{width:400px;max-width:100%;max-height:92vh;overflow:auto;background:var(--ivory);position:relative}
-  .modal .mbar{background:var(--purple);color:var(--cream);font-weight:800;font-size:14px;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}
-  .modal .mbar .x{cursor:pointer;font-size:16px;background:none;border:none;color:var(--cream)}
-  .modal .mbody{padding:18px 20px 20px}
-  .fld{margin-bottom:16px}
-  .fld>label{font-family:'Space Grotesk';font-size:10px;color:var(--ink-soft);letter-spacing:.08em;font-weight:600;display:block;margin-bottom:5px}
-  .fld input[type=text],.fld input[type=date],.fld select{width:100%;background:transparent;border:none;border-bottom:1.5px solid var(--line);padding:5px 1px;font-size:15px;color:var(--ink);outline:none;border-radius:0}
-  .fld input[type=text]:focus,.fld input[type=date]:focus,.fld select:focus{border-bottom-color:var(--purple)}
-  .fld textarea{width:100%;background:transparent;border:none;border-bottom:1.5px solid var(--line);padding:5px 1px;font-size:15px;color:var(--ink);outline:none;min-height:52px;resize:vertical;line-height:1.6}
-  .f2{display:flex;gap:16px}.f2>.fld{flex:1}
-  .seg-in{display:flex;flex-wrap:wrap;gap:7px}
-  .chipbtn{background:transparent;border:1.5px solid var(--line);border-radius:16px;padding:5px 13px;font-size:13px;font-weight:600;color:var(--ink-soft)}
-  .chipbtn.on{background:var(--purple);border-color:var(--purple);color:var(--cream)}
-  .swatches{display:flex;gap:9px;flex-wrap:wrap}
-  .sw{width:22px;height:22px;border:none;border-radius:50%;cursor:pointer;position:relative}
-  .sw.on{outline:2px solid var(--ink);outline-offset:2px}
-  .sw.on::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800}
-  .mbtns{display:flex;gap:10px;margin-top:6px}
-  .btn{border:none;background:var(--purple);color:var(--cream);padding:11px 18px;font-weight:800;font-size:14px;flex:1}
-  .btn.ghost{background:var(--parchment-lo);color:var(--ink);flex:0 0 auto}
-  .btn.gold{background:var(--gold);color:var(--ink)}
-  .btn.warn{background:transparent;color:var(--red)}
-  .btn:disabled{opacity:.5}
-
-  /* detail ticket header */
-  .ticket{position:relative;overflow:hidden;background:var(--sky-cream)}
-  .ticket .tkscene{height:clamp(150px,30vw,220px);overflow:hidden;line-height:0}
-  .ticket .tkscene svg{width:100%;height:100%;display:block}
-  .ticket .tkinfo{position:relative;padding:16px 20px 18px;background:var(--paper);border-top:2px dashed var(--line)}
-  .ticket .tkinfo::before,.ticket .tkinfo::after{content:'';position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--appbg)}
-  .ticket .tkinfo::before{left:-11px}
-  .ticket .tkinfo::after{right:-11px}
-  .ticket .tkbig{position:absolute;right:18px;top:14px;text-align:right;line-height:1}
-  .ticket .tkbig .n{font-family:var(--f-hand);font-size:clamp(28px,7vw,40px);font-weight:700;color:var(--rust)}
-  .ticket .tkbig .l{font-size:12px;color:var(--ink-soft);font-weight:700}
-  .ticket .tkcity{font-size:clamp(21px,5vw,27px);font-weight:900;line-height:1.1;padding-right:74px}
-  .ticket .tksub{font-family:var(--f-num);font-size:12px;color:var(--ink-soft);font-weight:600;margin-top:4px}
-  .ticket .tkpills{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
-  .ticket .pill{background:var(--cream);padding:5px 12px;font-size:12px;font-weight:700;display:flex;gap:6px;align-items:center;color:var(--ink)}
-
-  /* detail */
-  .metarow{display:flex;flex-wrap:wrap;align-items:center}
-  .mi{display:flex;align-items:center;gap:7px;padding:2px 15px;font-size:13px;font-weight:600;color:var(--ink);border-right:1px solid var(--line);line-height:1.9}
-  .mi:first-child{padding-left:0}.mi:last-child{border-right:none}
-  .mi .cat{font-weight:800}
-  .mi .dotc{width:12px;height:12px;border-radius:50%}
-  .mi a{color:var(--purple);font-weight:700;text-decoration:none}
-  .ta-view{font-size:14.5px;color:var(--ink);line-height:1.95;white-space:pre-wrap}
-  .ta-edit{width:100%;background:var(--cream);border:none;padding:10px;font-size:14px;line-height:1.7;min-height:70px;resize:vertical;outline:none;color:var(--ink)}
-  .day{margin-bottom:16px}
-  .day .dh{padding:0 0 7px;font-weight:800;font-size:14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);margin-bottom:11px}
-  .day .dc{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
-  .chip{padding:4px 2px;font-size:13px;font-weight:600;display:flex;gap:7px;align-items:center;color:var(--ink)}
-  .chip .dotc{width:9px;height:9px;border-radius:50%;flex:none}
-  .chip .del{color:var(--ink-soft);font-size:12px;background:none;border:none;padding:0 0 0 2px}
-  .chip a{color:inherit;text-decoration:none}
-  .addchip{color:var(--gold-deep);padding:4px 10px;font-size:12px;font-weight:700;background:var(--parchment-lo);border:none;border-radius:14px}
-  .gmapsbox{margin-top:8px;display:flex;gap:8px}
-  .gmapsbox input{flex:1;background:var(--cream);border:none;padding:8px 10px;font-size:12px;outline:none;color:var(--ink)}
-
-  /* recap page */
-  .seg{display:flex;background:var(--cream);flex-wrap:wrap}
-  .seg button{border:0;background:transparent;padding:7px 13px;font-size:12px;font-weight:700;color:var(--ink)}
-  .seg button.on{background:var(--gold);color:var(--ink)}
-  .rgrid{display:grid;grid-template-columns:290px 1fr;gap:16px}
-  @media(max-width:720px){.rgrid{grid-template-columns:1fr}}
-  .stat3{display:flex;gap:10px;margin-bottom:14px}
-  .rstat{flex:1;background:var(--cream);padding:13px 8px;text-align:center}
-  .rstat .n{font-family:'Space Grotesk';font-size:26px;font-weight:700}
-  .rstat .l{font-size:10px;color:var(--ink-soft);margin-top:2px}
-  .clist .c{background:var(--cream);padding:10px 12px;margin-bottom:7px;cursor:pointer}
-  .clist .c .top{display:flex;justify-content:space-between;align-items:center}
-  .clist .c .nm{font-size:14px;font-weight:800}
-  .clist .c .ct{font-family:'Space Grotesk';font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:4px}
-  .cdot{width:7px;height:7px;border-radius:50%;display:inline-block}
-  .clist .cities{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
-  .citytag{font-size:12px;color:var(--ink);background:var(--parchment);padding:3px 9px;display:flex;gap:5px;align-items:center}
-  .worldwrap{background:var(--sky-lav);padding:6px}
-  .genbar{margin:16px 20px 8px;background:var(--teal-deep);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-  .genbar .t{color:var(--cream);font-weight:900;font-size:15px}
-  .genbar .s{color:#D6E7E2;font-size:12px;margin-top:2px}
-  .genbar .go{border:none;background:var(--gold);color:var(--ink);padding:11px 20px;font-weight:900;font-size:14px}
-  .foot{padding:20px;text-align:center}
-  .foot .en{font-size:11px;color:var(--ink-soft);letter-spacing:.14em}
-  .loading{display:flex;align-items:center;justify-content:center;height:100vh;font-family:'Space Grotesk';color:var(--ink-soft);font-weight:600;letter-spacing:.1em}
-  .miss{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
-  .miss .lbl{font-family:'Space Grotesk';font-size:10px;color:var(--ink-soft);letter-spacing:.12em;margin-bottom:6px}
-  .miss .tags{display:flex;flex-wrap:wrap;gap:6px}
 </style>
 </head>
 <body>
@@ -444,6 +687,24 @@ async function geocode(location,country){
 
 /* ============ ICONS ============ */
 const Spark=({c='var(--gold-deep)',s=11})=>(<svg width={s} height={s} viewBox="0 0 12 12"><path d="M6 0l1.5 4.5L12 6l-4.5 1.5L6 12l-1.5-4.5L0 6l4.5-1.5z" fill={c}/></svg>);
+/* rubber-stamp / highlighter ink effects (SVG filters referenced from CSS) */
+const InkDefs=()=>(
+  <svg width="0" height="0" style={{position:'absolute'}} aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="inkrough" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="7" result="grain"/>
+        <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -3.6 0 0 0 2.75" result="holes"/>
+        <feComposite in="SourceGraphic" in2="holes" operator="in" result="speck"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="3" result="warp"/>
+        <feDisplacementMap in="speck" in2="warp" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <filter id="inkedge" x="-5%" y="-20%" width="110%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.07" numOctaves="2" seed="5" result="w"/>
+        <feDisplacementMap in="SourceGraphic" in2="w" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+);
 
 /* ============ HERO SCENE ============ */
 function traveler(x,y,s){
@@ -600,46 +861,50 @@ function ZodiacIllustration({year}){
   if(z==='goat')return <GoatIllustration accent={accent}/>;
   return <HorseIllustration accent={accent}/>;
 }
-function JournalHero({nextTrip,year,cd}){
-  const t=nextTrip;
-  return (
-    <div className="hero jhero">
-      <div className="jart"><ZodiacIllustration year={year}/></div>
-      <div className="hcard">
-        {t?(<>
-          <div className="lead"><Spark c="var(--gold)"/> 下一趟 · next trip</div>
-          <div className="dest">{t.location}{t.country?` · ${t.country}`:''}</div>
-          <div className="big">{cd===0?<span className="ongoing">進行中</span>:<><b>{cd}</b><small>天後</small></>}</div>
-          <div className="meta">{fmtRange(t.startDate,t.endDate)}{(TRANSPORT[t.transport]||t.transport)?` · ${TRANSPORT[t.transport]?TRANSPORT[t.transport].label:t.transport}`:''}</div>
-        </>):(
-          <div className="empty">目前沒有即將到來的旅程<br/>在下方年曆點選日期<br/>開始計畫下一趟旅行 ✦</div>
-        )}
-      </div>
-    </div>
-  );
-}
-function Hero({nextTrip,skin,year}){
+function Hero({nextTrip,year,skin}){
   const t=nextTrip;
   const transport=t&&TRANSPORT[t.transport]?t.transport:'cruise';
   const country=t&&t.country||'';
-  const svg=useMemo(()=>sceneSVG(transport,country),[transport,country]);
+  const svg=useMemo(()=>sceneSVG(transport,country,'xMidYMid slice'),[transport,country]);
   let cd=null;
   if(t){const du=daysUntil(t.startDate);cd=du>0?du:(t.endDate>=todayStr()?0:null);}
-  if(skin==='journal')return <JournalHero nextTrip={t} year={year} cd={cd}/>;
-  return (
-    <div className="hero">
-      <div className="scene" dangerouslySetInnerHTML={{__html:svg}}/>
+  const tl=t?(TRANSPORT[t.transport]?TRANSPORT[t.transport].label:t.transport):'';
+  if(skin==='island'||skin==='journal'){
+    const hcard=(
       <div className="hcard">
         {t?(<>
-          <div className="lead"><Spark/> 下一趟 · NEXT TRIP</div>
+          <div className="lead">{skin==='journal'?'下一趟 · next trip':'下一趟 · NEXT TRIP'}</div>
           <div className="dest">{t.location}{t.country?` · ${t.country}`:''}</div>
           <div className="big">{cd===0?<span className="ongoing">進行中</span>:<><b>{cd}</b><small>天後</small></>}</div>
-          <div className="meta">{fmtRange(t.startDate,t.endDate)}{(TRANSPORT[t.transport]||t.transport)?` · ${TRANSPORT[t.transport]?TRANSPORT[t.transport].label:t.transport}`:''}</div>
+          <div className="meta">{fmtRange(t.startDate,t.endDate)}{tl?` · ${tl}`:''}</div>
         </>):(
-          <div className="empty">目前沒有即將到來的旅程<br/>在下方年曆點選日期<br/>開始計畫下一趟旅行 ✦</div>
+          <div className="empty">目前沒有即將到來的旅程<br/>在下方年曆點選日期<br/>開始計畫下一趟旅行</div>
         )}
       </div>
-    </div>
+    );
+    if(skin==='island')return <div className="ihero"><div className="scene" dangerouslySetInnerHTML={{__html:svg}}/>{hcard}</div>;
+    return <div className="pad"><div className="jhero"><div className="jart"><ZodiacIllustration year={year}/></div>{hcard}</div></div>;
+  }
+  if(!t)return (
+    <div className="pad"><div className="stubwrap"><section className="stub">
+      <div className="stub-main">
+        <div className="stub-lead">下一趟</div>
+        <div className="stub-empty">目前沒有即將到來的旅程<br/>在下方年曆點選日期<br/>開始計畫下一趟旅行</div>
+      </div>
+      <div className="stub-side"><div className="zodiac"><ZodiacIllustration year={year}/></div></div>
+    </section></div></div>
+  );
+  return (
+    <div className="pad"><div className="stubwrap"><section className="stub" style={{'--tc':t.color}}>
+      <div className="stub-main">
+        <div className="stub-lead">下一趟</div>
+        <div className="stub-dest">{t.location}</div>
+        {t.country&&<div className="stub-country">{t.country}</div>}
+        <div className="stub-meta"><span>{fmtRange(t.startDate,t.endDate)}</span>{tl&&<span>{tl}</span>}</div>
+      </div>
+      <div className="stampy" data-long={cd===0}>{cd===0?<b>進行中</b>:<><b>{cd}</b><small>天後</small></>}</div>
+      <div className="stub-side"><div className="stub-photo"><div dangerouslySetInnerHTML={{__html:svg}}/></div></div>
+    </section></div></div>
   );
 }
 
@@ -695,7 +960,12 @@ function Calendar({start,trips,onCreate,onOpenTrip,onShift}){
           if(tr)cls+=' trip';
           if(isToday)cls+=tr?' today':' today plain';
           if(sel)cls+=' sel';
-          const ring=tr?{background:tr.color}:{};
+          const wd=(first+d-1)%7;
+          const prv=tripByDate[fmtDate(y,m,d-1)],nxt=tripByDate[fmtDate(y,m,d+1)];
+          if(tr){
+            if(!prv||prv.id!==tr.id||wd===0)cls+=' bs';
+            if(!nxt||nxt.id!==tr.id||wd===6||d===dim)cls+=' be';
+          }
           const handleDown=(e)=>{
             if(tr){onOpenTrip(tr.id);return;}
             setDrag({start:ds,cur:ds});
@@ -706,9 +976,9 @@ function Calendar({start,trips,onCreate,onOpenTrip,onShift}){
           };
           const handleLeave=()=>{if(tr)setHoverMemo(null);};
           cells.push(
-            <div key={ds} className={cls}
+            <div key={ds} className={cls} style={tr?{'--c':tr.color}:undefined}
               onMouseDown={handleDown} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-              <span className="ring" style={ring}>{d}</span>
+              <span className="ring">{d}</span>
             </div>
           );
         }
@@ -784,24 +1054,24 @@ function TripModal({initial,onClose,onSave,onDelete}){
         <div className="mbar"><span>{isEdit?'編輯旅程':'新增旅程'} · {fmtRange(startDate,endDate)}</span><button className="x" onClick={onClose}>✕</button></div>
         <div className="mbody">
           <div className="f2">
-            <div className="fld"><label>城市 CITY</label><input type="text" value={location} onChange={e=>setLocation(e.target.value)} onBlur={onCityBlur} placeholder="例：東京" autoFocus/></div>
-            <div className="fld"><label>國家 COUNTRY</label><input type="text" value={country} onChange={e=>{autoRef.current=false;setCountry(e.target.value);}} placeholder="輸入城市後自動判定"/></div>
+            <div className="fld"><label>城市</label><input type="text" value={location} onChange={e=>setLocation(e.target.value)} onBlur={onCityBlur} placeholder="例：東京" autoFocus/></div>
+            <div className="fld"><label>國家</label><input type="text" value={country} onChange={e=>{autoRef.current=false;setCountry(e.target.value);}} placeholder="輸入城市後自動判定"/></div>
           </div>
           <div className="f2">
-            <div className="fld"><label>開始 START</label><input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)}/></div>
-            <div className="fld"><label>結束 END</label><input type="date" value={endDate} min={startDate} onChange={e=>setEndDate(e.target.value)}/></div>
+            <div className="fld"><label>開始</label><input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)}/></div>
+            <div className="fld"><label>結束</label><input type="date" value={endDate} min={startDate} onChange={e=>setEndDate(e.target.value)}/></div>
           </div>
-          <div className="fld"><label>旅行類別 CATEGORY</label>
+          <div className="fld"><label>旅行類別</label>
             <div className="seg-in">{PURPOSE_ORDER.map(k=><button key={k} className={'chipbtn'+(purpose===k?' on':'')} onClick={()=>pickPurpose(k)}>{PURPOSE[k].label}</button>)}</div>
           </div>
-          <div className="fld"><label>交通 TRANSPORT</label>
+          <div className="fld"><label>交通</label>
             <div className="seg-in">
               {Object.keys(TRANSPORT).map(k=><button key={k} className={'chipbtn'+(transport===k?' on':'')} onClick={()=>setTransport(k)}>{TRANSPORT[k].emoji} {TRANSPORT[k].label}</button>)}
               <button className={'chipbtn'+(transport==='custom'?' on':'')} onClick={()=>setTransport('custom')}>✎ 自訂</button>
             </div>
             {transport==='custom'&&<input style={{marginTop:8}} type="text" value={customTransport} onChange={e=>setCustomTransport(e.target.value)} placeholder="輸入交通方式，例：自駕、機車環島"/>}
           </div>
-          <div className="fld"><label>同行 COMPANION</label>
+          <div className="fld"><label>同行</label>
             <div className="seg-in">
               {COMPANIONS.map(([k,l])=><button key={k} className={'chipbtn'+(companion===k?' on':'')} onClick={()=>setCompanion(k)}>{l}</button>)}
               <button className={'chipbtn'+(companion==='other'?' on':'')} onClick={()=>setCompanion('other')}>✎ 其他</button>
@@ -809,14 +1079,14 @@ function TripModal({initial,onClose,onSave,onDelete}){
             {companion==='other'&&<input style={{marginTop:8}} type="text" value={companionOther} onChange={e=>setCompanionOther(e.target.value)} placeholder="輸入同行對象"/>}
           </div>
           <div className="f2">
-            <div className="fld"><label>心情 MOOD</label>
+            <div className="fld"><label>心情</label>
               <div className="seg-in">{MOODS.map(e=><button key={e} className={'chipbtn'+(mood===e?' on':'')} style={{fontSize:16,padding:'5px 9px'}} onClick={()=>setMood(mood===e?'':e)}>{e}</button>)}</div>
             </div>
           </div>
-          <div className="fld"><label>顏色 COLOR</label>
+          <div className="fld"><label>顏色</label>
             <div className="swatches">{PALETTE.map(c=><button key={c} className={'sw'+(color===c?' on':'')} style={{background:c}} onClick={()=>{colorAuto.current=false;setColor(c);}}/>)}</div>
           </div>
-          <div className="fld"><label>備忘 MEMO（滑鼠移到日曆上這段旅程會顯示）</label>
+          <div className="fld"><label>備忘（滑鼠移到日曆上這段旅程會顯示）</label>
             <textarea value={memo} onChange={e=>setMemo(e.target.value)} placeholder="例：訂了海景房、記得帶轉接頭…"/>
           </div>
           <div className="mbtns">
@@ -872,15 +1142,15 @@ function Detail({trip,onBack,onEdit,onUpdate}){
       <div className="topbar">
         <button className="backbtn" onClick={onBack}>‹ 返回</button>
         <div style={{marginLeft:'auto',display:'flex',gap:9,alignItems:'center'}}>
-          <a className="backbtn" href={mapsUrl(trip.location,trip.country)} target="_blank" rel="noreferrer" style={{textDecoration:'none'}}>📍 Maps</a>
+          <a className="backbtn" href={mapsUrl(trip.location,trip.country)} target="_blank" rel="noreferrer" style={{textDecoration:'none'}}>地圖</a>
           <button className="btn gold" style={{padding:'8px 16px',flex:'none'}} onClick={onEdit}>編輯</button>
         </div>
       </div>
 
-      <div className="ticket">
+      <div className="ticketwrap"><div className="ticket" style={{'--tc':trip.color}}>
         <div className="tkscene" dangerouslySetInnerHTML={{__html:sceneSVG(sceneTp,trip.country,'xMidYMax slice')}}/>
         <div className="tkinfo">
-          <div className="tkbig"><span className="n">{cd.n}</span>{cd.l&&<span className="l"> {cd.l}</span>}</div>
+          <div className="stampy sm" data-long={String(cd.n).length>2}><b>{cd.n}</b>{cd.l&&<small>{cd.l}</small>}</div>
           <div className="tkcity">{trip.location}{trip.country?` · ${trip.country}`:''}</div>
           <div className="tksub">{fmtRange(trip.startDate,trip.endDate)} · {tripLength(trip)} 天</div>
           <div className="tkpills">
@@ -890,9 +1160,9 @@ function Detail({trip,onBack,onEdit,onUpdate}){
             {trip.mood&&<span className="pill">{trip.mood}</span>}
           </div>
         </div>
-      </div>
+      </div></div>
 
-      <div className="sh"><span className="zh">摘要</span><span className="e">SUMMARY</span><span className="r"/></div>
+      <div className="sh"><span className="zh">摘要</span><span className="r"/></div>
       <div className="pad">
         {editingSum?(
           <textarea className="ta-edit" value={summary} autoFocus onChange={e=>setSummary(e.target.value)} onBlur={commitSummary} placeholder="寫下這趟旅程的心得 / 備註…"/>
@@ -902,7 +1172,7 @@ function Detail({trip,onBack,onEdit,onUpdate}){
       </div>
 
       <div className="sh" style={{cursor:'pointer',userSelect:'none'}} onClick={()=>setItinOpen(o=>!o)}>
-        <span className="zh">每日行程</span><span className="e">DAILY · 選填</span><span className="r"/>
+        <span className="zh">每日行程</span><span className="e">選填</span><span className="r"/>
         <span style={{fontSize:12,fontWeight:700,color:'var(--purple)'}}>{itinOpen?'收合 ▾':(placeCount>0?`${placeCount} 個地點 ▸`:'展開安排 ▸')}</span>
       </div>
       {itinOpen&&<div className="pad" style={{paddingBottom:16}}>
@@ -1031,7 +1301,7 @@ function Recap({year,trips,onBack,onOpenTrip}){
     <div>
       <div className="topbar">
         <button className="backbtn" onClick={onBack}>‹ 返回</button>
-        <div style={{marginLeft:6}}><div className="zh" style={{fontSize:19}}>{year} 年度回顧</div><div className="sub">YEAR IN REVIEW</div></div>
+        <div style={{marginLeft:6}}><div className="zh" style={{fontSize:19}}>{year} 年度回顧</div></div>
         <div className="seg" style={{marginLeft:'auto'}}>
           {[['full','全年'],['h1','上半年'],['h2','下半年']].map(([k,l])=><button key={k} className={range===k?'on':''} onClick={()=>setRange(k)}>{l}</button>)}
         </div>
@@ -1063,8 +1333,8 @@ function Recap({year,trips,onBack,onOpenTrip}){
         </div>
       </div>
       <div className="genbar">
-        <div><div className="t">🎬 一鍵產出動畫</div><div className="s">產出「{OWNER} 的 {year} Trips」該年度所有行程演示</div></div>
-        <button className="go" onClick={genAnim}>產出動畫 ▶</button>
+        <div><div className="t">一鍵產出動畫</div><div className="s">產出「{OWNER} 的 {year} Trips」該年度所有行程演示</div></div>
+        <button className="go" onClick={genAnim}>產出動畫</button>
       </div>
       <div className="foot"><div className="en">© {OWNER} LIN · {year}</div></div>
     </div>
@@ -1078,7 +1348,7 @@ function StickerAlbum({stickers,trips,onBack,onAdd,onDelete,onView}){
     <div>
       <div className="topbar">
         <button className="backbtn" onClick={onBack}>‹ 返回</button>
-        <div style={{marginLeft:6}}><div className="zh" style={{fontSize:19}}>明信片收集冊</div><div className="sub">POSTCARD ALBUM</div></div>
+        <div style={{marginLeft:6}}><div className="zh" style={{fontSize:19}}>明信片收集冊</div></div>
         <button className="addstk" style={{marginLeft:'auto'}} onClick={onAdd}>＋ 加入明信片</button>
       </div>
       <div className="album">
@@ -1149,14 +1419,13 @@ function AddStickerModal({trips,onClose,onSave,geminiKey,onNeedKey}){
               {err&&<div style={{fontSize:11,color:'var(--red)',marginTop:7,lineHeight:1.6}}>⚠ {err}</div>}
             </div>
           )}
-          )}
-          <div className="fld"><label>標示旅程 TRIP</label>
+          <div className="fld"><label>標示旅程</label>
             <select value={tripId} onChange={e=>setTripId(e.target.value)}>
               <option value="">（不標示）</option>
               {sortedTrips.map(t=><option key={t.id} value={t.id}>{t.location}{t.country?` · ${t.country}`:''}　{fmtRange(t.startDate,t.endDate)}</option>)}
             </select>
           </div>
-          <div className="fld"><label>備註 NOTE（選填）</label><input type="text" value={title} onChange={e=>setTitle(e.target.value)} placeholder="例：晴空塔的夕陽"/></div>
+          <div className="fld"><label>備註（選填）</label><input type="text" value={title} onChange={e=>setTitle(e.target.value)} placeholder="例：晴空塔的夕陽"/></div>
           <div className="mbtns"><button className="btn" onClick={save} disabled={!finalImg}>加入收集冊</button><button className="btn ghost" onClick={onClose}>取消</button></div>
         </div>
       </div>
@@ -1173,7 +1442,7 @@ function App(){
   const [view,setView]=useState('home');
   const [selId,setSelId]=useState(null);
   const [modal,setModal]=useState(null); // {mode:'create'|'edit', ...}
-  const [skin,setSkin]=useState('island');
+  const [skin,setSkin]=useState('day');
   const [settingsOpen,setSettingsOpen]=useState(false);
   const changeSkin=(s)=>{setSkin(s);storage.set('skin',s).catch(()=>{});};
   const [stickers,setStickers]=useState([]);
@@ -1187,7 +1456,7 @@ function App(){
   const goYear=(ny)=>{setYear(ny);setCalStart({y:ny,m:0});};
 
   useEffect(()=>{(async()=>{
-    const sk=await storage.get('skin').catch(()=>null);if(sk&&sk.value)setSkin(sk.value);
+    const sk=await storage.get('skin').catch(()=>null);if(sk&&sk.value)setSkin(['day','night','island','journal'].includes(sk.value)?sk.value:'day');
     loadStickers().then(setStickers).catch(()=>{});
     const t=await loadTrips();
     // backfill country / coords from the built-in dictionary (instant)
@@ -1234,29 +1503,30 @@ function App(){
 
   return (
     <div className="app" data-skin={skin}>
+      <InkDefs/>
       {view==='home'&&(<>
         <div className="topbar">
-          <svg className="logom" viewBox="0 0 40 40"><rect x="4" y="4" width="32" height="32" fill="var(--purple)"/><circle cx="20" cy="17" r="8" fill="var(--gold)"/><path d="M20 25 l7 8 l-14 0 z" fill="var(--teal)"/></svg>
-          <div><div className="zh">{year} · {ZODIAC_TC[year]||''}年</div><div className="sub">TRAVEL JOURNAL</div></div>
+          <svg className="logom" viewBox="0 0 40 40" aria-hidden="true"><g filter="url(#inkrough)"><circle cx="20" cy="20" r="17" fill="none" stroke="var(--stamp)" strokeWidth="2.6"/><circle cx="20" cy="20" r="13" fill="none" stroke="var(--stamp)" strokeWidth="1.2"/><path d="M11 24 L29 14 L25 27 L20 23 L17 28 L16 22 Z" fill="var(--stamp)"/></g></svg>
+          <div><div className="zh">{year} · {ZODIAC_TC[year]||''}年</div><div className="sub">旅行日誌</div></div>
           <div className="yswitch">
             <button className="arw" onClick={()=>goYear(year-1)}>‹</button>
             <span className="cur en">{year}</span>
             <button className="arw" onClick={()=>goYear(year+1)}>›</button>
           </div>
-          <button className="gear" onClick={()=>setSettingsOpen(true)} aria-label="設定">⚙</button>
+          <button className="gear" onClick={()=>setSettingsOpen(true)} aria-label="設定"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg></button>
         </div>
 
         <Hero nextTrip={nextTrip} skin={skin} year={year}/>
 
-        <div className="sh"><span className="zh">年曆</span><span className="e">TAP OR DRAG TO CREATE</span><span className="r"/></div>
+        <div className="sh"><span className="zh">年曆</span><span className="r"/></div>
         <div className="pad">
           <Calendar start={calStart} trips={trips} onCreate={openCreate} onOpenTrip={openTrip} onShift={shiftCal}/>
           <div className="caltip">
-            <Spark c="var(--gold-deep)" s={10}/> 點擊或滑動日期 → 填寫旅程詳情（圓點＝已排旅程）
+            點擊或拖曳日期即可新增旅程，{skin==='island'||skin==='journal'?'圓點':'螢光標記'}代表已排的旅程
           </div>
         </div>
 
-        <div className="sh"><span className="zh">年度回顧</span><span className="e">RECAP</span><span className="r"/></div>
+        <div className="sh"><span className="zh">年度回顧</span><span className="r"/></div>
         <div className="pad" style={{paddingBottom:24}}>
           <div className="panel">
             <div className="recapteaser">
@@ -1266,12 +1536,12 @@ function App(){
                 <div className="stat"><div className="n">{days}</div><div className="l">在外天數</div></div>
                 <div className="stat"><div className="n">{cs.size}</div><div className="l">國家</div></div>
               </>);})()}
-              <button className="genbtn" onClick={()=>setView('recap')}>🎬 {OWNER} 的 {year} Trips</button>
+              <button className="genbtn" onClick={()=>setView('recap')}>{OWNER} 的 {year} Trips</button>
             </div>
           </div>
         </div>
 
-        <div className="sh"><span className="zh">明信片收集冊</span><span className="e">POSTCARD ALBUM</span><span className="r"/></div>
+        <div className="sh"><span className="zh">明信片收集冊</span><span className="r"/></div>
         <div className="pad" style={{paddingBottom:24}}>
           <div className="panel stkteaser" onClick={()=>setView('album')}>
             {stickers.length>0?(
@@ -1316,8 +1586,8 @@ function App(){
           <div className="modal" style={{width:360}}>
             <div className="mbar"><span>設定</span><button className="x" onClick={()=>setSettingsOpen(false)}>✕</button></div>
             <div className="mbody">
-              <div style={{fontSize:12,color:'var(--ink-soft)',marginBottom:10,fontWeight:600}}>外觀皮膚（可隨時替換）</div>
-              {[['island','島嶼旅人','平面向量・現代明亮'],['journal','手繪日誌','舊版・手寫紙感']].map(([k,name,desc])=>(
+              <div style={{fontSize:12,color:'var(--ink-soft)',marginBottom:10,fontWeight:600}}>外觀（可隨時替換）</div>
+              {[['day','方格紙','方格手帳紙、橡皮印章、螢光筆'],['night','夜讀','方格紙的深色版，晚上翻看不刺眼'],['island','島嶼旅人','平面插畫、明亮配色'],['journal','手繪日誌','白紙黑墨、手寫感、生肖手繪']].map(([k,name,desc])=>(
                 <div key={k} className="skinopt" data-on={skin===k} onClick={()=>changeSkin(k)}>
                   <div><div style={{fontWeight:800,fontSize:15}}>{name}</div><div style={{fontSize:12,color:'var(--ink-soft)',marginTop:2}}>{desc}</div></div>
                   {skin===k&&<span style={{color:'var(--purple)',fontWeight:800,fontSize:13}}>✓ 使用中</span>}
