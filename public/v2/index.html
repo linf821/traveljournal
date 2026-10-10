@@ -570,112 +570,161 @@
   .app[data-skin="airmail"] .stkcard::before{display:none}
   .app[data-skin="airmail"] .stkcard{transform:none;padding:10px;outline:1px solid #E1E6EE}
 
-  /* ---------------- TRANSIT : station signage ---------------- */
-  body:has(.app[data-skin="transit"]){--desk:#0E1621;--desk-line:transparent}
+  /* ---------------- TRANSIT : 站名牌（駅名標）---------------- */
+  body:has(.app[data-skin="transit"]){--desk:#DDE2E8;--desk-line:rgba(30,40,60,.07)}
   .app[data-skin="transit"]{
-    --paper:#FFFFFF; --pane:#F2F5F9; --ticket:#FFFFFF; --dot:transparent; --line:#C6CED9; --hl:#FFD400;
-    --ink:#0E1621; --ink-soft:#56627A; --stamp:#0B2E6B;
-    --parchment:#E8ECF2; --parchment-lo:#D3DAE5; --appbg:#FFFFFF; --cream:#FFFFFF; --ivory:#FFFFFF;
-    --gold:#FFD400; --gold-deep:#B89B00;
-    --purple:#0B2E6B; --purple-deep:#082252;
-    --teal:#0B2E6B; --teal-deep:#082252;
-    --lavender:#D3DAE5; --dusty:#9AA7BD; --dusty-deep:#6D7B94;
+    --paper:#FFFFFF; --pane:#F3F5F8; --ticket:#FFFFFF; --dot:transparent; --line:#CDD3DC; --hl:#FFE680;
+    --ink:#1D2433; --ink-soft:#5B6577; --stamp:#1D2433;
+    --parchment:#EEF1F5; --parchment-lo:#DDE2E9; --appbg:#FFFFFF; --cream:#FFFFFF; --ivory:#FFFFFF;
+    --gold:#F6C531; --gold-deep:#B38A00;
+    --purple:#1D2433; --purple-deep:#10151F;
+    --teal:#1B7F3A; --teal-deep:#1F7A50;
+    --lavender:#DDE2E9; --dusty:#9AA4B5; --dusty-deep:#6D788C;
     --sage:#86A48C; --sage-deep:#5F8467;
-    --sky-cream:#E9EEF5; --sky-lav:#C5D6E8; --sky-top:#A9C2DD;
-    --sea:#0B2E6B; --sea-lo:#3F6AAE; --brown:#7C6349; --brown-lo:#96795C;
+    --sky-cream:#EEF2F6; --sky-lav:#D3DEEA; --sky-top:#B8CBDF;
+    --sea:#2B6CB0; --sea-lo:#5C93CC; --brown:#7C6349; --brown-lo:#96795C;
     --rust:#E4572E; --rust-lo:#EE7A57; --red:#D6361F;
     --f-zh:'Noto Sans TC','PingFang TC','LXGW WenKai TC',sans-serif; --f-num:'Space Grotesk'; --f-en:'Space Grotesk'; --f-hand:'Space Grotesk';
-    background-image:none;
+    background-image:none;padding-top:14px;
   }
-  .app[data-skin="transit"]::before{display:none}
-  @media(min-width:1000px){.app[data-skin="transit"]{margin:0 auto;min-height:100vh;border-radius:0;box-shadow:none;padding-left:0}}
-  .app[data-skin="transit"] .topbar{background:#0B2E6B;color:#fff;backdrop-filter:none;-webkit-backdrop-filter:none}
-  .app[data-skin="transit"] .topbar .zh{font-weight:900;color:#fff}
-  .app[data-skin="transit"] .topbar .sub{color:#B7C6E2}
+  /* 月台邊緣的黃色導盲磚 */
+  .app[data-skin="transit"]::before{content:'';position:absolute;left:0;right:0;top:0;bottom:auto;width:auto;height:14px;opacity:1;pointer-events:none;display:block;
+    background:#F6C531 radial-gradient(circle at 9px 7px,rgba(0,0,0,.2) 2.6px,transparent 3.2px) 0 0/18px 14px}
+  .app[data-skin="transit"]::after{display:none}
+  @media(min-width:1000px){.app[data-skin="transit"]{padding-left:0}}
+  .app[data-skin="transit"] .topbar{top:14px;background:#1B7F3A;color:#fff;border-bottom:4px solid #0B1F2E;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .app[data-skin="transit"] .topbar .sub{color:#D6F2E6}
+  .app[data-skin="transit"] .topbar .zh{color:#fff}
+  .app[data-skin="transit"] .topbar .zh{font-weight:900}
   .app[data-skin="transit"] .logom g{filter:none}
-  .app[data-skin="transit"] .logom circle{stroke:#FFD400}
-  .app[data-skin="transit"] .logom path{fill:#FFD400}
-  .app[data-skin="transit"] .yswitch .arw,.app[data-skin="transit"] .gear{border-color:#fff;color:#fff;border-radius:6px}
-  .app[data-skin="transit"] .yswitch .cur{color:#FFD400;font-weight:700}
-  @media(hover:hover){.app[data-skin="transit"] .yswitch .arw:hover,.app[data-skin="transit"] .gear:hover{background:#FFD400;color:#0E1621;border-color:#FFD400}}
-  .app[data-skin="transit"] .backbtn{border-color:#fff;color:#fff;border-radius:6px}
-  @media(hover:hover){.app[data-skin="transit"] .backbtn:hover{background:#FFD400;color:#0E1621;border-color:#FFD400}}
-  .app[data-skin="transit"] .btn.gold{background:#FFD400;color:#0E1621;border-color:#FFD400;border-radius:6px}
+  .app[data-skin="transit"] .logom circle{stroke:#fff}
+  .app[data-skin="transit"] .logom path{fill:#fff}
+  .app[data-skin="transit"] .yswitch .arw,.app[data-skin="transit"] .gear,.app[data-skin="transit"] .backbtn{border-radius:8px;border-color:#fff;color:#fff}
+  .app[data-skin="transit"] .yswitch .cur{color:#fff}
+  .app[data-skin="transit"] .yswitch .cur{font-weight:700}
+  @media(hover:hover){.app[data-skin="transit"] .yswitch .arw:hover,.app[data-skin="transit"] .gear:hover,.app[data-skin="transit"] .backbtn:hover{background:#fff;color:#1B7F3A}}
+  .app[data-skin="transit"] .btn.gold{background:#F6C531;color:#1D2433;border-color:#1D2433;border-radius:8px}
   .app[data-skin="transit"] .sh{align-items:center}
-  .app[data-skin="transit"] .sh .zh{background:#0E1621;color:#fff;padding:3px 14px;margin:0;font-weight:900;font-size:16px;border-radius:2px 16px 16px 2px}
-  .app[data-skin="transit"] .sh .r{display:block;height:4px;background:#0E1621;flex:1;border-radius:2px}
+  .app[data-skin="transit"] .sh .zh{background:#1D2433;color:#fff;padding:3px 14px 3px 12px;margin:0;font-weight:900;font-size:16px;border-radius:999px;position:relative}
+  .app[data-skin="transit"] .sh .r{display:block;height:14px;flex:1;background:linear-gradient(#1B7F3A,#1B7F3A) 0 50%/100% 6px no-repeat,radial-gradient(circle,#fff 3px,#1B7F3A 3.5px 6px,transparent 6.5px) 0 50%/36px 14px repeat-x}
   .app[data-skin="transit"] .sh .e{color:var(--ink-soft)}
-  /* departure board */
-  .board{display:grid;grid-template-columns:1fr auto;gap:8px 24px;align-items:end;background:#0B2E6B;color:#fff;padding:20px 24px 22px;border-radius:8px;border-bottom:10px solid var(--tc,#FFD400)}
-  .board-head{grid-column:1/-1;font-weight:700;color:#FFD400;font-size:15px}
-  .board-dest{font-size:clamp(36px,7vw,62px);font-weight:900;line-height:1.05;word-break:keep-all}
-  .board-dest small{display:block;font-size:clamp(14px,2.4vw,18px);font-weight:500;opacity:.85;margin-top:6px}
-  .board-meta{grid-column:1/-1;font-weight:700;font-size:15px;display:flex;gap:10px;flex-wrap:wrap}
-  .board-meta span{background:rgba(255,255,255,.15);padding:2px 12px;border-radius:3px}
-  .flap{display:flex;gap:6px;align-items:flex-end}
-  .flap i{font-style:normal;min-width:clamp(46px,8vw,66px);height:clamp(66px,11vw,94px);display:flex;align-items:center;justify-content:center;padding:0 6px;
-    background:#111;color:#FFD400;border-radius:7px;font-family:var(--f-num);font-weight:700;font-size:clamp(46px,8vw,74px);position:relative;box-shadow:inset 0 -3px 0 rgba(255,255,255,.07)}
-  .flap i::after{content:'';position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:#000;box-shadow:0 1px 0 rgba(255,255,255,.14)}
-  .flap small{font-weight:900;font-size:clamp(16px,3vw,22px);margin-left:6px;padding-bottom:8px}
-  @media(max-width:640px){.board{grid-template-columns:1fr}.flap{margin-top:4px}.board-dest{font-size:44px}}
-  /* calendar : numbered platform squares */
-  .app[data-skin="transit"] .calnav button{background:#0E1621;color:#fff;border:0;border-radius:6px}
-  @media(hover:hover){.app[data-skin="transit"] .calnav button:hover{background:#FFD400;color:#0E1621}}
-  .app[data-skin="transit"] .m{background:#fff;border:2px solid #0E1621;border-top:2px solid #0E1621;border-radius:0;padding:0 0 6px}
-  .app[data-skin="transit"] .m h4{background:#0E1621;color:#fff;margin:0 0 6px;padding:6px 10px}
-  .app[data-skin="transit"] .m h4 .mon b{font-family:'Space Grotesk';font-weight:700;color:#FFD400}
-  .app[data-skin="transit"] .m h4 .mo{color:#9FB0C8}
-  .app[data-skin="transit"] .dow{color:#0E1621;font-weight:700}
+
+  /* ---- 地鐵站名牌 hero（參考日本／韓國月台站名標）---- */
+  .wall{position:relative;margin:6px 0 4px;padding:22px 18px 18px;border-radius:14px;overflow:hidden;
+    background-color:#EEF2F3;background-image:linear-gradient(rgba(150,165,170,.55) 2px,transparent 2px),linear-gradient(90deg,rgba(150,165,170,.55) 2px,transparent 2px);background-size:36px 36px;
+    box-shadow:inset 0 0 0 1.5px #CDD3DC}
+  .sign2{position:relative;background:#fff;border-radius:6px;box-shadow:0 0 0 2px #2B3140,0 12px 22px -8px rgba(20,30,50,.45);overflow:hidden}
+  .sg-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:18px;padding:16px 24px 6px}
+  .sg-id{display:flex;flex-direction:column;align-items:stretch;width:70px;text-align:center}
+  .sg-id .lab{background:#111;color:#fff;border-radius:6px 6px 0 0;font-weight:700;font-size:14px;letter-spacing:.08em;padding:2px 0;line-height:1.3}
+  .sg-id .sq{border:5px solid var(--tc,#29B6E8);border-radius:0 0 10px 10px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;padding:5px 0 4px;font-family:'Space Grotesk';font-weight:700;color:#111}
+  .sg-id .sq i{font-style:normal;font-size:14px;letter-spacing:.04em}
+  .sg-id .sq b{font-size:28px}
+  .sg-id.sm{width:34px}
+  .sg-id.sm .sq{border-width:3px;border-radius:5px;padding:2px 0}
+  .sg-id.sm .sq i{font-size:8px}.sg-id.sm .sq b{font-size:13px}
+  .sg-name{text-align:center;min-width:0}
+  .sg-name b{display:block;font-family:'Noto Sans TC','Hiragino Kaku Gothic ProN','PingFang TC','Noto Sans CJK TC',sans-serif;font-size:clamp(46px,8.4vw,86px);font-weight:900;-webkit-text-stroke:1.6px #111;line-height:1.05;letter-spacing:.22em;padding-left:.22em;word-break:keep-all;color:#111}
+  .sg-name .rd{display:block;margin-top:2px;font-size:clamp(15px,2vw,19px);font-weight:900;letter-spacing:.3em;padding-left:.3em;color:#111}
+  .sg-box{border:3px solid #111;border-radius:6px;padding:4px 10px;font-weight:900;font-size:22px;line-height:1.1;text-align:center;color:#111;min-width:62px}
+  .sg-box small{display:block;font-size:11px;font-weight:700;letter-spacing:.1em}
+  .sg-line{position:relative;display:flex;align-items:center;justify-content:space-between;gap:16px;height:50px;margin:8px 0 0;background:#1B7F3A;color:#fff;font-weight:900;font-size:clamp(20px,2.8vw,26px);padding:0 26px 0 62px;
+    clip-path:polygon(0 50%,34px 0,100% 0,100% 100%,34px 100%)}
+  .sg-line::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:42px;margin-left:-21px;background:var(--tc,#29B6E8)}
+  .sg-line span{position:relative;z-index:1;white-space:nowrap}
+  .sg-line .dim{opacity:.6;font-weight:500}
+  .sg-sub{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:8px 24px 12px;font-size:15px;color:#222}
+  .sg-sub .l,.sg-sub .r{display:flex;align-items:center;gap:8px;min-width:0}
+  .sg-sub .r{justify-content:flex-end}
+  .sg-sub .mid{font-weight:900;font-size:17px;letter-spacing:.04em;text-align:center}
+  .sg-sub small{color:#555}
+  .sg-empty{padding:26px 20px;text-align:center;font-size:18px;line-height:1.9;color:#111827}
+  /* 月台 LED 點陣看板 */
+  .led{position:relative;margin:14px auto 0;max-width:760px;background:#0B0B0B;border-radius:8px;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;gap:14px;overflow:hidden;
+    box-shadow:0 0 0 3px #2B3140;font-family:'Space Grotesk','Noto Sans TC',monospace;font-weight:700;color:#FF9A1F;text-shadow:0 0 7px rgba(255,150,30,.8);font-size:clamp(26px,4.6vw,38px);letter-spacing:.04em;padding-top:12px;padding-bottom:12px}
+  .led::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,transparent 0 1.1px,#0B0B0B 1.55px) 0 0/2.8px 2.8px}
+  .led small{font-size:.72em;opacity:.9;margin-right:10px}
+  .led .r{white-space:nowrap}
+  .led .r b{font-size:1.25em}
+  .sg-empty{padding:26px 20px;text-align:center;font-size:18px;line-height:1.9;color:#111827}
+  @media(max-width:640px){
+    .wall{padding:14px 10px 14px}
+    .sg-top{grid-template-columns:auto minmax(0,1fr);gap:12px;padding:12px 14px 4px}
+    .sg-box{display:none}
+    .sg-id{width:54px}
+    .sg-id .sq b{font-size:22px}
+    .sg-name b{font-size:52px;letter-spacing:.14em;-webkit-text-stroke:1.2px #111}
+    .sg-line{height:42px;padding:0 16px 0 46px;font-size:18px;clip-path:polygon(0 50%,26px 0,100% 0,100% 100%,26px 100%)}
+    .sg-line::after{width:30px;margin-left:-15px}
+    .sg-sub{padding:6px 14px 10px;font-size:13px}
+    .sg-sub small{display:none}
+    .sg-sub .mid{font-size:14px}
+    .led{padding:9px 14px;font-size:24px}
+    .led small{display:none}
+  }
+
+  /* ---- 日曆：路線圖，旅程＝一段路線，頭尾是車站圓點 ---- */
+  .app[data-skin="transit"] .calnav button{background:#1D2433;color:#fff;border:0;border-radius:8px}
+  @media(hover:hover){.app[data-skin="transit"] .calnav button:hover{background:#1B7F3A}}
+  .app[data-skin="transit"] .m{background:#fff;border:1.5px solid #CDD3DC;border-top:1.5px solid #CDD3DC;border-radius:12px;padding:0 0 8px;overflow:hidden}
+  .app[data-skin="transit"] .m h4{background:#F3F5F8;margin:0 0 6px;padding:8px 12px;border-bottom:3px solid #1D2433}
+  .app[data-skin="transit"] .m h4 .mon b{display:inline-block;background:#1D2433;color:#fff;border-radius:7px;padding:0 9px;font-family:'Space Grotesk';font-weight:700}
+  .app[data-skin="transit"] .dow{color:var(--ink-soft);font-weight:700}
   .app[data-skin="transit"] .d{font-family:'Space Grotesk';font-weight:500}
   .app[data-skin="transit"] .d.trip::before,.app[data-skin="transit"] .d.trip.bs::before,.app[data-skin="transit"] .d.trip.be::before,.app[data-skin="transit"] .d.trip.bs.be::before{
-    left:2px;right:2px;top:2px;bottom:2px;border-radius:4px;opacity:1;mix-blend-mode:normal;filter:none}
-  .app[data-skin="transit"] .d.trip .ring{color:#fff}
-  .app[data-skin="transit"] .d.sel::before{background:#FFD400;opacity:1;border-radius:4px;left:2px;right:2px;filter:none;mix-blend-mode:normal}
-  .app[data-skin="transit"] .d.today .ring{border:0;border-radius:4px;box-shadow:0 0 0 2.5px #FFD400,0 0 0 4px #0E1621;width:22px;height:22px}
-  .app[data-skin="transit"] .d.today.plain .ring{background:#FFD400;box-shadow:none;color:#0E1621}
-  .app[data-skin="transit"] .memobubble{background:#0E1621;color:#fff;transform:translate(-50%,-100%);border-radius:6px}
+    left:0;right:0;top:auto;bottom:3px;height:6px;border-radius:0;opacity:1;mix-blend-mode:normal;filter:none;background:var(--c,var(--teal))}
+  .app[data-skin="transit"] .d.trip.bs::before{left:50%}
+  .app[data-skin="transit"] .d.trip.be::before{right:50%}
+  .app[data-skin="transit"] .d.trip.bs.be::before{display:none}
+  .app[data-skin="transit"] .d.trip.bs::after,.app[data-skin="transit"] .d.trip.be::after{content:'';position:absolute;left:50%;bottom:-1px;width:14px;height:14px;margin-left:-7px;box-sizing:border-box;border:3px solid var(--c,var(--teal));background:#fff;border-radius:50%;z-index:1}
+  .app[data-skin="transit"] .d.trip .ring{margin-top:-7px;color:var(--ink)}
+  .app[data-skin="transit"] .d.trip{font-weight:700}
+  .app[data-skin="transit"] .d.sel::before{background:#FFE680;opacity:1;border-radius:8px;left:2px;right:2px;top:2px;bottom:2px;filter:none;mix-blend-mode:normal}
+  .app[data-skin="transit"] .d.today .ring{border:2px solid #1D2433;border-radius:50%}
+  .app[data-skin="transit"] .d.today.plain .ring{background:#1D2433;color:#fff}
+  .app[data-skin="transit"] .memobubble{background:#1D2433;color:#fff;transform:translate(-50%,-100%);border-radius:10px}
   .app[data-skin="transit"] .memobubble::before{display:none}
-  .app[data-skin="transit"] .memobubble .mtitle{color:#FFD400}
-  .app[data-skin="transit"] .memobubble .mdates{color:#B7C6E2}
+  .app[data-skin="transit"] .memobubble .mtitle{color:#F6C531}
+  .app[data-skin="transit"] .memobubble .mdates{color:#B9C2D3}
   .app[data-skin="transit"] .memobubble .mtext{border-top:1px solid rgba(255,255,255,.2)}
-  /* panels, buttons */
-  .app[data-skin="transit"] .panel{background:#fff;border:2px solid #0E1621;border-radius:0}
-  .app[data-skin="transit"] .recapteaser .stat .n,.app[data-skin="transit"] .rstat .n{display:inline-block;background:#111;color:#FFD400;border-radius:7px;padding:2px 14px;font-weight:700;font-size:30px}
-  .app[data-skin="transit"] .rstat{border:2px solid #0E1621;border-radius:0;background:#fff}
-  .app[data-skin="transit"] .genbtn,.app[data-skin="transit"] .btn,.app[data-skin="transit"] .addstk{background:#0E1621;color:#fff;border-color:#0E1621;border-radius:6px}
-  @media(hover:hover){.app[data-skin="transit"] .genbtn:hover,.app[data-skin="transit"] .btn:hover,.app[data-skin="transit"] .addstk:hover{background:#FFD400;color:#0E1621}}
-  .app[data-skin="transit"] .btn.ghost{background:transparent;color:#0E1621}
+  /* ---- 面板與按鈕 ---- */
+  .app[data-skin="transit"] .panel{background:#fff;border:1.5px solid #CDD3DC;border-radius:12px}
+  .app[data-skin="transit"] .recapteaser .stat .n,.app[data-skin="transit"] .rstat .n{display:inline-block;background:#fff;color:var(--ink);border:3px solid #1D2433;border-radius:50%;min-width:52px;padding:4px 8px;font-weight:700;font-size:26px;text-align:center}
+  .app[data-skin="transit"] .rstat{border:1.5px solid #CDD3DC;border-radius:12px;background:#fff}
+  .app[data-skin="transit"] .genbtn,.app[data-skin="transit"] .btn,.app[data-skin="transit"] .addstk{background:#1D2433;color:#fff;border-color:#1D2433;border-radius:8px}
+  @media(hover:hover){.app[data-skin="transit"] .genbtn:hover,.app[data-skin="transit"] .btn:hover,.app[data-skin="transit"] .addstk:hover{background:#1B7F3A;border-color:#1B7F3A}}
+  .app[data-skin="transit"] .btn.ghost{background:transparent;color:#1D2433}
   .app[data-skin="transit"] .btn.warn{background:transparent;color:var(--red);border-color:transparent}
-  .app[data-skin="transit"] .fab{background:#FFD400;color:#0E1621;border-radius:6px;box-shadow:0 0 0 3px #0E1621,0 10px 16px -4px rgba(0,0,0,.45)}
-  .app[data-skin="transit"] .chipbtn{border-radius:6px;border-color:#0E1621}
-  .app[data-skin="transit"] .chipbtn.on{background:#0B2E6B;border-color:#0B2E6B;color:#fff}
-  .app[data-skin="transit"] .seg{border-radius:6px}
-  .app[data-skin="transit"] .seg button.on{background:#0B2E6B;color:#fff}
-  .app[data-skin="transit"] .genbar{background:#0B2E6B;border-radius:8px}
-  .app[data-skin="transit"] .genbar .go{background:#FFD400;color:#0E1621;border-radius:6px}
-  .app[data-skin="transit"] .modal{background-image:none;background-color:#fff;border-radius:8px}
-  .app[data-skin="transit"] .modal .mbar{background:#0B2E6B;color:#fff;border-bottom:0;backdrop-filter:none}
-  .app[data-skin="transit"] .modal .mbar .x{color:#FFD400}
-  .app[data-skin="transit"] .skinopt[data-on="true"]{background:#FFF3B0;border-color:#0E1621}
-  .app[data-skin="transit"] .clist .c{border:2px solid #0E1621;border-left:10px solid var(--rust);border-radius:0}
-  .app[data-skin="transit"] .citytag{background:#E8ECF2;border-radius:3px}
-  .app[data-skin="transit"] .addchip{border:1.5px solid #0E1621;border-radius:6px;background:transparent}
-  @media(hover:hover){.app[data-skin="transit"] .addchip:hover{background:#FFD400}}
-  .app[data-skin="transit"] .day .dh{border-bottom:3px solid #0E1621}
+  .app[data-skin="transit"] .fab{background:#F6C531;color:#1D2433;border-radius:999px;box-shadow:0 0 0 3px #1D2433,0 10px 16px -4px rgba(0,0,0,.4)}
+  .app[data-skin="transit"] .chipbtn{border-radius:999px;border-color:#1D2433}
+  .app[data-skin="transit"] .chipbtn.on{background:#1D2433;border-color:#1D2433;color:#fff}
+  .app[data-skin="transit"] .seg{border-radius:8px}
+  .app[data-skin="transit"] .seg button.on{background:#1D2433;color:#fff}
+  .app[data-skin="transit"] .genbar{background:#1D2433;border-radius:12px}
+  .app[data-skin="transit"] .genbar .go{background:#F6C531;color:#1D2433;border-radius:8px}
+  .app[data-skin="transit"] .modal{background-image:none;background-color:#fff;border-radius:14px}
+  .app[data-skin="transit"] .modal .mbar{background:#fff;color:var(--ink);border-bottom:4px solid #1B7F3A;backdrop-filter:none}
+  .app[data-skin="transit"] .modal .mbar .x{color:#1D2433}
+  .app[data-skin="transit"] .skinopt[data-on="true"]{background:#FFF3B0;border-color:#1D2433}
+  .app[data-skin="transit"] .clist .c{border:1.5px solid #CDD3DC;border-left:10px solid var(--rust);border-radius:10px}
+  .app[data-skin="transit"] .citytag{background:#EEF1F5;border-radius:999px}
+  .app[data-skin="transit"] .addchip{border:1.5px solid #1D2433;border-radius:999px;background:transparent}
+  @media(hover:hover){.app[data-skin="transit"] .addchip:hover{background:#F6C531}}
+  .app[data-skin="transit"] .day .dh{border-bottom:3px solid #1D2433}
   .app[data-skin="transit"] .ta-view,.app[data-skin="transit"] .ta-edit{background:none;line-height:1.9}
   .app[data-skin="transit"] .ticketwrap{margin:0 20px;filter:none}
-  .app[data-skin="transit"] .ticket{border-radius:0;-webkit-mask:none;mask:none;border-bottom:10px solid var(--tc,#FFD400);background:#fff}
+  .app[data-skin="transit"] .ticket{border-radius:14px;-webkit-mask:none;mask:none;border:3px solid #1D2433;border-bottom:12px solid var(--tc,#1B7F3A);background:#fff;overflow:hidden}
   .app[data-skin="transit"] .ticket .tkscene{border-top:0;border-bottom:0}
   .app[data-skin="transit"] .ticket .tkinfo{border-top:0}
-  .app[data-skin="transit"] .ticket .pill{border:2px solid #0E1621;border-radius:6px}
+  .app[data-skin="transit"] .ticket .pill{border:1.5px solid #1D2433;border-radius:999px}
   .app[data-skin="transit"] .ticket .tkcity{font-weight:900}
   .app[data-skin="transit"] .ticket .tkinfo .stampy{top:14px}
-  .app[data-skin="transit"] .stampy{border:0;filter:none;mix-blend-mode:normal;animation:none;transform:none;background:#111;color:#FFD400;border-radius:8px;width:auto;height:auto;min-width:64px;padding:8px 14px;display:flex;align-items:baseline;gap:6px}
+  .app[data-skin="transit"] .stampy{border:3px solid #1D2433;filter:none;mix-blend-mode:normal;animation:none;transform:none;background:#fff;color:#1D2433;border-radius:12px;width:auto;height:auto;min-width:64px;padding:6px 14px;display:flex;align-items:baseline;gap:6px}
   .app[data-skin="transit"] .stampy::before{display:none}
-  .app[data-skin="transit"] .stampy b{font-size:38px;font-weight:700;-webkit-text-stroke:0;font-family:'Space Grotesk'}
-  .app[data-skin="transit"] .stampy small{color:#fff;font-size:13px;-webkit-text-stroke:0;margin:0}
-  .app[data-skin="transit"] .stampy[data-long="true"] b{font-size:20px;font-family:var(--f-zh)}
-  .app[data-skin="transit"] .stkcard,.app[data-skin="transit"] .stkstrip .mini{transform:none;box-shadow:none;border:2px solid #0E1621;padding:0}
+  .app[data-skin="transit"] .stampy b{font-size:34px;font-weight:700;-webkit-text-stroke:0;font-family:'Space Grotesk'}
+  .app[data-skin="transit"] .stampy small{font-size:13px;-webkit-text-stroke:0;margin:0;color:var(--ink-soft)}
+  .app[data-skin="transit"] .stampy[data-long="true"] b{font-size:19px;font-family:var(--f-zh)}
+  .app[data-skin="transit"] .stkcard,.app[data-skin="transit"] .stkstrip .mini{transform:none;box-shadow:none;border:1.5px solid #CDD3DC;padding:0;border-radius:10px;overflow:hidden}
   .app[data-skin="transit"] .stkcard .pcap{padding:8px 6px 10px}
   .app[data-skin="transit"] .stkcard::before,.app[data-skin="transit"] .stkstrip .mini::before{display:none}
   .app[data-skin="transit"] .stkstrip .mini:nth-child(even){transform:none}
@@ -1149,7 +1198,7 @@ function ZodiacIllustration({year}){
   if(z==='goat')return <GoatIllustration accent={accent}/>;
   return <HorseIllustration accent={accent}/>;
 }
-function Hero({nextTrip,year,skin}){
+function Hero({nextTrip,year,skin,trips}){
   const t=nextTrip;
   const transport=t&&TRANSPORT[t.transport]?t.transport:'cruise';
   const country=t&&t.country||'';
@@ -1177,14 +1226,34 @@ function Hero({nextTrip,year,skin}){
   const nDays=t?daysBetween(t.startDate,t.endDate).length:0;
   const compLabel=(()=>{if(!t)return '';const c=t.companion||'';if(c.startsWith('other:'))return c.slice(6);const f=COMPANIONS.find(x=>x[0]===c);return f?f[1]:'';})();
   if(skin==='transit'){
-    if(!t)return <div className="pad"><section className="board"><div className="board-head">下一趟</div><div className="board-dest" style={{fontSize:28}}>目前沒有即將到來的旅程<small>在下方年曆點選日期，開始計畫下一趟旅行</small></div></section></div>;
+    const all=(trips||[]).slice().sort((x,y)=>x.startDate<y.startDate?-1:1);
+    const idx=t?all.findIndex(x=>x.id===t.id):-1;
+    const prevT=idx>0?all[idx-1]:null, nextT=idx>=0&&idx<all.length-1?all[idx+1]:null;
+    const yr=t?t.startDate.slice(0,4):String(year);
+    const num=t?all.filter(x=>x.startDate.slice(0,4)===yr&&x.startDate<=t.startDate).length:0;
+    const numOf=x=>String(all.filter(y=>y.startDate.slice(0,4)===x.startDate.slice(0,4)&&y.startDate<=x.startDate).length).padStart(2,'0');
+    const idBox=(lab,n,sm)=><div className={'sg-id'+(sm?' sm':'')}>{lab&&<span className="lab">{lab}</span>}<span className="sq"><i>T</i><b>{n}</b></span></div>;
+    if(!t)return <div className="pad"><div className="wall"><div className="sign2" style={{'--tc':'#9AA4B5'}}><div className="sg-empty">目前沒有即將到來的旅程<br/>在下方年曆點選日期，開始計畫下一趟旅行</div><div className="sg-line"><span className="dim">上一站</span><span className="dim">下一站</span></div></div></div></div>;
     return (
-      <div className="pad"><section className="board" style={{'--tc':t.color}}>
-        <div className="board-head">下一趟</div>
-        <div className="board-dest">{t.location}{t.country&&<small>{t.country}</small>}</div>
-        <div className="flap">{cd===0?<i style={{fontSize:'clamp(22px,4vw,30px)'}}>進行中</i>:<>{String(cd).split('').map((d,i)=><i key={i}>{d}</i>)}<small>天後</small></>}</div>
-        <div className="board-meta"><span>{fmtRange(t.startDate,t.endDate)}</span>{tl&&<span>{tl}</span>}</div>
-      </section></div>
+      <div className="pad"><div className="wall" style={{'--tc':t.color}}>
+        <div className="sign2">
+          <div className="sg-top">
+            {idBox(tl||'旅程',numOf(t))}
+            <div className="sg-name"><b>{t.location}</b>{t.country&&<span className="rd">{t.country}</span>}</div>
+            <div className="sg-box">{nDays}<small>天</small></div>
+          </div>
+          <div className="sg-line">
+            <span className={prevT?'':'dim'}>{prevT?prevT.location:'起點'}</span>
+            <span className={nextT?'':'dim'}>{nextT?nextT.location:'尚未安排'}</span>
+          </div>
+          <div className="sg-sub">
+            <div className="l">{prevT&&idBox('',numOf(prevT),true)}<small>上一站</small></div>
+            <div className="mid">{md(t.startDate)} - {md(t.endDate)}</div>
+            <div className="r"><small>下一站</small>{nextT&&idBox('',numOf(nextT),true)}</div>
+          </div>
+        </div>
+        <div className="led"><span>{tl&&<small>{tl}</small>}{t.location} 方面</span><span className="r">{cd===0?'旅途中':<><b>{cd}</b> 日後</>}</span></div>
+      </div></div>
     );
   }
   if(t&&(skin==='day'||skin==='night')&&(transport==='plane'||transport==='cruise'||transport==='train')){
@@ -1872,7 +1941,7 @@ function App(){
           <button className="gear" onClick={()=>setSettingsOpen(true)} aria-label="設定"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg></button>
         </div>
 
-        <Hero nextTrip={nextTrip} skin={skin} year={year}/>
+        <Hero nextTrip={nextTrip} skin={skin} year={year} trips={trips}/>
 
         <div className="sh"><span className="zh">年曆</span><span className="r"/></div>
         <div className="pad">
