@@ -1002,7 +1002,45 @@ const daysUntil=s=>{const ms=parseDate(s)-parseDate(todayStr());return Math.roun
 
 /* ============ google maps ============ */
 const mapsUrl=(loc,country)=>{const q=(country&&loc!==country?`${loc} ${country}`:loc).trim();return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;};
-const isGmapsUrl=t=>t&&typeof t==='string'&&t.toLowerCase().startsWith('http')&&/(google\.[a-z.]+\/maps|maps\.google|maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(t);
+const MAP_HOSTS=/(google\.[a-z.]+\/maps|maps\.google|maps\.app\.goo\.gl|goo\.gl\/maps|maps\.apple\.com|map\.naver\.com|naver\.me|place\.map\.kakao\.com|map\.kakao\.com|kko\.to|kko\.kakao\.com)/i;
+const SHORT_HOSTS=/(maps\.app\.goo\.gl|goo\.gl\/maps|naver\.me|kko\.to)/i;
+const parseMapLink=raw=>{
+  if(!raw||typeof raw!=='string')return null;
+  const m=raw.match(/https?:\/\/[^\s<>"']+/);
+  if(!m)return null;
+  const url=m[0].replace(/[),.，。]+$/,'');
+  if(!MAP_HOSTS.test(url))return null;
+  const lines=raw.replace(m[0],'').split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  const shareName=lines.length&&lines[0].length<=60?lines[0]:'';
+  let name='',lat=null,lng=null,provider='';
+  const num=(a,b)=>{const x=parseFloat(a),y=parseFloat(b);return (isFinite(x)&&isFinite(y)&&Math.abs(x)<=90&&Math.abs(y)<=180)?[x,y]:null;};
+  try{
+    const u=new URL(url);const h=u.hostname;let path=u.pathname;try{path=decodeURIComponent(path);}catch(e){}
+    const q=u.searchParams.get('query')||u.searchParams.get('q')||u.searchParams.get('name')||'';
+    if(/google|goo\.gl/.test(h)){
+      provider='Google';
+      const pm=path.match(/\/maps\/place\/([^/@]+)/);if(pm)name=pm[1].replace(/\+/g,' ').trim();
+      const c=url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)||url.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+      if(c){const p=num(c[1],c[2]);if(p){lat=p[0];lng=p[1];}}
+      if(!name&&q&&!/^-?\d+\.\d+,\s*-?\d+\.\d+$/.test(q))name=q.replace(/\+/g,' ').trim();
+    }else if(/apple/.test(h)){
+      provider='Apple';name=(q||u.searchParams.get('address')||'').trim();
+      const ll=u.searchParams.get('ll')||u.searchParams.get('coordinate');
+      if(ll){const s=ll.split(',');const p=num(s[0],s[1]);if(p){lat=p[0];lng=p[1];}}
+    }else if(/naver/.test(h)){
+      provider='Naver';name=(u.searchParams.get('query')||q||'').trim();
+      if(!name){const sm=path.match(/\/search\/([^/]+)/);if(sm)name=sm[1].trim();}
+    }else if(/kakao|kko/.test(h)){
+      provider='Kakao';
+      const km=path.match(/\/link\/(?:map|to)\/([^,/]+),(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if(km){name=km[1].trim();const p=num(km[2],km[3]);if(p){lat=p[0];lng=p[1];}}
+      if(!name)name=q.trim();
+    }
+  }catch(e){}
+  if(!name&&shareName)name=shareName;
+  return {url,name,lat,lng,provider,short:SHORT_HOSTS.test(url)};
+};
+const isGmapsUrl=t=>!!parseMapLink(t);
 const parseGmapsUrl=url=>{try{const u=new URL(url);const m=u.pathname.match(/\/maps\/place\/([^/@]+)/);if(m)return decodeURIComponent(m[1].replace(/\+/g,' ')).trim();const q=u.searchParams.get('query')||u.searchParams.get('q');if(q)return decodeURIComponent(q.replace(/\+/g,' ')).trim();return null;}catch(e){return null;}};
 
 /* ============ geocoding ============ */
@@ -1535,13 +1573,15 @@ function Detail({trip,onBack,onEdit,onUpdate}){
   const [nameInput,setNameInput]=useState('');
   const [gmapsFor,setGmapsFor]=useState(null);
   const [gmapsVal,setGmapsVal]=useState('');
+  const [gmapsName,setGmapsName]=useState('');
+  const [gmapsHint,setGmapsHint]=useState('');
   const placeCount=Object.values(trip.dailyPlaces||{}).reduce((a,l)=>a+l.length,0);
   const [itinOpen,setItinOpen]=useState(placeCount>0);
 
   const commitSummary=()=>{setEditingSum(false);if(summary!==trip.summary)onUpdate({...trip,summary});};
-  const addPlace=(date,type,name,gmapsUrl)=>{
+  const addPlace=(date,type,name,gmapsUrl,lat,lng)=>{
     const places={...dp};const list=(places[date]||[]).slice();
-    list.push({id:newPlaceId(),type,name:name.trim(),gmapsUrl:gmapsUrl||null});
+    list.push({id:newPlaceId(),type,name:name.trim(),gmapsUrl:gmapsUrl||null,...(typeof lat==='number'&&typeof lng==='number'?{lat,lng}:{})});
     places[date]=list;onUpdate({...trip,dailyPlaces:places});
   };
   const removePlace=(date,id)=>{
@@ -1551,9 +1591,14 @@ function Detail({trip,onBack,onEdit,onUpdate}){
     if(adding&&nameInput.trim()){addPlace(adding.date,adding.type,nameInput);}
     setAdding(null);setNameInput('');
   };
+  const resetGmaps=()=>{setGmapsFor(null);setGmapsVal('');setGmapsName('');setGmapsHint('');};
   const submitGmaps=(date)=>{
-    if(isGmapsUrl(gmapsVal)){const nm=parseGmapsUrl(gmapsVal);if(nm)addPlace(date,'sight',nm,gmapsVal);}
-    setGmapsFor(null);setGmapsVal('');
+    const r=parseMapLink(gmapsVal);
+    if(!r){setGmapsHint('看不出是地圖連結。請貼上 Google、Apple、Naver 或 Kakao 地圖的分享連結（連同分享文字一起貼也可以）。');return;}
+    const nm=(gmapsName.trim()||r.name||'').trim();
+    if(!nm){setGmapsHint(r.short?'這是短連結，無法自動讀取地點名稱。請在下方輸入名稱，再按匯入。':'這個連結讀不到地點名稱。請在下方輸入名稱，再按匯入。');return;}
+    addPlace(date,'sight',nm,r.url,r.lat,r.lng);
+    resetGmaps();
   };
   const p=PURPOSE[migratePurpose(trip.purpose)];
   const tp=TRANSPORT[trip.transport];
@@ -1631,13 +1676,15 @@ function Detail({trip,onBack,onEdit,onUpdate}){
                 )}
               </div>
               {gmapsFor===ds?(
-                <div className="gmapsbox">
-                  <input autoFocus value={gmapsVal} onChange={e=>setGmapsVal(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')submitGmaps(ds);}} placeholder="貼上 Google Maps 連結…"/>
+                <div className="gmapsbox" style={{flexWrap:'wrap'}}>
+                  <input autoFocus value={gmapsVal} onChange={e=>{setGmapsVal(e.target.value);setGmapsHint('');}} onKeyDown={e=>{if(e.key==='Enter')submitGmaps(ds);}} placeholder="貼上地圖連結或分享文字（Google／Apple／Naver／Kakao）"/>
+                  {gmapsHint&&<input value={gmapsName} onChange={e=>setGmapsName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')submitGmaps(ds);}} placeholder="輸入地點名稱"/>}
                   <button className="addchip" onClick={()=>submitGmaps(ds)}>匯入</button>
-                  <button className="addchip" onClick={()=>{setGmapsFor(null);setGmapsVal('');}}>取消</button>
+                  <button className="addchip" onClick={resetGmaps}>取消</button>
+                  {gmapsHint&&<div style={{flexBasis:'100%',fontSize:12,color:'var(--ink-soft)',lineHeight:1.6}}>{gmapsHint}</div>}
                 </div>
               ):(
-                <div className="gmapsbox"><button className="addchip" onClick={()=>{setGmapsFor(ds);setGmapsVal('');}} style={{background:'transparent',color:'var(--ink-soft)'}}>📋 貼 Google Maps 連結匯入地點</button></div>
+                <div className="gmapsbox"><button className="addchip" onClick={()=>{setGmapsFor(ds);setGmapsVal('');setGmapsName('');setGmapsHint('');}} style={{background:'transparent',color:'var(--ink-soft)'}}>貼上地圖連結匯入地點</button></div>
               )}
             </div>
           );
